@@ -4,30 +4,34 @@
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
   
-    <title>NES模拟器笔记（2）系统架构 | ewind the Blogger</title>
+    <title>FE Miyoo | ewind the Blogger</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="doodlewind">
     
 
     
-    <meta name="description" content="这篇文章会介绍 NES 系统的架构，如 ROM、RAM、CPU、PPU 与 APU 等主要部件，以及工作时它们之间的联系。">
-<meta name="keywords" content="Assembly">
+    <meta name="keywords" content="Web,JS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NES模拟器笔记（2）系统架构">
-<meta property="og:url" content="https://ewind.us/2015/nes-emu-2-system-architure/index.html">
+<meta property="og:title" content="FE Miyoo">
+<meta property="og:url" content="https://ewind.us/2019/fe-miyoo/index.html">
 <meta property="og:site_name" content="ewind the Blogger">
-<meta property="og:description" content="这篇文章会介绍 NES 系统的架构，如 ROM、RAM、CPU、PPU 与 APU 等主要部件，以及工作时它们之间的联系。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://ewind.us/images/NES模拟器入门笔记/structure.png">
-<meta property="og:image" content="https://ewind.us/images/NES模拟器入门笔记/cpu-address.png">
-<meta property="og:image" content="https://ewind.us/images/NES模拟器入门笔记/ppu-address.png">
-<meta property="og:image" content="https://ewind.us/images/NES模拟器入门笔记/tile-color-lookup.png">
-<meta property="og:updated_time" content="2019-06-25T06:27:21.541Z">
+<meta property="og:image" content="https://ewind.us/images/miyoo/compile-kernel.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/connect.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/console.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/debugger.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/drilled.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/intro.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/login.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/ported.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/sdl.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/teardown-1.jpg">
+<meta property="og:image" content="https://ewind.us/images/miyoo/teardown-2.jpg">
+<meta property="og:updated_time" content="2019-12-16T11:29:39.311Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="NES模拟器笔记（2）系统架构">
-<meta name="twitter:description" content="这篇文章会介绍 NES 系统的架构，如 ROM、RAM、CPU、PPU 与 APU 等主要部件，以及工作时它们之间的联系。">
-<meta name="twitter:image" content="https://ewind.us/images/NES模拟器入门笔记/structure.png">
+<meta name="twitter:title" content="FE Miyoo">
+<meta name="twitter:image" content="https://ewind.us/images/miyoo/compile-kernel.jpg">
 <meta name="twitter:creator" content="@i94ewind">
 
     
@@ -87,14 +91,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/nes-emu-2-system-architure/" title="NES模拟器笔记（2）系统架构" itemprop="url">NES模拟器笔记（2）系统架构</a>
+      <a href="/2019/fe-miyoo/" title="FE Miyoo" itemprop="url">FE Miyoo</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
 		
   <p class="article-time">
-    <time datetime="2015-07-03T16:00:00.000Z" itemprop="datePublished"> 发表于 2015-07-04</time>
+    <time datetime="2019-12-15T16:00:00.000Z" itemprop="datePublished"> 发表于 2019-12-16</time>
     
   </p>
 </header>
@@ -103,44 +107,12 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#结构概览"><span class="toc-number">1.</span> <span class="toc-text">结构概览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU-概览"><span class="toc-number">2.</span> <span class="toc-text">CPU 概览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PPU-概览"><span class="toc-number">3.</span> <span class="toc-text">PPU 概览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图形系统概览"><span class="toc-number">4.</span> <span class="toc-text">图形系统概览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tiles-贴片"><span class="toc-number">4.1.</span> <span class="toc-text">Tiles - 贴片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sprites-精灵"><span class="toc-number">4.2.</span> <span class="toc-text">Sprites - 精灵</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Background-背景"><span class="toc-number">4.3.</span> <span class="toc-text">Background - 背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pattern-Tables-图案表"><span class="toc-number">4.4.</span> <span class="toc-text">Pattern Tables - 图案表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Attribute-Tables-属性表"><span class="toc-number">4.5.</span> <span class="toc-text">Attribute Tables - 属性表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Palettes-调色板"><span class="toc-number">4.6.</span> <span class="toc-text">Palettes - 调色板</span></a></li></ol></li></ol>
+			
 		
 		</div>
 		
-		<p>这篇文章会介绍 NES 系统的架构，如 ROM、RAM、CPU、PPU 与 APU 等主要部件，以及工作时它们之间的联系。</p>
-<a id="more"></a>
-<h2 id="结构概览"><a href="#结构概览" class="headerlink" title="结构概览"></a>结构概览</h2><p><img src="/images/NES模拟器入门笔记/structure.png" alt="structure.png"></p>
-<p>上图即是 NES 的结构图。可以看到，一台 PC 的几个主要部件，在 NES 系统里被分置于主机和卡带两个部分之中。ROM 在卡带中，而 CPU、PPU、APU 和 RAM 位于主机内部。</p>
-<ul>
-<li>ROM 是只读存储器。</li>
-<li>RAM 是随机访问存储器（可读可写）。</li>
-<li>CPU 是主处理器。</li>
-<li>PPU 是图像处理器。</li>
-<li>APU 是音频处理器。</li>
-<li>PRG ROM 中游戏程序的指令，由 CPU 读取并执行。</li>
-<li>CHR 是 ROM 中显示贴图的数据，由 PPU 读取并显示。</li>
-<li>Lockout 是负责验证游戏合法性的芯片，对 ROM 的模拟暂时不需要考虑它。</li>
-<li>WRAM 是有些游戏卡带附加的 Work RAM，需要电池保存状态，暂时不考虑。</li>
-</ul>
-<h2 id="CPU-概览"><a href="#CPU-概览" class="headerlink" title="CPU 概览"></a>CPU 概览</h2><p><img src="/images/NES模拟器入门笔记/cpu-address.png" alt="cpu-address"></p>
-<p>上图展示了 NES 工作时 CPU 的地址空间。在第一篇入门指南中，提及了 CPU 的指令长度，但没有提及 CPU 对应的地址空间。实际上，虽然 6502 的指令长度是 8 位的，但它的地址总线却是 16 位的。这意味着它能够操作 <code>2^16 = 65536</code> 共 64KB 内存。在上图中，16 位地址就对应了 <code>$0000</code> 到 <code>$FFFF</code> 的范围。不同的厂商会对卡带做各种魔改（这种魔改在 NES ROM 中会通过两个 Mapper 标记位来确定），使得题图中 PRG 和 CHR 的大小最多能达到 512KB 和 256KB。</p>
-<p>8 位的指令长度，对应了最多 256 种指令。不过实际上，NES 所用的 6502 CPU 只定义了 150 余条指令，真正常用的只有 50 余条。这样看来，实现基本模拟器的工作量并不是很大呢。</p>
-<h2 id="PPU-概览"><a href="#PPU-概览" class="headerlink" title="PPU 概览"></a>PPU 概览</h2><p>NES 显示的对象有 <em>Background</em> 和 <em>Sprite</em> 两种。顾名思义，background 就是背景，而 sprite 则是前景中活跃的所谓精灵，如马里奥大叔就是一个 sprite。下面会对它们进一步的介绍。</p>
-<p>PPU 内既有用于存储 sprite 和调色板（存储颜色索引）的 RAM，也有用于存储 background 的 RAM。具体 background 和 sprite 的数据都是从卡带中的 CHR 读取的。</p>
-<p>程序指令是不会直接在 PPU 上执行的。PPU 每次只会按固定的顺序和一些参数（如颜色和卷屏方式）来绘制屏幕。PPU 每次绘制出的是一条 TV 的扫描线（NES 分辨率 256x240，这也就是 240 线了）。</p>
-<p>CPU 概览图中 <code>$2000</code> 到 <code>$4000</code> 的 PPU IO 端口部分，可以进一步的表示为下图：</p>
-<p><img src="/images/NES模拟器入门笔记/ppu-address.png" alt="ppu-address"></p>
-<h2 id="图形系统概览"><a href="#图形系统概览" class="headerlink" title="图形系统概览"></a>图形系统概览</h2><p>这里解释一下上图中的几个新名词。</p>
-<h3 id="Tiles-贴片"><a href="#Tiles-贴片" class="headerlink" title="Tiles - 贴片"></a>Tiles - 贴片</h3><p>NES 的图像是通过 8x8 的贴片组成的，包括 background 和 sprite 都是由一个或多个 tile 构成的。PPU 一般不通过直接操作像素，而是通过操作 tile 来生成图像。</p>
-<h3 id="Sprites-精灵"><a href="#Sprites-精灵" class="headerlink" title="Sprites - 精灵"></a>Sprites - 精灵</h3><p>PPU 的 4KB 内存刚好够放下 64 个 sprites。不过，每条扫描线上最多只允许出现 8 个 sprite。</p>
-<h3 id="Background-背景"><a href="#Background-背景" class="headerlink" title="Background - 背景"></a>Background - 背景</h3><p>Background 就是背景图像了。256x240 的屏幕需要 32x30 个背景 tile 来表示。RAM 足够放下两张背景。</p>
-<h3 id="Pattern-Tables-图案表"><a href="#Pattern-Tables-图案表" class="headerlink" title="Pattern Tables - 图案表"></a>Pattern Tables - 图案表</h3><p>Pattern Table 是 tile 数据存储的地方。4KB 的 Pattern Table 内要放下 256 个 tile，因此每个 tile 只有 128 位（4096 * 8 / 256 = 128），而每个 tile 有 64 个像素点，因此每个像素点的数据只有 2 位。</p>
-<h3 id="Attribute-Tables-属性表"><a href="#Attribute-Tables-属性表" class="headerlink" title="Attribute Tables - 属性表"></a>Attribute Tables - 属性表</h3><p>Attribute Table 中存储 2 位的颜色偏移量。在一个 2x2 的 tile 区域内，这个偏移量会作为颜色地址的高 2 位，而 Pattern Table 中每个像素点的 2 位信息则作为颜色地址的低 2 位，和这个高 2 位的属性拼接起来，产生 4 位的颜色信息。根据这个信息，就可以从调色板中获得实际的颜色来绘图了。</p>
-<h3 id="Palettes-调色板"><a href="#Palettes-调色板" class="headerlink" title="Palettes - 调色板"></a>Palettes - 调色板</h3><p>每个 Palette 内可以放 16 种颜色，4 位颜色信息对应了 16 种颜色。</p>
-<p>不过，每个 2x2 的 tile 区域对应一个调色板，而这个区域的高 2 位是由 Attribute Table 指定的同一个值。于是，实际上在这个 tile 区域内，最多只能显示由 Pattern Table 低 2 位决定的 4 种颜色。</p>
-<p>具体过程如下图所示。</p>
-<p><img src="/images/NES模拟器入门笔记/tile-color-lookup.png" alt="tile-color-lookup"></p>
-<p>如果有疑问，可以直接访问<a href="http://www.nintendoage.com/forum/messageview.cfm?catid=22&amp;threadid=4291" target="_blank" rel="noopener">参考资料</a>，十分详尽。</p>
+		<a id="more"></a>
+<p><img src="https://ewind.us/images/miyoo/compile-kernel.jpg" alt><br><img src="https://ewind.us/images/miyoo/connect.jpg" alt><br><img src="https://ewind.us/images/miyoo/console.jpg" alt><br><img src="https://ewind.us/images/miyoo/debugger.jpg" alt><br><img src="https://ewind.us/images/miyoo/drilled.jpg" alt><br><img src="https://ewind.us/images/miyoo/intro.jpg" alt><br><img src="https://ewind.us/images/miyoo/login.jpg" alt><br><img src="https://ewind.us/images/miyoo/ported.jpg" alt><br><img src="https://ewind.us/images/miyoo/sdl.jpg" alt><br><img src="https://ewind.us/images/miyoo/teardown-1.jpg" alt><br><img src="https://ewind.us/images/miyoo/teardown-2.jpg" alt></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -154,7 +126,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/Assembly/">Assembly</a>
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a>
   </div>
 
 </div>
@@ -163,7 +135,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="https://ewind.us/2015/nes-emu-2-system-architure/" data-title="NES模拟器笔记（2）系统架构 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  <div data-url="https://ewind.us/2019/fe-miyoo/" data-title="FE Miyoo | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -176,19 +148,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2015/nes-emu-3-rom-assembly/" title="NES模拟器笔记（3）ROM 与汇编">
-  <strong>上一篇：</strong><br/>
-  <span>
-  NES模拟器笔记（3）ROM 与汇编</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2015/ielts/"  title="雅思首战心得">
+<a href="/2019/beam/"  title="如何设计一个 WebGL 基础库">
  <strong>下一篇：</strong><br/> 
- <span>雅思首战心得
+ <span>如何设计一个 WebGL 基础库
 </span>
 </a>
 </div>
@@ -203,7 +167,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#结构概览"><span class="toc-number">1.</span> <span class="toc-text">结构概览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU-概览"><span class="toc-number">2.</span> <span class="toc-text">CPU 概览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PPU-概览"><span class="toc-number">3.</span> <span class="toc-text">PPU 概览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图形系统概览"><span class="toc-number">4.</span> <span class="toc-text">图形系统概览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tiles-贴片"><span class="toc-number">4.1.</span> <span class="toc-text">Tiles - 贴片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sprites-精灵"><span class="toc-number">4.2.</span> <span class="toc-text">Sprites - 精灵</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Background-背景"><span class="toc-number">4.3.</span> <span class="toc-text">Background - 背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pattern-Tables-图案表"><span class="toc-number">4.4.</span> <span class="toc-text">Pattern Tables - 图案表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Attribute-Tables-属性表"><span class="toc-number">4.5.</span> <span class="toc-text">Attribute Tables - 属性表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Palettes-调色板"><span class="toc-number">4.6.</span> <span class="toc-text">Palettes - 调色板</span></a></li></ol></li></ol>
+ 
  
   </div>
 
