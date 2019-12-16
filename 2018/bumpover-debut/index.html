@@ -1,0 +1,638 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>Bumpover.js - 牢固而趁手的数据校验转换库 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="Bumpover 能帮助你编写出简洁明了的数据校验与转换代码。通过熟悉的类型注解 API 与声明式的转换规则，你可以轻松地在运行期校验未知的数据，并将其转换为自己可控的格式。">
+<meta name="keywords" content="JavaScript,Summary">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bumpover.js - 牢固而趁手的数据校验转换库">
+<meta property="og:url" content="https://ewind.us/2018/bumpover-debut/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="Bumpover 能帮助你编写出简洁明了的数据校验与转换代码。通过熟悉的类型注解 API 与声明式的转换规则，你可以轻松地在运行期校验未知的数据，并将其转换为自己可控的格式。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bumpover.js - 牢固而趁手的数据校验转换库">
+<meta name="twitter:description" content="Bumpover 能帮助你编写出简洁明了的数据校验与转换代码。通过熟悉的类型注解 API 与声明式的转换规则，你可以轻松地在运行期校验未知的数据，并将其转换为自己可控的格式。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/bumpover-debut/" title="Bumpover.js - 牢固而趁手的数据校验转换库" itemprop="url">Bumpover.js - 牢固而趁手的数据校验转换库</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-01-04T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-01-05</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<p><a href="https://github.com/doodlewind/bumpover" target="_blank" rel="noopener">Bumpover</a> 能帮助你编写出简洁明了的数据校验与转换代码。通过熟悉的<strong>类型注解 API</strong> 与<strong>声明式的转换规则</strong>，你可以轻松地在<strong>运行期</strong>校验未知的数据，并将其转换为自己可控的格式。</p>
+<a id="more"></a>
+<p>稳定的数据结构对应用至关重要，但在持续的需求变更和版本迭代中，数据格式<strong>总是</strong>处于频繁的变动之中。你当然可以编写更多的 if else 逻辑来兼容不同类型的数据，不过这显然会带来更多枯燥、随意而危险的面条代码。有没有更好的方式呢？</p>
+<p>现在，TypeScript 和 Flow 已经为我们带来了非常方便的类型声明 API，可以帮助你在<strong>编译期</strong>检测出潜在的类型问题。不过对于<strong>运行期</strong>未知的数据 - 如源自后端接口、文件系统和剪贴板粘贴的数据 - 它们的作用也相对有限：想想上次对接后端接口的时候你调了多久？</p>
+<p>并且，在一般意义上的数据校验之外，数据的转换与迁移也是日常开发中非常常见的场景。除了数据可视化这样需要频繁转换数据结构的场景外，对于一些将复杂 JSON 或 XML 内容序列化为字符串后存储在关系型数据库中的数据，它们在数据结构变动时，清洗起来是相当困难的：完成一道把 <code>&#39;&lt;p&gt;123&lt;/p&gt;&#39;</code> 解析成 <code>{ paragraph: 123 }</code> 的面试题是一回事，保证稳定可预期的数据转换就是另一回事了。</p>
+<p>Bumpover 就是设计来解决上面这几个问题的。它通过结合来自 <a href="https://github.com/ianstormtaylor/superstruct" target="_blank" rel="noopener">Superstruct</a> 的类型声明和规则驱动的数据更新机制，实现了：</p>
+<ul>
+<li>对 JSON 与 XML 格式数据声明式的校验 - 类似 JSON Schema，但轻便灵活得多。</li>
+<li>友好的类型注解 API，支持递归定义的数据类型。</li>
+<li>基于 Promise 的数据节点更新规则，可异步转换存在外部依赖的数据。</li>
+<li>灵活的数据遍历机制，允许全量保留子节点、过滤未知节点等。</li>
+<li>可插拔的序列化和反序列化器，可轻松地支持各类私有数据格式。</li>
+</ul>
+<p>说了这么多，那么 Bumpover 到底如何使用呢？耽误你一分钟的时间就够了：</p>
+<blockquote>
+<p>开始前，记得安装依赖 :-)</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save bumpover superstruct</span><br></pre></td></tr></table></figure>
+<p>将 Bumpover 与 Superstruct 导入到代码库中：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Bumpover &#125; <span class="keyword">from</span> <span class="string">'bumpover'</span></span><br><span class="line"><span class="keyword">import</span> &#123; struct &#125; <span class="keyword">from</span> <span class="string">'superstruct'</span></span><br></pre></td></tr></table></figure>
+<p>假设这个场景：你有一份数据，其内容可能是虚拟 DOM 树中的节点，格式长这样：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> maybeNode = &#123;</span><br><span class="line">  name: <span class="string">'div'</span>,</span><br><span class="line">  props: &#123; <span class="attr">background</span>: <span class="string">'red'</span> &#125;,</span><br><span class="line">  children: []</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以定义一个 struct 来校验它：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; struct &#125; <span class="keyword">from</span> <span class="string">'superstruct'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Node = struct(&#123;</span><br><span class="line">  name: <span class="string">'string'</span>,</span><br><span class="line">  props: <span class="string">'object?'</span>,</span><br><span class="line">  children: <span class="string">'array'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>现在我们就能用 <code>Node</code> 来校验数据啦，将其作为函数调用即可：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">Node(maybeNode)</span><br></pre></td></tr></table></figure>
+<p>一旦数据校验失败，你会获得详细的错误信息，而成功时会返回校验后的数据。</p>
+<p>现在如果我们需要转换这份数据，该怎么做呢？比如，如果我们需要把所有的 <code>div</code> 标签换成 <code>span</code> 标签，并保留其它节点，该怎样可靠地实现呢？你可以过程式地人肉遍历数据，或者，简单地定义<strong>规则</strong>：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Bumpover &#125; <span class="keyword">from</span> <span class="string">'bumpover'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> rules = [</span><br><span class="line">  &#123;</span><br><span class="line">    match: <span class="function"><span class="params">node</span> =&gt;</span> node.name === <span class="string">'div'</span>,</span><br><span class="line">    update: <span class="function"><span class="params">node</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      resolve(&#123;</span><br><span class="line">        node: &#123; ...node, <span class="attr">name</span>: <span class="string">'span'</span> &#125;</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> bumper = <span class="keyword">new</span> Bumpover(rules)</span><br><span class="line">bumper.bump(data).then(<span class="built_in">console</span>.log)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得新节点数据</span></span><br></pre></td></tr></table></figure>
+<p>只要提供规则，bumpover 就会帮助你处理好剩下的脏活。注意下面几点就够了：</p>
+<ul>
+<li>Rules 规则是实现转换逻辑的 Single Source of Truth。</li>
+<li>使用 <code>rule.match</code> 匹配节点。</li>
+<li>使用 <code>rule.update</code> 在 Promise 内更新节点，这带来了对异步更新的支持：对一份富文本 XML 数据，在做数据迁移时可能需要将其中 <code>&lt;img&gt;</code> 标签里的图片链接重新上传到云端，成功后再将新的链接写入新的数据结构中。Bumpover 能很好地支持这样的异步更新。</li>
+<li>将新节点包装在 <code>node</code> 字段内 resolve 即可。</li>
+</ul>
+<p>这就是最基础的示例了！对于更新后获得的数据，你还可以为每条规则提供 <code>rule.struct</code> 字段，校验转换得到的新节点是否符合你的预期。</p>
+<p>转换简单的 JS 对象数据还不能完全体现出 Bumpover 的强大之处。考虑另一个场景：前端对 XML 格式数据的处理，一直缺乏易用的 API。除了原生 DOM 诡异的接口外，sax 这样基于流的处理方式也十分沉重。而 Bumpover 则提供了开箱即用的 <code>XMLBumpover</code> 可以帮助你。同样是把 <code>&lt;div&gt;</code> 转换为 <code>&lt;span&gt;</code> 标签，对 JSON 和 XML 格式数据的转换规则<strong>完全一致</strong>！</p>
+<blockquote>
+<p>XML 转换需要安装 <code>xml-js</code> 依赖</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; XMLBumpover &#125; <span class="keyword">from</span> <span class="string">'bumpover'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> rules = [</span><br><span class="line">  &#123;</span><br><span class="line">    match: <span class="function"><span class="params">node</span> =&gt;</span> node.name === <span class="string">'div'</span>,</span><br><span class="line">    update: <span class="function"><span class="params">node</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      resolve(&#123;</span><br><span class="line">        node: &#123; ...node, <span class="attr">name</span>: <span class="string">'span'</span> &#125;</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> input = <span class="string">`</span></span><br><span class="line"><span class="string">&lt;div&gt;</span></span><br><span class="line"><span class="string">  &lt;div&gt;demo&lt;/div&gt;</span></span><br><span class="line"><span class="string">&lt;/div&gt;</span></span><br><span class="line"><span class="string">`</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> bumper = <span class="keyword">new</span> XMLBumpover(rules)</span><br><span class="line">bumper.bump(input).then(<span class="built_in">console</span>.log)</span><br><span class="line"></span><br><span class="line"><span class="comment">// '&lt;span&gt;&lt;span&gt;demo&lt;/span&gt;&lt;/span&gt;'</span></span><br></pre></td></tr></table></figure>
+<p>这背后有什么黑魔法呢？不存在的。对于你自己的各种神奇的数据格式，<strong>只要你能提供它与 JSON 互相转换的 Parser，你就能编写同样的 Bumpover 规则来校验并转换它</strong>。作为例子，Bumpover 还提供了一个 <code>JSONBumpover</code> 类，能够处理 JSON 字符串。我们来看看它的实现源码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Bumpover &#125; <span class="keyword">from</span> <span class="string">'./index'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">JSONBumpover</span> <span class="keyword">extends</span> <span class="title">Bumpover</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span> (rules, options) &#123;</span><br><span class="line">    <span class="keyword">super</span>(rules, options)</span><br><span class="line">    <span class="keyword">this</span>.options = &#123;</span><br><span class="line">      ...this.options,</span><br><span class="line">      serializer: <span class="built_in">JSON</span>.stringify,</span><br><span class="line">      deserializer: <span class="built_in">JSON</span>.parse</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>只要提供了 <code>JSON.parse</code> 和 <code>JSON.stringify</code>，你就能支持一种全新的数据类型了。并且，你还可以把 <code>xml2js</code> 和 <code>JSON.stringify</code> 相结合，定制出更灵活的数据转换器 😉</p>
+<p>如果这些实例让你有了点兴趣，Bumpover 项目下还有一份完整的 <a href="https://github.com/doodlewind/bumpover/blob/master/docs/walkthrough.md" target="_blank" rel="noopener">Walkthrough</a>，介绍如何使用 Bumpover 实现异步迁移、及早返回、过滤节点等更灵活的特性，辅以完整的 <a href="https://github.com/doodlewind/bumpover/blob/master/docs/reference.md" target="_blank" rel="noopener">API 文档</a>。并且，Bumpover 虽然才开始开发不到一周，但已经实现了测试用例的 <strong>100% 代码覆盖率</strong>，欢迎感兴趣的同学前来体验哦 😀</p>
+<p>最后作为一点花絮，介绍一下笔者开发 Bumpover 的动机，以及它和 Superstruct 的渊源：Superstruct 与 <a href="https://github.com/ianstormtaylor/slate" target="_blank" rel="noopener">Slate</a> 富文本编辑框架师出同门，而笔者本人恰好是这个编辑器的主要贡献者之一。Slate 在 <code>v0.30</code> 左右遇到了编辑器 Schema 校验的各种问题，而 Superstruct 就是一个应运而生，允许自定义更灵活 Schema 的新轮子。而笔者在实际使用中发现 Superstruct 还能够推广到更一般的场景下，这就是 Bumpover 诞生的源动力了。</p>
+<p><a href="https://github.com/doodlewind/bumpover" target="_blank" rel="noopener">Bumpover</a> 还处于非常早期的阶段，非常希望各位 dalao 们能够赏脸支持~谢谢！</p>
+<ul>
+<li><a href="https://github.com/doodlewind/bumpover" target="_blank" rel="noopener">Bumpover Repo</a></li>
+<li><a href="https://github.com/ianstormtaylor/superstruct" target="_blank" rel="noopener">Superstruct Repo</a></li>
+<li><a href="https://juejin.im/post/59e6fc9951882578d503952c" target="_blank" rel="noopener">Slate 介绍</a></li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JavaScript/">JavaScript</a><a href="/tags/Summary/">Summary</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/bumpover-debut/" data-title="Bumpover.js - 牢固而趁手的数据校验转换库 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/monad-callback-hell/" title="从回调地狱到自函子上的幺半群：解密熟悉又陌生的 Monad">
+  <strong>上一篇：</strong><br/>
+  <span>
+  从回调地狱到自函子上的幺半群：解密熟悉又陌生的 Monad</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/fe-mac-startup/"  title="新年新起点：从零配置 Mac 前端环境速查">
+ <strong>下一篇：</strong><br/> 
+ <span>新年新起点：从零配置 Mac 前端环境速查
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

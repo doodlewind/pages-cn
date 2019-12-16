@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://home.ustc.edu.cn/~ewind/compile-exp/ -->
+<html><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="”apple-mobile-web-app-status-bar-style”" content="”black-translucent”">
+    <meta name="format-detection" content="telephone=no">
+    <title>Typesetting Demo</title>
+    <script src="./libs/lexer.js"></script>
+    <script src="./libs/grammar.js"></script>
+    <script src="./libs/table-builder.js"></script>
+    <script src="./libs/helper.js"></script>
+    <script src="./libs/parser.js"></script>
+    <script src="./libs/calculator.js"></script>
+    <script src="./libs/render.js"></script>
+    <script>
+       window.onload = function() {
+           var go = document.getElementById("btn-go");
+           var exec = function() {
+               var out = document.getElementById("out");
+               var ctx = out.getContext("2d");
+               RENDER(ctx);
+           };
+           go.onclick = exec;
+           // calculate if hash is not null
+           if (window.location.hash !== "") {
+               var demoInput = window.location.hash.replace("#", "");
+               var input = document.getElementById("input");
+               input.value = demoInput;
+               if (demoInput !== "") exec();
+           }
+       };
+    </script>
+    <style>
+        html {
+            background-color: lightgray;
+            padding-top: 20px;
+        }
+        body {
+            font-family: "Courier New", monospace;
+        }
+        html body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        #main {
+            background-color: white;
+            box-shadow: 4px 4px 13px rgba(90, 90, 90, 0.5);
+            /*top right bottom left*/
+            padding: 30px 30px 50px 30px;
+            margin: auto;
+            max-width: 550px;
+            min-height: 400px;
+        }
+        h2 {
+            margin-top: 0;
+            font-weight: lighter;
+        }
+        p {
+            line-height: 0;
+        }
+        .input-panel {
+            position: relative;
+            float: left;
+            box-sizing: border-box;
+            width: 50%;
+            text-align: center;
+        }
+        #btn-go {
+            float: right;
+            font-size: 1em;
+            font-family: "Courier New", monospace;
+            height: 2em;
+            width: 5em;
+            background: transparent;
+            border: 1px black solid;
+            transition: 0.3s;
+        }
+        #btn-go:hover {
+            background: black;
+            color: white;
+            transition: 0.3s;
+        }
+        #output, #input {
+            margin: 2px;
+            width: 90%;
+            border: 1px lightgray solid;
+            height: 6rem;
+            font-family: "Courier New", monospace;
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+    <button id="btn-go">GO</button>
+    <h2>Typesetting Demo</h2>
+    <div style="clear: both;"></div>
+    <div class="input-panel">
+        <p>Input</p>
+        <textarea id="input"></textarea>
+    </div>
+    <div class="input-panel">
+        <p>Output</p>
+        <textarea id="output"></textarea>
+    </div>
+    <canvas id="out">Demo</canvas>
+</div>
+
+</body></html>

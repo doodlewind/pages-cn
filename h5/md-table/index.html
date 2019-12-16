@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head lang="en"><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+    <title>Markdown Table Converter</title>
+    <script type="text/javascript" src="converter.js"></script>
+    <style>
+        html {
+            /*background-color: #fef991;*/
+        }
+        #main {
+            padding-top: 40px;
+            margin: auto;
+            max-width: 500px;
+        }
+        #control-left {
+            float: left;
+        }
+        #control-right {
+            float: right;
+            margin-bottom: 10px;
+        }
+        #markdown::selection, span::selection {
+            color: #a5ed53;
+            background: #54bda4;
+        }
+        #markdown::-moz-selection, span::-moz-selection{
+            color: #a5ed53;
+            background: #54bda4;
+        }
+
+        table {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        td {
+            border-top: 0;
+            border-bottom: 3px #ef6f66 solid;
+        }
+        input {
+            padding: 3px;
+            border: 0px;
+            width: 90%;
+            color: #ef6f66;
+            /*background-color: #fef991;*/
+            font-family: "Consolas", monospace;
+            font-size: 1.5em;
+        }
+        textarea {
+            padding: 15px;
+            position: relative;
+            box-sizing: border-box;
+            border: 3px #54bca4 solid;
+            /*background-color: #fef991;*/
+            width: 100%;
+            height: 300px;
+            font-family: "Consolas", monospace;
+            font-size: 1.5em;
+            color: #54bca4;
+        }
+        span {
+            position: fixed;
+            right: 20px;
+            bottom: 0;
+            line-height: 70%;
+            font-size: 15em;
+            color: #54bda4;
+            font-family: serif;
+        }
+        button {
+            margin-top: 10px;
+            min-width: 50px;
+            /*background-color: #fef991;*/
+            background-color: white;
+            border: 3px #ef6f66 solid;
+            color: #ef6f66;
+            height: 40px;
+            font-family: "Consolas", monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div id="control-left">
+            <button id="row-a">+ Row</button>
+            <button id="row-d">- Row</button>
+            <button id="col-a">+ Col</button>
+            <button id="col-d">- Col</button>
+        </div>
+        <div id="control-right">
+            <button id="table2md">Reformat & Copy</button>
+        </div>
+        <table>
+            <thead></thead>
+            <tbody id="grid">
+                <tr id="r-0">
+                    <td><input></td>
+                    <td><input></td>
+                    <td><input></td>
+                    <td><input></td>
+                </tr>
+                <tr id="r-1">
+                    <td><input></td>
+                    <td><input></td>
+                    <td><input></td>
+                    <td><input></td>
+                </tr>
+                <tr id="r-2">
+                    <td><input></td>
+                    <td><input></td>
+                    <td><input></td>
+                    <td><input></td>
+                </tr>
+            </tbody>
+        </table>
+        <textarea id="markdown" placeholder="Paste Markdown Table Here"></textarea>
+
+    </div>
+    <span>MD</span>
+</body>
+</html>

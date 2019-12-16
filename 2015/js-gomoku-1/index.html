@@ -1,0 +1,617 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>自制五子棋（1）棋盘绘制 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="这篇和接下来的几篇文章，将会描述如何从零开始，不依赖于特定的框架和库，搭出一个棋力靠谱，并且适配手机和桌面浏览器的迷你五子棋应用页面来。">
+<meta name="keywords" content="Web,JS,CSS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自制五子棋（1）棋盘绘制">
+<meta property="og:url" content="https://ewind.us/2015/js-gomoku-1/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="这篇和接下来的几篇文章，将会描述如何从零开始，不依赖于特定的框架和库，搭出一个棋力靠谱，并且适配手机和桌面浏览器的迷你五子棋应用页面来。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/自制五子棋（1）棋盘绘制1.jpg">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.531Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自制五子棋（1）棋盘绘制">
+<meta name="twitter:description" content="这篇和接下来的几篇文章，将会描述如何从零开始，不依赖于特定的框架和库，搭出一个棋力靠谱，并且适配手机和桌面浏览器的迷你五子棋应用页面来。">
+<meta name="twitter:image" content="https://ewind.us/images/自制五子棋（1）棋盘绘制1.jpg">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/js-gomoku-1/" title="自制五子棋（1）棋盘绘制" itemprop="url">自制五子棋（1）棋盘绘制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2015-03-14T16:00:00.000Z" itemprop="datePublished"> 发表于 2015-03-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#生成棋盘"><span class="toc-number">1.</span> <span class="toc-text">生成棋盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML"><span class="toc-number">1.1.</span> <span class="toc-text">HTML</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS"><span class="toc-number">1.2.</span> <span class="toc-text">CSS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#放置棋子"><span class="toc-number">2.</span> <span class="toc-text">放置棋子</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JS"><span class="toc-number">2.1.</span> <span class="toc-text">JS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS-1"><span class="toc-number">2.2.</span> <span class="toc-text">CSS</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>这篇和接下来的几篇文章，将会描述如何从零开始，不依赖于特定的框架和库，搭出一个棋力靠谱，并且适配手机和桌面浏览器的迷你五子棋应用页面来。</p>
+<a id="more"></a>
+<p>接下来我们首先从前端入手，关注一下怎样在浏览器里从一片空白的页面开始，画出一个棋盘来。这一步完成后，效果就会像下面这样（嗯对，现在暂时不关心 AI 算法，只关心棋盘最基础的外观布局）：</p>
+<p><img src="/images/自制五子棋（1）棋盘绘制1.jpg" alt="Goban"></p>
+<h2 id="生成棋盘"><a href="#生成棋盘" class="headerlink" title="生成棋盘"></a>生成棋盘</h2><p>要想生成一个棋盘外观的页面，最自然的方法肯定是通过一个 <table> 表格，把棋盘之间的网格用表格的边框表示出来。这么做肯定也不是不行，但是这么做会有个比较麻烦的问题：五子棋不像国际象棋那样把棋子放在网格里，而是放在框线上。这样一来棋子就不能放在表格内，需要一些 CSS Trick 来设置偏移量。</table></p>
+<p>所以在这里我选了一种比较罕见的解决方式：在嵌套的 <div> 里用 CSS 画十字，从而拼凑成一个完整的棋盘。</div></p>
+<p>而要用 CSS 绘制十字，最简便的方式则是为每个 <div> 生成一个包括横向和纵向的渐变。以一个 2x2 的棋盘为例，相应的 HTML 和 CSS 代码如下。注意，要为每行 <div class="row"> 的行元素清除浮动，这样才能排列成一个完整的棋盘。</div></div></p>
+<h3 id="HTML"><a href="#HTML" class="headerlink" title="HTML"></a>HTML</h3><figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"goban"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row r-0"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col c-0"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col c-1"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row r-1"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col c-0"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col c-1"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="CSS"><a href="#CSS" class="headerlink" title="CSS"></a>CSS</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-id">#goban</span> &#123;</span><br><span class="line">    <span class="attribute">padding-top</span>: <span class="number">40px</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">600px</span>;</span><br><span class="line">    <span class="attribute">margin</span>: auto;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.row</span> &#123;</span><br><span class="line">    <span class="attribute">clear</span>: both;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.col</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: table;</span><br><span class="line">    <span class="attribute">float</span>: left;</span><br><span class="line">    <span class="attribute">margin</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">40px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">40px</span>;</span><br><span class="line">    <span class="attribute">background</span>:</span><br><span class="line">    <span class="built_in">linear-gradient</span>(to bottom, transparent 48%,</span><br><span class="line">            #4c4c4c 48%,</span><br><span class="line">            #4c4c4c 52%,</span><br><span class="line">            transparent 52%),</span><br><span class="line">    <span class="built_in">linear-gradient</span>(to right, transparent 48%,</span><br><span class="line">            #4c4c4c 48%,</span><br><span class="line">            #4c4c4c 52%,</span><br><span class="line">            transparent 52%);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="放置棋子"><a href="#放置棋子" class="headerlink" title="放置棋子"></a>放置棋子</h2><p>放置棋子是个和 Web 页面交互的过程，需要通过 JavaScript 来实现。这里基本的思路是为每个 <code>&lt;div&gt;</code> 注册 <code>click</code> 事件的监听器，在接受到点击事件时，在 <code>&lt;div&gt;</code> 里放个棋子。而棋子的实现就比较作弊了：放一个圆形的 Unicode 字符进去就行，哈哈</p>
+<h3 id="JS"><a href="#JS" class="headerlink" title="JS"></a>JS</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">set</span>(<span class="params">row, col, color</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// get row element</span></span><br><span class="line">    <span class="keyword">var</span> r = <span class="built_in">document</span>.getElementsByClassName(<span class="string">'row r-'</span> + row);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// get col element</span></span><br><span class="line">    <span class="keyword">var</span> square = r[<span class="number">0</span>].children[col];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// set text</span></span><br><span class="line">    square.innerHTML = <span class="string">"&lt;span class='"</span> + color + <span class="string">"'&gt;●&lt;/span&gt;"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不过，这么放进去的棋子会有点问题：它没法对齐到格子上！好在通过 CSS，可以方便地设定对齐的方式。注意下面示例里对 <code>display</code> 方式的设定。只有设定了 <code>table-cell</code> 后，竖直方向的对齐才会生效。</p>
+<h3 id="CSS-1"><a href="#CSS-1" class="headerlink" title="CSS"></a>CSS</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.col</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: table;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.black</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: table-cell;</span><br><span class="line">    <span class="attribute">text-align</span>: center;</span><br><span class="line">    <span class="attribute">vertical-align</span>: middle;</span><br><span class="line">    <span class="attribute">font-size</span>: <span class="number">2em</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>嗯，以上就是画棋盘过程中的一些注意事项啦。而画好了棋盘之后，下一步就是下棋啦。接下来需要做的就是制造一个 AI 来与你对弈啦~</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a><a href="/tags/CSS/">CSS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2015/js-gomoku-1/" data-title="自制五子棋（1）棋盘绘制 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/js-gomoku-3/" title="自制五子棋（3）包装发布">
+  <strong>上一篇：</strong><br/>
+  <span>
+  自制五子棋（3）包装发布</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/start-infograph/"  title="从零开始信息图">
+ <strong>下一篇：</strong><br/> 
+ <span>从零开始信息图
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#生成棋盘"><span class="toc-number">1.</span> <span class="toc-text">生成棋盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML"><span class="toc-number">1.1.</span> <span class="toc-text">HTML</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS"><span class="toc-number">1.2.</span> <span class="toc-text">CSS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#放置棋子"><span class="toc-number">2.</span> <span class="toc-text">放置棋子</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JS"><span class="toc-number">2.1.</span> <span class="toc-text">JS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS-1"><span class="toc-number">2.2.</span> <span class="toc-text">CSS</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

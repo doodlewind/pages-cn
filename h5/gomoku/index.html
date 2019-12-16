@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="goban.css">
+    <script type="text/javascript" src="sifu.js"></script>
+    <script type="text/javascript" src="goban.js"></script>
+    <title>Gomoku Sifu</title>
+</head>
+<body>
+<nav>
+    <em>Sifu</em>
+    <button id="level">Fast</button>
+    <button id="color">Black</button>
+    <button id="restart">Retry</button>
+</nav>
+
+<div id="modal" class="modalDialog">
+    <div>
+        <a id="close" href="#close" title="Close" class="close">Retry</a>
+        <h1 id="result"></h1>
+    </div>
+</div>
+
+<div id="wait" class="modalDialog">
+    <div>
+        <h2>...Sifu is thinking...</h2>
+    </div>
+</div>
+
+<!--goban insert here-->
+</body>
+</html>

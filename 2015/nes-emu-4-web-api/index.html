@@ -1,0 +1,625 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>NES 模拟器笔记（4）Web 文件 API 与 RequireJS | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="理清了 NES 的基本架构之后，就可以着手开始写模拟器了。而实际开发的第一步，显然还是要从格式化地读取 NES ROM，将机器码反汇编回助记符指令来开始。其实在这一步只要通过 HTML5 的文件 API，就可以直接而简洁地读取 ROM 的数据了。">
+<meta name="keywords" content="Web,JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NES 模拟器笔记（4）Web 文件 API 与 RequireJS">
+<meta property="og:url" content="https://ewind.us/2015/nes-emu-4-web-api/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="理清了 NES 的基本架构之后，就可以着手开始写模拟器了。而实际开发的第一步，显然还是要从格式化地读取 NES ROM，将机器码反汇编回助记符指令来开始。其实在这一步只要通过 HTML5 的文件 API，就可以直接而简洁地读取 ROM 的数据了。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.542Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NES 模拟器笔记（4）Web 文件 API 与 RequireJS">
+<meta name="twitter:description" content="理清了 NES 的基本架构之后，就可以着手开始写模拟器了。而实际开发的第一步，显然还是要从格式化地读取 NES ROM，将机器码反汇编回助记符指令来开始。其实在这一步只要通过 HTML5 的文件 API，就可以直接而简洁地读取 ROM 的数据了。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/nes-emu-4-web-api/" title="NES 模拟器笔记（4）Web 文件 API 与 RequireJS" itemprop="url">NES 模拟器笔记（4）Web 文件 API 与 RequireJS</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2015-07-25T16:00:00.000Z" itemprop="datePublished"> 发表于 2015-07-26</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JS-回调模式"><span class="toc-number">1.</span> <span class="toc-text">JS 回调模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arraybuffer-读取-ROM"><span class="toc-number">2.</span> <span class="toc-text">Arraybuffer 读取 ROM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RequireJS"><span class="toc-number">3.</span> <span class="toc-text">RequireJS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#导入"><span class="toc-number">3.1.</span> <span class="toc-text">导入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-number">3.2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模块定义"><span class="toc-number">3.3.</span> <span class="toc-text">模块定义</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>理清了 NES 的基本架构之后，就可以着手开始写模拟器了。而实际开发的第一步，显然还是要从格式化地读取 NES ROM，将机器码反汇编回助记符指令来开始。其实在这一步只要通过 HTML5 的文件 API，就可以直接而简洁地读取 ROM 的数据了。<a id="more"></a>另外，按照模块化的设计思路，这个反汇编器用到的文件读取等子模块，应该可以为后面的 CPU 模拟器复用，从而提升一些代码的质量。因此在这里，也一并介绍了时下大热的模块加载器 RequireJS，用它来管理代码结构。</p>
+<h2 id="JS-回调模式"><a href="#JS-回调模式" class="headerlink" title="JS 回调模式"></a>JS 回调模式</h2><p>异步请求在 Web 应用中十分常见。一般来说要获得异步请求的响应，直接为 onload 等方法注册一个回调函数即可。不过这里有个小问题：怎么往这个回调函数里传参数呢？</p>
+<p>比如现在我们包装出一个异步方法 <code>loadROM()</code> 来加载 ROM，并将 ROM 作为返回值返回。返回后我们需要用 <code>readROM(rom)</code> 来读取这个 ROM 的数据。这时候直接这么写是不行的：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> rom = loadROM();</span><br><span class="line">readROM(rom); <span class="comment">// rom is undefined</span></span><br></pre></td></tr></table></figure>
+<p>正确的实践，是按照 JS 的回调模式来处理参数。我们需要将 <code>readROM</code> 包在回调函数中，这样参数就可以正常地从 <code>loadROM</code> 传给 <code>readROM</code> 了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">loadROM</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// var rom = ...</span></span><br><span class="line">    callback(rom);</span><br><span class="line">&#125;</span><br><span class="line">loadROM(<span class="function"><span class="keyword">function</span>(<span class="params">rom</span>) </span>&#123;</span><br><span class="line">    readROM(rom)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="Arraybuffer-读取-ROM"><a href="#Arraybuffer-读取-ROM" class="headerlink" title="Arraybuffer 读取 ROM"></a>Arraybuffer 读取 ROM</h2><p>这是一个用 <code>XMLHttpRequest</code> 异步读取 ROM 文件，并将其以 <code>Uint8Array</code> 形式读入数组的例子。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> loadROM = <span class="function"><span class="keyword">function</span>(<span class="params">filename, callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> req = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">    req.open(<span class="string">"get"</span>, filename, <span class="literal">true</span>);</span><br><span class="line">    req.responseType = <span class="string">"arraybuffer"</span>;</span><br><span class="line">    req.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> buffer = <span class="keyword">this</span>.response;</span><br><span class="line">        rom = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(buffer);</span><br><span class="line">        <span class="comment">// return rom in async callback</span></span><br><span class="line">        callback(rom);</span><br><span class="line">    &#125;;</span><br><span class="line">    req.send();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这里用到了 <code>callback</code> 来异步返回 GET 到的 ROM 文件。这个封装起来的 ROM 加载器可以按下面这样调用。由于 <code>nes</code> 格式文件的开头总是 NES 三个大写字母的 ASCII 码值，因此可以根据这一点检查一下加载的 ROM 是否正确。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">loadROM(<span class="string">'filename.nes'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">rom</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(rom[<span class="number">0</span>]); <span class="comment">// 78, ascii code for 'N'</span></span><br><span class="line">    <span class="built_in">console</span>.log(rom[<span class="number">1</span>]); <span class="comment">// 69, ascii code for 'E'</span></span><br><span class="line">    <span class="built_in">console</span>.log(rom[<span class="number">2</span>]); <span class="comment">// 83, ascii code for 'S'</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>再进一步地，这个文件加载器可以对返回的 ROM 做一次封装，简化读取值的过程，避免在上层出现各种直接对数组下标的操作。对一个反汇编器来说，应用情景是每次先根据基址取操作数，然后取后面紧挨着的 8 位或 16 位数据。而后面读取显存的时候，也有可能一次取多个 8 位或 16 位长度的数据，按照这个想法，可以先把上一步获得的 <code>Uint8Array</code> 封装为 ROM 的 <code>data</code> 属性，然后提供一个参数可变的 <code>read()</code> 方法来读取 ROM 数据。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> rom = &#123;</span><br><span class="line">    data: <span class="built_in">Array</span>(), <span class="comment">// data will be loaded by another method</span></span><br><span class="line">    read: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> base = <span class="built_in">arguments</span>[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">var</span> result = <span class="built_in">Array</span>();</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">arguments</span>.length == <span class="number">1</span>) &#123;</span><br><span class="line">            result.push(<span class="keyword">this</span>.data[base]);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; <span class="built_in">arguments</span>.length; i++) &#123;</span><br><span class="line">            <span class="keyword">switch</span> (<span class="built_in">arguments</span>[i]) &#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">8</span>:</span><br><span class="line">                    result.push(<span class="keyword">this</span>.data[base + i - <span class="number">1</span>]);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">16</span>:</span><br><span class="line">                    <span class="keyword">var</span> little = <span class="keyword">this</span>.data[base + i - <span class="number">1</span>];</span><br><span class="line">                    <span class="keyword">var</span> high = <span class="keyword">this</span>.data[base + i];</span><br><span class="line">                    result.push(high * <span class="number">256</span> + little);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这里利用了 JS 函数的 <code>arguments</code> 数组来获取参数，从而做到依据参数格式来获取并返回 8 位的字节或 16 位的字。处理 16 位数据的时候，也会按照高位在后的格式正确地读取小端数。这个 <code>read</code> 方法的调用方式如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">rom.read(<span class="number">0x00</span>); <span class="comment">// [78]</span></span><br><span class="line">rom.read(<span class="number">0x00</span>)[<span class="number">0</span>]; <span class="comment">// 78</span></span><br><span class="line">rom.read(<span class="number">0x00</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">8</span>); <span class="comment">// [78, 69, 83]</span></span><br></pre></td></tr></table></figure>
+<p>上面基本完成了一个简单的文件读取模块，并为模块提供了一个方便的接口。接下来做的反汇编模块可以读取文件模块的接口，更简洁地实现反汇编的过程。有了这个思路，下面要解决的问题就是模块的加载方法和依赖关系了。这里第一次试用了 RequireJS 来管理这些模块。</p>
+<h2 id="RequireJS"><a href="#RequireJS" class="headerlink" title="RequireJS"></a>RequireJS</h2><p>RequireJS 的模块规范十分的简洁，可以显式地指定模块的公有和私有方法，并且支持模块的异步加载，可以说是一个相当易学且相当实用的工具。</p>
+<h3 id="导入"><a href="#导入" class="headerlink" title="导入"></a>导入</h3><p>引入 <code>require.js</code> 之后，就不需要在 HTML 中设置其它的 <code>&lt;script src=&quot;xxx&quot;&gt;</code> 标签了。取而代之的是一个用来导入 RequireJS 的标签。假如我们的根路径放着 <code>index.html</code> 和 <code>js</code> 目录，而 <code>js</code> 目录里放着 <code>require.js</code> 和配置 RequireJS 的 <code>main.js</code> 两个文件，那么在 HTML 中只要引入这样的一个标签，就可以完成对 RequireJS 的导入了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;script data-main=<span class="string">"js/main"</span> src=<span class="string">"js/require.js"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>这样 <code>main.js</code> 中就可以用 <code>require()</code> 来自定义所需要的模块了，一个简单的例子是这样的：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// main.js</span></span><br><span class="line"><span class="built_in">require</span>.config(&#123;</span><br><span class="line">    paths: &#123;</span><br><span class="line">        reader: <span class="string">'lib/rom-reader'</span>,</span><br><span class="line">        disassembler: <span class="string">'lib/rom-disassembler'</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// main logic</span></span><br><span class="line"><span class="built_in">require</span>([<span class="string">'reader'</span>, <span class="string">'disassembler'</span>], <span class="function"><span class="keyword">function</span> (<span class="params">reader, disassembler</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// reader.xxx()</span></span><br><span class="line">    <span class="comment">// disassembler.yyy()</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="模块定义"><a href="#模块定义" class="headerlink" title="模块定义"></a>模块定义</h3><p>以上面用到的 <code>rom-reader</code> 模块为例，每个最基本的模块只要遵从 <code>define()</code> 写法，即可便捷地为 RequireJS 加载。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// rom-reader.js</span></span><br><span class="line">define([], <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> rom = &#123;</span><br><span class="line">        <span class="comment">// some code</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">var</span> load = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// some code</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        rom: rom,</span><br><span class="line">        load: load</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>如果这个模块有依赖，那么可以在 <code>define([&#39;xxx&#39;], function(xxx){})</code> 来定义依赖和依赖的命名空间。而每个模块也可以在其 <code>return</code> 的时候定义模块具体开放的接口，以及接口所对应的名称。后面的编写过程中，也是按照这个统一的格式来编写模拟器的各个模块的。</p>
+<p>关于 RequireJS 的更多信息，可以在 <a href="http://requirejs.org" target="_blank" rel="noopener">RequireJS</a> 官网上找到。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2015/nes-emu-4-web-api/" data-title="NES 模拟器笔记（4）Web 文件 API 与 RequireJS | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/nes-emu-5-6502-disassembler/" title="NES 模拟器笔记（5）6502 反汇编器">
+  <strong>上一篇：</strong><br/>
+  <span>
+  NES 模拟器笔记（5）6502 反汇编器</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/weibo-3-tables/"  title="三张表搭个微博吧">
+ <strong>下一篇：</strong><br/> 
+ <span>三张表搭个微博吧
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JS-回调模式"><span class="toc-number">1.</span> <span class="toc-text">JS 回调模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arraybuffer-读取-ROM"><span class="toc-number">2.</span> <span class="toc-text">Arraybuffer 读取 ROM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RequireJS"><span class="toc-number">3.</span> <span class="toc-text">RequireJS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#导入"><span class="toc-number">3.1.</span> <span class="toc-text">导入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-number">3.2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模块定义"><span class="toc-number">3.3.</span> <span class="toc-text">模块定义</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

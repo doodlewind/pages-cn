@@ -1,0 +1,648 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>USTC Tennis 积分榜测试上线 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="USTC Tennis 是在 Match Recorder 网球计分器基础上开发的 Web App，支持上传每场比赛进程，记录选手生涯累计数据，并参考国际象棋的排名算法实现了选手的积分排名。">
+<meta name="keywords" content="Web,USTC,JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="USTC Tennis 积分榜测试上线">
+<meta property="og:url" content="https://ewind.us/2016/ustc-tennis-online/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="USTC Tennis 是在 Match Recorder 网球计分器基础上开发的 Web App，支持上传每场比赛进程，记录选手生涯累计数据，并参考国际象棋的排名算法实现了选手的积分排名。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-config.png">
+<meta property="og:image" content="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-scoring.png">
+<meta property="og:image" content="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-result.png">
+<meta property="og:image" content="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-feed.png">
+<meta property="og:image" content="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-player.png">
+<meta property="og:image" content="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-rank.png">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.563Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="USTC Tennis 积分榜测试上线">
+<meta name="twitter:description" content="USTC Tennis 是在 Match Recorder 网球计分器基础上开发的 Web App，支持上传每场比赛进程，记录选手生涯累计数据，并参考国际象棋的排名算法实现了选手的积分排名。">
+<meta name="twitter:image" content="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-config.png">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/ustc-tennis-online/" title="USTC Tennis 积分榜测试上线" itemprop="url">USTC Tennis 积分榜测试上线</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2016-06-07T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-06-08</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#比分记录"><span class="toc-number">1.</span> <span class="toc-text">比分记录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#赛事信息"><span class="toc-number">2.</span> <span class="toc-text">赛事信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#选手信息"><span class="toc-number">3.</span> <span class="toc-text">选手信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#排行榜"><span class="toc-number">4.</span> <span class="toc-text">排行榜</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="http://tennis.ewind.us" target="_blank" rel="noopener">USTC Tennis</a> 是在 Match Recorder 网球计分器基础上开发的 Web App，支持上传每场比赛进程，记录选手生涯累计数据，并参考国际象棋的排名算法实现了选手的积分排名。</p>
+<a id="more"></a>
+<p>USTC Tennis 除支持 PC 端和移动端浏览器访问外，还为安卓用户提供了打包好静态网页的 APK 安装包。安装后，不仅可节约流量，也可以离线使用计分器。对 iOS 用户，可使用 Safari 打开 USTC Tennis 并将其添加至主屏幕，方便使用。</p>
+<p><a href="http://static.ewind.us/ustcTennis.apk" target="_blank" rel="noopener">安卓 APK 下载地址</a></p>
+<p>对初次使用的用户，以下是一份简单的上手指南。</p>
+<h2 id="比分记录"><a href="#比分记录" class="headerlink" title="比分记录"></a>比分记录</h2><p>作为这个 App 最核心的部分，计分器功能实现了对单盘局数、先发球方、平分制、抢七的支持，并且在赛后可展示双方对局数据。如何使用计分器呢？首先点击右上角的 <a href="http://tennis.ewind.us/index.html#/config" target="_blank" rel="noopener">Recorder</a> 按钮（移动端里按钮被折叠在导航栏里，点击打开即可），输入赛事的基本信息，包括双方选手名、赛名、局数、是否有占先等，界面如下所示</p>
+<p><img src="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-config.png" alt="config"></p>
+<p>然后就是最重要的计分部分了。要想记录一分，必选的内容只有三个：</p>
+<ul>
+<li>这一分是<strong>一发还是二发</strong></li>
+<li>这一分<strong>谁赢</strong></li>
+<li>这一分以<strong>哪一种方式结束</strong>（ACE / Winner / UE / FE 四选一）</li>
+</ul>
+<p><img src="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-scoring.png" alt="scoring"></p>
+<p>所以，上图中只要依次点击按钮组，即可完成一分的输入。完成后点击下面的箭头，分数就会按照之前设定好的规则自动更新。如果一发失误，点击一次 <strong>OUT</strong> 按钮就会切换至二发，双发失误时再点击一次 <strong>OUT</strong> 即可。<strong>点击两次 OUT 后再点击一次这个按钮，就会撤销这一分。</strong></p>
+<p>而如果想更完整地输入一分的信息，还可以选择图中最后的两个附加选项：</p>
+<ul>
+<li>这一分结束的那一拍是正手还是反手</li>
+<li>这一分是否上网</li>
+</ul>
+<p>当比分达到设定的胜利条件时，会弹出提示并切换到比赛详情的显示页面。</p>
+<p><img src="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-result.png" alt="result"></p>
+<p>点击图中的上传按钮，即可将比分及比赛进程上传至服务器。上传完成后，会跳转回显示赛事信息的主页。</p>
+<h2 id="赛事信息"><a href="#赛事信息" class="headerlink" title="赛事信息"></a>赛事信息</h2><p><img src="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-feed.png" alt="feed"></p>
+<p>上传的赛事以时间顺序排列在主页中，可以点击选手名查看选手信息，也可以点击 More 按钮，查看比赛的详细数据。</p>
+<h2 id="选手信息"><a href="#选手信息" class="headerlink" title="选手信息"></a>选手信息</h2><p><img src="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-player.png" alt="player"></p>
+<p>选手信息中，记录了选手的比赛的累计数据，暂时还没有添加每位选手所参加的赛事。这里面最醒目的数据之一是选手的积分，它用于为所有选手进行排名。</p>
+<p>在导航栏上方的搜索框中输入姓名，即可直接查看这名选手的战绩信息。</p>
+<h2 id="排行榜"><a href="#排行榜" class="headerlink" title="排行榜"></a>排行榜</h2><p>排行榜界面如下所示。可以直接点击选手名，跳转查看选手的个人战绩。</p>
+<p><img src="http://7u2gqx.com1.z0.glb.clouddn.com/ustc-tennis-rank.png" alt="rank"></p>
+<p>排行榜的积分排名功能，采用的是《社交网络》里扎克伯格为哈佛女生颜值对对碰的 Facemesh 网站的算法。这一名为 <a href="https://en.wikipedia.org/wiki/Elo_rating_system" target="_blank" rel="noopener">Elo rating system</a> 的算法还用于国际象棋的排名系统。简单来说它的特点是：越弱者胜利能得到越多积分，越强者失败会损失越多积分，从而鼓励大家和强者竞争。</p>
+<p>算法的具体参数可以参见 <a href="https://github.com/doodlewind/ustc-tennis-tornado" target="_blank" rel="noopener">Github</a> 上的 Demo 实例，这里列出一些情况下胜负双方的积分变化情况：</p>
+<ul>
+<li>甲初始 0 分，乙初始 0 分，甲获胜：甲变为 16 分，乙变为 0 分</li>
+<li>甲初始 500 分，乙初始 500 分，甲获胜：甲变为 516 分，乙变为 500 分</li>
+<li>甲初始 1000 分，乙初始 10 分，甲获胜：甲变为 1000 分，乙变为 10 分</li>
+<li>甲初始 1000 分，乙初始 10 分，乙获胜：甲变为 984 分，乙变为 26 分</li>
+</ul>
+<p>可以发现，欺负积分相差悬殊的对手，并不能赚取更多积分。而挑战强者或同水平选手，则是上分的好方法。</p>
+<p>非常希望各位同学能为 USTC Tennis 站点提出建议和反馈！有任何想说的，都可以直接在这里留言。最后，感谢 xyc 同学的 UI 界面创意，以及 ysb 同学对计分器的详细测试。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Scribble/">Scribble</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/USTC/">USTC</a><a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2016/ustc-tennis-online/" data-title="USTC Tennis 积分榜测试上线 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/chrome-disable-cache/" title="前端小贴士之禁用 Chrome 缓存">
+  <strong>上一篇：</strong><br/>
+  <span>
+  前端小贴士之禁用 Chrome 缓存</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/ustc-ring/"  title="科大毕业戒指交换平台">
+ <strong>下一篇：</strong><br/> 
+ <span>科大毕业戒指交换平台
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#比分记录"><span class="toc-number">1.</span> <span class="toc-text">比分记录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#赛事信息"><span class="toc-number">2.</span> <span class="toc-text">赛事信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#选手信息"><span class="toc-number">3.</span> <span class="toc-text">选手信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#排行榜"><span class="toc-number">4.</span> <span class="toc-text">排行榜</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -1,0 +1,638 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>JavaScript 模块模式 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="本文翻译自 JavaScript Module Pattern: In Depth">
+<meta name="keywords" content="Web,JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript 模块模式">
+<meta property="og:url" content="https://ewind.us/2014/js-module-pattern/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="本文翻译自 JavaScript Module Pattern: In Depth">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.533Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JavaScript 模块模式">
+<meta name="twitter:description" content="本文翻译自 JavaScript Module Pattern: In Depth">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/js-module-pattern/" title="JavaScript 模块模式" itemprop="url">JavaScript 模块模式</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2014-12-08T16:00:00.000Z" itemprop="datePublished"> 发表于 2014-12-09</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基础模式"><span class="toc-number">1.</span> <span class="toc-text">基础模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#匿名闭包"><span class="toc-number">1.1.</span> <span class="toc-text">匿名闭包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#导入全局变量"><span class="toc-number">1.2.</span> <span class="toc-text">导入全局变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#导入模块"><span class="toc-number">1.3.</span> <span class="toc-text">导入模块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进阶模式"><span class="toc-number">2.</span> <span class="toc-text">进阶模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#增进-Augmentation"><span class="toc-number">2.1.</span> <span class="toc-text">增进 - Augmentation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#松散增进-Loose-Augmentation"><span class="toc-number">2.2.</span> <span class="toc-text">松散增进 - Loose Augmentation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#紧凑增进-Tight-Augmentation"><span class="toc-number">2.3.</span> <span class="toc-text">紧凑增进 - Tight Augmentation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#复制与继承-Cloning-and-Inheritance"><span class="toc-number">2.4.</span> <span class="toc-text">复制与继承 - Cloning and Inheritance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跨文件私有状态-Cross-File-Private-State"><span class="toc-number">2.5.</span> <span class="toc-text">跨文件私有状态 - Cross-File Private State</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#子模块-Sub-modules"><span class="toc-number">2.6.</span> <span class="toc-text">子模块 - Sub-modules</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<blockquote>
+<p>本文翻译自 <a href="http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html" target="_blank" rel="noopener">JavaScript Module Pattern: In Depth</a></p>
+</blockquote>
+<a id="more"></a>
+<p>Module Pattern 是 JavaScript 的一种泛用设计模式。这种模式大体上易于理解，但有些进阶用法知道的人并不多。下面从回顾基础开始，讨论包括一个原创模式在内的几个进阶模式。</p>
+<h2 id="基础模式"><a href="#基础模式" class="headerlink" title="基础模式"></a>基础模式</h2><p>Module Pattern 始于 YUI 创始人 Eric Miraglia 四年前的一篇博文。如果你已经熟悉了这个模式，那么就跳过这里，直接阅读下面的「进阶模式」部分吧。</p>
+<h3 id="匿名闭包"><a href="#匿名闭包" class="headerlink" title="匿名闭包"></a>匿名闭包</h3><p>闭包几乎是 <strong>JavaScript 最有用的特性</strong>了。只要直接创建并执行一个匿名函数，所有函数内部的代码都只在函数内的闭包内运行，从而在应用的生命周期内保持私有性与状态。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">   <span class="comment">// ... 对所有在此声明的变量和函数，其作用域均在此闭包内</span></span><br><span class="line">   <span class="comment">// ... 仍然可访问全局变量</span></span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+<p>注意匿名函数后跟着的 <code>()</code>。这是语法要求，否则由标识符 <code>function</code> 开头的语句都会被作为<strong>函数声明</strong>。紧跟着接上 <code>()</code> 则表明这是一个<strong>函数表达式</strong>。</p>
+<h3 id="导入全局变量"><a href="#导入全局变量" class="headerlink" title="导入全局变量"></a>导入全局变量</h3><p>JavaScript 有所谓<strong>隐式全局变量</strong>的特性。不论何时使用一个变量名，解释器都会沿作用域链回溯，寻找是否有个以 <code>var</code> 打头的表达式使用了这个变量名。如果没有找到，那么这个变量将被认为是全局变量。如果在赋值表达式中使用了这个特性，那这就相当于创建了一个新的全局变量。这样一来，我们就能十分方便地使用与创建全局变量了。不过，滥用这种特性会使得在特定文件中变量的作用域变得模糊，产生难以管理的代码。</p>
+<p>还好，我们还有匿名函数这个实用的工具。只要将全局变量作为参数传递给匿名函数，我们就能将它导入我们的代码中，这既简明又快捷。下面是个示例：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params">$, YAHOO</span>) </span>&#123;</span><br><span class="line">   <span class="comment">// 现在我们可以在代码中使用 jQuery (简写为 $) 和 YAHOO 这两个全局变量了</span></span><br><span class="line">&#125;(jQuery, YAHOO));</span><br></pre></td></tr></table></figure>
+<h3 id="导入模块"><a href="#导入模块" class="headerlink" title="导入模块"></a>导入模块</h3><p>有时候，你可能不想<em>使用</em>全局变量，而是想<em>声明</em>它们。我们可以通过匿名函数的返回值来导出这些变量。这么做，就完成了基础的 Module Pattern。下面又是个示例</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> MODULE = (<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">   <span class="keyword">var</span> my = &#123;&#125;,    </span><br><span class="line">       privateVariable = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">function</span> <span class="title">privateMethod</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">       <span class="comment">// ...</span></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   my.moduleProperty = <span class="number">1</span>;</span><br><span class="line">   my.moduleMethod = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">       <span class="comment">// ...</span></span><br><span class="line">   &#125;;</span><br><span class="line">   <span class="keyword">return</span> my;</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+<p>这样我们就声明了 <code>MODULE</code> 这个全局模块，它带有两个公共属性：名为 <code>MODULE.moduleMethod</code> 的方法和 <code>MODULE.moduleProperty</code> 的变量。它通过闭包实现了<strong>私有内部状态</strong>。并且，通过上面的方式，我们还可以很方便地导入需要的全局变量。</p>
+<h2 id="进阶模式"><a href="#进阶模式" class="headerlink" title="进阶模式"></a>进阶模式</h2><p>虽然以上的内容已经可以满足一般的使用需求，但是我们还是能够为这个模式添加更强大、更可扩展的结构。下面我们就从这个 <code>MODULE</code> 模块开始循序渐进地讲解吧。</p>
+<h3 id="增进-Augmentation"><a href="#增进-Augmentation" class="headerlink" title="增进 - Augmentation"></a>增进 - Augmentation</h3><p>目前为止，Module Pattern 的模块只能在一个单独的文件中使用。而每个在大量代码库上有过实践经验的人，都知道分离文件的重要性。好在我们还有办法来方便地<strong>增加模块</strong>。首先导入模块，然后添加属性，最后再导出它。以下是个增进 <code>MODULE</code> 模块的示例：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> MODULE = (<span class="function"><span class="keyword">function</span> (<span class="params">my</span>) </span>&#123;</span><br><span class="line">   my.anotherMethod = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">       <span class="comment">// added method...</span></span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> my;</span><br><span class="line">&#125;(MODULE));</span><br></pre></td></tr></table></figure>
+<p>为了一致性，我们又使用了非必须的 <code>var</code> 关键字。在以上代码执行后，我们的模块就有了 <code>MODULE.anotherMethod</code> 这个新的公共方法。增进的文件也会保留自己的私有内部状态与导入的模块。</p>
+<h3 id="松散增进-Loose-Augmentation"><a href="#松散增进-Loose-Augmentation" class="headerlink" title="松散增进 - Loose Augmentation"></a>松散增进 - Loose Augmentation</h3><p>虽然在上面我们是先创建初始模块再增进，但不这样也不是不行。毕竟 JavaScript 应用能做的最棒的事情之一就是异步加载代码。通过松散增进模式，我们能够灵活地分块创建模块。这要求每个文件具有以下的结构：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> MODULE = (<span class="function"><span class="keyword">function</span> (<span class="params">my</span>) </span>&#123;</span><br><span class="line">   <span class="comment">// 增加可扩展性...</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> my;</span><br><span class="line">&#125;(MODULE || &#123;&#125;));</span><br></pre></td></tr></table></figure>
+<p>在这个模式中， <code>var</code> 表达式是必需的。这样一旦在导入时遇上尚不存在的模块，就会创建这个模块。这样你就能用 LABjs 之类的工具并行地导入多个模块文件而不需担心阻塞。</p>
+<h3 id="紧凑增进-Tight-Augmentation"><a href="#紧凑增进-Tight-Augmentation" class="headerlink" title="紧凑增进 - Tight Augmentation"></a>紧凑增进 - Tight Augmentation</h3><p>虽然松散增进是很棒没错，不过它也为代码带来了一些限制。譬如，你不能安全地重写模块属性。而且，你也不能在初始化时使用其它文件的模块属性了（在初始化后的运行时还是可以的）。<strong>紧凑增进</strong>意味着按一个安全顺序来加载模块，但允许<strong>重写</strong>。下面是个增进原生 <code>MODULE</code> 的示例：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> MODULE = (<span class="function"><span class="keyword">function</span> (<span class="params">my</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">var</span> old_moduleMethod = my.moduleMethod;</span><br><span class="line"></span><br><span class="line">   my.moduleMethod = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">       <span class="comment">// 重写方法，并通过 old_moduleMethod 保留原有方法...</span></span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> my;</span><br><span class="line">&#125;(MODULE));</span><br></pre></td></tr></table></figure>
+<h3 id="复制与继承-Cloning-and-Inheritance"><a href="#复制与继承-Cloning-and-Inheritance" class="headerlink" title="复制与继承 - Cloning and Inheritance"></a>复制与继承 - Cloning and Inheritance</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> MODULE_TWO = (<span class="function"><span class="keyword">function</span> (<span class="params">old</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">var</span> my = &#123;&#125;,</span><br><span class="line">       key;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> (key <span class="keyword">in</span> old) &#123;</span><br><span class="line">       <span class="keyword">if</span> (old.hasOwnProperty(key)) &#123;</span><br><span class="line">           my[key] = old[key];</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">var</span> super_moduleMethod = old.moduleMethod;</span><br><span class="line">   my.moduleMethod = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">       <span class="comment">// 在复制得到的模块中重写方法，并保留被继承模块的原有方法</span></span><br><span class="line">       <span class="comment">// override method on the clone, access to super through super_moduleMethod</span></span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> my;</span><br><span class="line">&#125;(MODULE));</span><br></pre></td></tr></table></figure>
+<p>基本上要属这个模式最不灵活了。它确实可以获得一些整洁的结构，但牺牲了灵活性。之前提到过，作为属性的对象和函数将不会被复制，而是在同一个对象中保存两份引用。改变一个，就会改变另一个。对对象，这个问题可以通过递归的复制过程来解决，但对函数，除非使用 <code>eval</code>，否则没有太好的方法。毕竟，提这个只是为了内容上的完整而已。</p>
+<h3 id="跨文件私有状态-Cross-File-Private-State"><a href="#跨文件私有状态-Cross-File-Private-State" class="headerlink" title="跨文件私有状态 - Cross-File Private State"></a>跨文件私有状态 - Cross-File Private State</h3><p>在由多个文件组成的模块中，每个文件都有其独立的私有状态，并且不能获得其它文佳你的私有状态。这是个比较大的局限，但通过下面在增进中保持私有状态的方法，我们可以解决这个问题：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> MODULE = (<span class="function"><span class="keyword">function</span> (<span class="params">my</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">var</span> _private = my._private = my._private || &#123;&#125;,</span><br><span class="line">       _seal = my._seal = my._seal || <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">           <span class="keyword">delete</span> my._private;</span><br><span class="line">           <span class="keyword">delete</span> my._seal;</span><br><span class="line">           <span class="keyword">delete</span> my._unseal;</span><br><span class="line">       &#125;,</span><br><span class="line">       _unseal = my._unseal = my._unseal || <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">           my._private = _private;</span><br><span class="line">           my._seal = _seal;</span><br><span class="line">           my._unseal = _unseal;</span><br><span class="line">       &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 能够持久地访问 to _private, _seal 和 _unseal</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> my;</span><br><span class="line">&#125;(MODULE || &#123;&#125;));</span><br></pre></td></tr></table></figure>
+<p>每个文件都可以为其私有变量 <code>_private</code> 设置属性，它将立即对其它文件生效。一旦模块加载完成，应用就能调用 <code>MODULE._seal()</code> 来阻止外部对内部 <code>_private</code> 的访问了。如果这个模块在应用的声明周期中还需要继续增进，那么在每个文件中，都可以在加载新文件前调用 <code>_unseal()</code> 再在执行后调用 <code>_seal()</code>。这个模式我还没在其它地方见过，而我觉得相当有用，值得一提。</p>
+<h3 id="子模块-Sub-modules"><a href="#子模块-Sub-modules" class="headerlink" title="子模块 - Sub-modules"></a>子模块 - Sub-modules</h3><p>最后一个进阶模式其实是最简单的。我们会有很多创建子模块的需求，而这就像创建通常的模块一样容易：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">MODULE.sub = (<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">   <span class="keyword">var</span> my = &#123;&#125;;</span><br><span class="line">   <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> my;</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure>
+<p>很简洁，不过我觉得值得一提。子模块在通常模块中保留了其原有的特性，包括增进与私有状态。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>绝大多数进阶模式都可以相互结合，从而创建出更有用的模式来。如果非要我推荐个在复杂应用中使用模式的途径，我会选择<strong>松散增进、私有状态和子模块</strong>。</p>
+<p>这里我并没有对性能做讨论。不过可以说一点：Module Pattern 对性能有帮助。它能有效地提升下载代码的速度，通过<strong>松散增进</strong>还能方便地并行非阻塞加载代码，提升下载速度。初始化速度可能会慢一点，但权衡起来是值得的。因为全局变量都得到了正确的导入，运行时的性能表现应该不会有差别，甚至还可能因为子模块中对私有变量引用的减少，获得性能提升。</p>
+<p>最后给出一个动态加载到父模块上的子模块示例（若不存在父模块，则创建之）。为简单起见，这里没有处理私有状态，但要加上这个特性并不难。即便面对非常复杂的继承代码库，这个模式也能使其能并行地动态加载自身：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> UTIL = (<span class="function"><span class="keyword">function</span> (<span class="params">parent, $</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">var</span> my = parent.ajax = parent.ajax || &#123;&#125;;</span><br><span class="line"></span><br><span class="line">   my.get = <span class="function"><span class="keyword">function</span> (<span class="params">url, params, callback</span>) </span>&#123;</span><br><span class="line">       <span class="comment">// 好吧这里不要太认真 :)</span></span><br><span class="line">       <span class="keyword">return</span> $.getJSON(url, params, callback);</span><br><span class="line">   &#125;;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// etc...</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> parent;</span><br><span class="line">&#125;(UTIL || &#123;&#125;, jQuery));</span><br></pre></td></tr></table></figure>
+<p>希望这篇文章对你有帮助，希望它能够让你写出更好、更模块化的 JavaScript~！</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2014/js-module-pattern/" data-title="JavaScript 模块模式 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/js-common-sense/" title="JS 传参方式与作用域基础">
+  <strong>上一篇：</strong><br/>
+  <span>
+  JS 传参方式与作用域基础</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/introduce-icard-ustc/"  title="介绍 iCard-USTC">
+ <strong>下一篇：</strong><br/> 
+ <span>介绍 iCard-USTC
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基础模式"><span class="toc-number">1.</span> <span class="toc-text">基础模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#匿名闭包"><span class="toc-number">1.1.</span> <span class="toc-text">匿名闭包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#导入全局变量"><span class="toc-number">1.2.</span> <span class="toc-text">导入全局变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#导入模块"><span class="toc-number">1.3.</span> <span class="toc-text">导入模块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进阶模式"><span class="toc-number">2.</span> <span class="toc-text">进阶模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#增进-Augmentation"><span class="toc-number">2.1.</span> <span class="toc-text">增进 - Augmentation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#松散增进-Loose-Augmentation"><span class="toc-number">2.2.</span> <span class="toc-text">松散增进 - Loose Augmentation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#紧凑增进-Tight-Augmentation"><span class="toc-number">2.3.</span> <span class="toc-text">紧凑增进 - Tight Augmentation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#复制与继承-Cloning-and-Inheritance"><span class="toc-number">2.4.</span> <span class="toc-text">复制与继承 - Cloning and Inheritance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跨文件私有状态-Cross-File-Private-State"><span class="toc-number">2.5.</span> <span class="toc-text">跨文件私有状态 - Cross-File Private State</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#子模块-Sub-modules"><span class="toc-number">2.6.</span> <span class="toc-text">子模块 - Sub-modules</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

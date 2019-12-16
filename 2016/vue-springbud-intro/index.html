@@ -1,0 +1,631 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>Vue + Webpack 多页面多公共 Chunk 实例模板 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="vue-springbud 是一个整合了 Vue + Webpack 多页面、多公共 chunk 支持的示例模板，区分了生产环境和开发环境的打包脚本，同时提供了对 jQuery 等传统类库的支持。">
+<meta name="keywords" content="Web,JS,Vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue + Webpack 多页面多公共 Chunk 实例模板">
+<meta property="og:url" content="https://ewind.us/2016/vue-springbud-intro/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="vue-springbud 是一个整合了 Vue + Webpack 多页面、多公共 chunk 支持的示例模板，区分了生产环境和开发环境的打包脚本，同时提供了对 jQuery 等传统类库的支持。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.565Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue + Webpack 多页面多公共 Chunk 实例模板">
+<meta name="twitter:description" content="vue-springbud 是一个整合了 Vue + Webpack 多页面、多公共 chunk 支持的示例模板，区分了生产环境和开发环境的打包脚本，同时提供了对 jQuery 等传统类库的支持。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/vue-springbud-intro/" title="Vue + Webpack 多页面多公共 Chunk 实例模板" itemprop="url">Vue + Webpack 多页面多公共 Chunk 实例模板</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2016-10-10T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-10-11</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#特性"><span class="toc-number">1.</span> <span class="toc-text">特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行"><span class="toc-number">2.</span> <span class="toc-text">运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结构"><span class="toc-number">3.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现"><span class="toc-number">4.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置"><span class="toc-number">5.</span> <span class="toc-text">配置</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="https://github.com/doodlewind/vue-springbud" target="_blank" rel="noopener">vue-springbud</a> 是一个整合了 Vue + Webpack 多页面、多公共 chunk 支持的示例模板，区分了生产环境和开发环境的打包脚本，同时提供了对 jQuery 等传统类库的支持。</p>
+<a id="more"></a>
+<h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><ul>
+<li>包含最简的多页面、多公共依赖下的 Webpack 配置示例，方便直接上手修改。</li>
+<li>包含最简的 Vue 2.0 组件和 jQuery 导入示例，Vue 的 Demo 还体现了组件的嵌套。</li>
+<li>支持 <code>css-loader</code> 和 <code>babel-loader</code> 插件。</li>
+<li>各入口 HTML 由 <code>HtmlWebpackPlugin</code> 从模板生成，模板可以直接自定义。</li>
+<li>支持 <code>dev</code> 和 <code>prod</code> 两种打包模式，<code>prod</code> 下支持 chunkhash 值，且两种模式均带 Sourcemap。</li>
+<li>可参数化定制打包输出目录，以适配各后端框架。</li>
+</ul>
+<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>由 npm 安装：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install vue-springbud</span><br></pre></td></tr></table></figure>
+<p>构建带 <code>watch</code> 功能的开发环境，启动后可用本地任意 Web Server 调试输出文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm run dev</span><br></pre></td></tr></table></figure>
+<p>构建生产环境，输出文件会打上 chunkhash 值：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm run prod</span><br></pre></td></tr></table></figure>
+<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><p>前端多个入口页面依赖多个公用模块的一般化情景，可以简化为如下图所示的情形。下图中的 <code>lib-a-b-c</code> 和 <code>lib-b-c</code> 都是跨页面的公用模块。因此，在打包时，这两个公用模块可以使用 Webpack 的插件进行抽取优化，具体的配置文件在下文示例中有详细的注释。另外，<code>lib-a-b-c</code> 在 <code>c.html</code> 中启用了延迟加载效果，可在浏览器中打开 <code>c.html</code> 查看网络调试器，页面加载完成后 5 秒后方触发下载 <code>lib-a-b-c</code> 对应的 chunk 执行。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── a.html</span><br><span class="line">│   └── a</span><br><span class="line">│       ├── a-1</span><br><span class="line">│       ├── a-2</span><br><span class="line">│       ├── lib-a-b-c</span><br><span class="line">│       └── vue</span><br><span class="line">├── b.html</span><br><span class="line">│   └── b</span><br><span class="line">│       ├── b-1</span><br><span class="line">│       ├── lib-a-b-c</span><br><span class="line">│       ├── lib-b-c</span><br><span class="line">│       └── jquery</span><br><span class="line">└── c.html</span><br><span class="line">    └── c</span><br><span class="line">        ├── lib-b-c</span><br><span class="line">        └── lib-a-b-c</span><br></pre></td></tr></table></figure>
+<p>这个依赖关系下，对应的项目目录结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── README.md</span><br><span class="line">├── app</span><br><span class="line">│   ├── a.js                # 页面 A 入口</span><br><span class="line">│   ├── b.js                # 页面 B 入口</span><br><span class="line">│   ├── c.js                # 页面 C 入口</span><br><span class="line">│   ├── components</span><br><span class="line">│   │   ├── App.vue         # Vue 父组件</span><br><span class="line">│   │   └── Child.vue       # Vue 子组件</span><br><span class="line">│   ├── modules</span><br><span class="line">│   │   ├── a-1.js          # 页面 A 依赖 1</span><br><span class="line">│   │   ├── a-2.js          # 页面 A 依赖 2</span><br><span class="line">│   │   ├── b-1.js          # 页面 B 依赖</span><br><span class="line">│   │   ├── lib-a-b-c.js    # 页面 A/B/C 公共依赖</span><br><span class="line">│   │   └── lib-b-c.js      # 页面 B/C 公共依赖</span><br><span class="line">│   └── templates</span><br><span class="line">│       ├── a.html          # 页面 A HTML 模板</span><br><span class="line">│       ├── b.html          # 页面 B HTML 模板</span><br><span class="line">│       └── c.html          # 页面 C HTML 模板</span><br><span class="line">├── dist                    # bundle 输出目录</span><br><span class="line">├── html                    # HTML 输出目录</span><br><span class="line">├── node_modules</span><br><span class="line">├── package.json</span><br><span class="line">└── resources               # 未走 Webpack 资源目录</span><br></pre></td></tr></table></figure>
+<p>对打包结果的期望如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── 3.chunk.js                # C 的延迟加载 chunk</span><br><span class="line">├── a.bundle.js               # A entry chunk</span><br><span class="line">├── b.bundle.js               # B entry chunk</span><br><span class="line">├── c.bundle.js               # C entry chunk</span><br><span class="line">├── commons-a-b-c.bundle.js   # A/B/C 公共 chunk</span><br><span class="line">└── commons-b-c.bundle.js     # B/C 公共 chunk</span><br></pre></td></tr></table></figure>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>Webpack 需按照实际的依赖关系，在配置文件中定义具体的打包与代码分割方案。该配置在 <code>config.js</code> 中定义。对于 Webpack 入门难点之一的依赖管理配置，在注释中给出了说明。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 已略去部分无关配置代码</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  <span class="comment">// 按照页面数量，声明多个入口</span></span><br><span class="line">  entry: &#123;</span><br><span class="line">    a: <span class="string">"./app/a"</span>,</span><br><span class="line">    b: <span class="string">"./app/b"</span>,</span><br><span class="line">    c: <span class="string">"./app/c"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="comment">// 将 jQuery 作为全局依赖引入</span></span><br><span class="line">    <span class="comment">// 在打包时发现 $ 的块会在全局作用域打入 jQuery</span></span><br><span class="line">    <span class="comment">// 该方法不支持延时按需加载</span></span><br><span class="line">    <span class="comment">// 若需要延迟加载 jQuery，则需要按照 require.ensure 引入 jQuery</span></span><br><span class="line">    <span class="keyword">new</span> ProvidePlugin(&#123;</span><br><span class="line">      $: <span class="string">'jquery'</span></span><br><span class="line">    &#125;),</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 代码分隔配置</span></span><br><span class="line">    <span class="comment">// CommonsChunkPlugin 合并处理的最小单位是 chunks 而非单个模块</span></span><br><span class="line">    <span class="keyword">new</span> CommonsChunkPlugin(&#123;</span><br><span class="line">      <span class="comment">// 抽取 b 和 c 两个 entry chunk 的公用依赖到 commons-b-c</span></span><br><span class="line">      name: <span class="string">"commons-b-c"</span>,</span><br><span class="line">      <span class="comment">// 使用 entry 中的 key 引用 chunk，而非文件名或模块名</span></span><br><span class="line">      chunks: [<span class="string">"b"</span>, <span class="string">"c"</span>]</span><br><span class="line">    &#125;),</span><br><span class="line">    <span class="comment">// 注意抽取依赖的执行顺序</span></span><br><span class="line">    <span class="comment">// 需先抽取 b 和 c 后，将结果返回给抽取 a/b/c 的 CommonsChunkPlugin</span></span><br><span class="line">    <span class="comment">// 即在提取 abc 三者的公用 chunk 时，不能再次引入 b 和 c</span></span><br><span class="line">    <span class="comment">// 需从已经抽取了 b 和 c 公用依赖的 commons-b-c 引入</span></span><br><span class="line">    <span class="keyword">new</span> CommonsChunkPlugin(&#123;</span><br><span class="line">      name: <span class="string">"commons-a-b-c"</span>,</span><br><span class="line">      <span class="comment">// 从 commons-b-c 引入 b 和 c</span></span><br><span class="line">      chunks: [<span class="string">"a"</span>, <span class="string">"commons-b-c"</span>]</span><br><span class="line">    &#125;),</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成供后端框架渲染的 HTML 文件</span></span><br><span class="line">    <span class="keyword">new</span> HtmlWebpackPlugin(&#123;</span><br><span class="line">      <span class="comment">// 输出文件名</span></span><br><span class="line">      filename: path.join(HTML_PATH, <span class="string">'a.html'</span>),</span><br><span class="line">      <span class="comment">// 模板路径</span></span><br><span class="line">      template: <span class="string">'app/templates/a.html'</span>,</span><br><span class="line">      <span class="comment">// 注入的 chunk 名，chunk 将作为 &lt;script&gt; 标签注入到模板 &lt;body&gt; 尾部</span></span><br><span class="line">      <span class="comment">// 注意顺序与实际依赖关系有关</span></span><br><span class="line">      chunks: [<span class="string">'commons-a-b-c'</span>, <span class="string">'a'</span>]</span><br><span class="line">    &#125;),</span><br><span class="line">    <span class="keyword">new</span> HtmlWebpackPlugin(&#123;</span><br><span class="line">      filename: path.join(HTML_PATH, <span class="string">'b.html'</span>),</span><br><span class="line">      template: <span class="string">'app/templates/b.html'</span>,</span><br><span class="line">      chunks: [<span class="string">'commons-a-b-c'</span>, <span class="string">'commons-b-c'</span>, <span class="string">'b'</span>]</span><br><span class="line">    &#125;),</span><br><span class="line">    <span class="keyword">new</span> HtmlWebpackPlugin(&#123;</span><br><span class="line">      filename: path.join(HTML_PATH, <span class="string">'c.html'</span>),</span><br><span class="line">      template: <span class="string">'app/templates/c.html'</span>,</span><br><span class="line">      chunks: [<span class="string">'commons-a-b-c'</span>, <span class="string">'commons-b-c'</span>, <span class="string">'c'</span>]</span><br><span class="line">    &#125;),</span><br><span class="line">  ],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>vue-springbud 支持通过修改 <code>config.js</code> 中的配置变量，适配各后端框架：</p>
+<ul>
+<li><code>BUNDLE_PATH</code>: 输出的 JS bundle 文件路径</li>
+<li><code>HTML_PATH</code>: 输出的 HTML 文件路径</li>
+</ul>
+<p>对暂时不需要通过 Webpack 引入的各静态文件，可放置在 <code>resource</code> 或其它后端框架对应的静态资源目录，然后即可在相应的模板 HTML 中直接通过标签引入这些静态资源。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a><a href="/tags/Vue/">Vue</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2016/vue-springbud-intro/" data-title="Vue + Webpack 多页面多公共 Chunk 实例模板 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/sum-to-curry/" title="从 sum(2)(3) == sum(2, 3) 到实现柯里化函数">
+  <strong>上一篇：</strong><br/>
+  <span>
+  从 sum(2)(3) == sum(2, 3) 到实现柯里化函数</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/remote-log-vue-webpack-websocket/"  title="基于 Vue / Webpack / WebSocket 的前端远程调试工具">
+ <strong>下一篇：</strong><br/> 
+ <span>基于 Vue / Webpack / WebSocket 的前端远程调试工具
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#特性"><span class="toc-number">1.</span> <span class="toc-text">特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行"><span class="toc-number">2.</span> <span class="toc-text">运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结构"><span class="toc-number">3.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现"><span class="toc-number">4.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置"><span class="toc-number">5.</span> <span class="toc-text">配置</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

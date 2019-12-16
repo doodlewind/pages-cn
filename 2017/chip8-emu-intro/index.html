@@ -1,0 +1,734 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>如何用 3KB 不到的 JavaScript 实现微机模拟器 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="不知道有多少同学小时候玩过小霸王、GBA 之类游戏主机的模拟器呢？模拟器不仅仅是上面的游戏好玩，编写它的过程也是很有意思的。下面我们会介绍怎样拿 JavaScript 从头做一个带 CPU、内存、输入输出、能玩老游戏，体积还不到 3KB 的模拟器。">
+<meta name="keywords" content="JS,Algorithms,Assembly">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何用 3KB 不到的 JavaScript 实现微机模拟器">
+<meta property="og:url" content="https://ewind.us/2017/chip8-emu-intro/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="不知道有多少同学小时候玩过小霸王、GBA 之类游戏主机的模拟器呢？模拟器不仅仅是上面的游戏好玩，编写它的过程也是很有意思的。下面我们会介绍怎样拿 JavaScript 从头做一个带 CPU、内存、输入输出、能玩老游戏，体积还不到 3KB 的模拟器。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/merry8.png">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何用 3KB 不到的 JavaScript 实现微机模拟器">
+<meta name="twitter:description" content="不知道有多少同学小时候玩过小霸王、GBA 之类游戏主机的模拟器呢？模拟器不仅仅是上面的游戏好玩，编写它的过程也是很有意思的。下面我们会介绍怎样拿 JavaScript 从头做一个带 CPU、内存、输入输出、能玩老游戏，体积还不到 3KB 的模拟器。">
+<meta name="twitter:image" content="https://ewind.us/images/merry8.png">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/chip8-emu-intro/" title="如何用 3KB 不到的 JavaScript 实现微机模拟器" itemprop="url">如何用 3KB 不到的 JavaScript 实现微机模拟器</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-11-18T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-11-19</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#模拟器开发入门"><span class="toc-number">1.</span> <span class="toc-text">模拟器开发入门</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#把冰箱门打开：游戏-ROM-是什么格式？"><span class="toc-number">1.1.</span> <span class="toc-text">把冰箱门打开：游戏 ROM 是什么格式？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#把大象装进去：如何运行-ROM-的代码？"><span class="toc-number">1.2.</span> <span class="toc-text">把大象装进去：如何运行 ROM 的代码？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#把冰箱门关上：如何处理输入输出？"><span class="toc-number">1.3.</span> <span class="toc-text">把冰箱门关上：如何处理输入输出？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Chip-8-简介"><span class="toc-number">2.</span> <span class="toc-text">Chip-8 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Merry8-模拟器架构"><span class="toc-number">3.</span> <span class="toc-text">Merry8 模拟器架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
+		
+		</div>
+		
+		<p>不知道有多少同学小时候玩过小霸王、GBA 之类游戏主机的模拟器呢？模拟器不仅仅是上面的游戏好玩，编写它的过程也是很有意思的。下面我们会介绍怎样拿 JavaScript 从头做一个带 CPU、内存、输入输出、能玩老游戏，体积还不到 3KB 的<a href="https://github.com/doodlewind/merry8" target="_blank" rel="noopener">模拟器</a>。</p>
+<a id="more"></a>
+<h2 id="模拟器开发入门"><a href="#模拟器开发入门" class="headerlink" title="模拟器开发入门"></a>模拟器开发入门</h2><p>如果你觉得下面的理论有些枯燥，不妨直接打开玩玩我们最后实现的成果：<a href="https://ewind.us/h5/merry8">Merry8</a> 模拟器。它用 2.5KB 的 JavaScript 代码，支持了一门上世纪 70 年代的汇编语言，能够让你在 Canvas 上体验当年用这门语言编写的 PONG 游戏（是的，就是那个来回弹跳的乒乓球），还支持通过 <a href="https://www.npmjs.com/package/merry8" target="_blank" rel="noopener">NPM</a> 来安装并使用它，<del>觉得有意思的话请点个 <a href="https://github.com/doodlewind/merry8" target="_blank" rel="noopener">Star</a> 再走哦😀</del></p>
+<p><img src="/images/merry8.png" alt="merry8-pong"></p>
+<p>前戏过后就是正题啦。可能对于绝大多数同学来说，模拟器都是一个陌生的概念，那么它大概是个什么样的东西呢？</p>
+<p>宽泛地说，从 Hello World 到 Alpha Go，所有的软件都不过是对【输入】给出【输出】的代码逻辑而已。那么，模拟器也是软件，它的输入和输出又是什么呢？想想你是怎么玩超级玛丽的吧：</p>
+<ol>
+<li>你需要用模拟器打开超级玛丽的 ROM，这是模拟器的<strong>输入</strong>。</li>
+<li>你需要在游戏过程中按键，这也是模拟器的<strong>输入</strong>。</li>
+<li>模拟器有画面和声音，这是模拟器的<strong>输出</strong>。</li>
+</ol>
+<p>所以，只要你的代码实现了<strong>打开并运行 ROM，对用户输入做出响应</strong>，就是个能用的模拟器了！</p>
+<p>这样一来，我们需要思考的问题就进一步细化成了这几个：</p>
+<ol>
+<li>游戏 ROM 是什么格式，怎样打开它呢？</li>
+<li>怎样运行游戏 ROM 里的代码呢？</li>
+<li>ROM 运行时，怎样接收用户输入，并把结果输出呢？</li>
+</ol>
+<p>是不是和 <code>如何把大象装进冰箱</code> 的三部曲一样，非常简单而清晰呢？下面，我们就来逐一回答这三个问题：</p>
+<h3 id="把冰箱门打开：游戏-ROM-是什么格式？"><a href="#把冰箱门打开：游戏-ROM-是什么格式？" class="headerlink" title="把冰箱门打开：游戏 ROM 是什么格式？"></a><del>把冰箱门打开</del>：游戏 ROM 是什么格式？</h3><p>Windows 的可执行文件是 <code>.exe</code> 格式，Linux 的可执行文件是 <code>.elf</code> 格式，而游戏主机的可执行文件就是 ROM 了。不同平台的游戏机，支持的 ROM 格式都有所不同。不过总的来说，它们都是由<strong>机器码</strong>所构成的二进制格式。一些前端同学可能熟悉 <code>ArrayBuffer</code> 这种数据结构，它非常适合表达这样的内容。所以，我们打开 ROM 时做的事情非常简单，只需要这两步：</p>
+<ol>
+<li>发一个 Ajax 请求，获得 ROM 的静态文件。</li>
+<li>把 ROM 文件转换成 JS 的 ArrayBuffer 数组。</li>
+</ol>
+<p>这步结束后，我们获得的 ArrayBuffer 数组，每项都是一个大小在 <code>0x00</code> 到 <code>0xFF</code> 之间的数字。熟悉 CSS 颜色值的同学们笑了，这不就是十六进制下的 <code>0~255</code> 嘛！不过，这里的取值大小和颜色深浅可没什么关系，而是实打实的机器码。怎样破译这串数字的含义呢？</p>
+<h3 id="把大象装进去：如何运行-ROM-的代码？"><a href="#把大象装进去：如何运行-ROM-的代码？" class="headerlink" title="把大象装进去：如何运行 ROM 的代码？"></a><del>把大象装进去</del>：如何运行 ROM 的代码？</h3><p>提到【机器码】和【汇编语言】，可能不少同学首先想到的都是当年被微机原理支配的恐惧……不过请放心，这并没有多难（当年我好像只考了 70 多分😅）。这一步看似麻烦，但也可以分为两个非常容易解释清楚的小步骤：</p>
+<ol>
+<li>把 <code>0xF0</code> 这样的<strong>机器码</strong>，翻译成可读性更好的<strong>汇编码</strong>。</li>
+<li>根据汇编码的意义来执行它。</li>
+</ol>
+<p>从小霸王到 GBA，从 Apple II 到 80x86，各种曾经是主流的硬件平台，其硬件都有非常完善的<strong>开发者文档</strong>。文档里会告诉你形如这样的信息：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">8xy3 - XOR Vx, Vy</span><br><span class="line">Set Vx = Vx XOR Vy.</span><br></pre></td></tr></table></figure>
+<p>这是什么意思呢？大意就是：数值满足 <code>8xy3</code> 的机器码，对应的汇编指令叫做 <code>XOR</code>。这条指令的功能，是把 <code>Vx</code> 寄存器的值设置为 <code>Vx</code> 和 <code>Vy</code> 做异或操作后的值（这里的 x 和 y 类似通配符，匹配出现在相应位置上的一位数值）。</p>
+<p>所以，我们就可以把所有数值满足 <code>8xy3</code> 的机器码，翻译成为 <code>XOR</code> 汇编指令了。如果用函数来表达，这个函数大致形如：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">convert</span> (<span class="params">num</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (num[<span class="number">0</span>] === <span class="number">8</span> &amp;&amp; num[<span class="number">3</span>] === <span class="number">3</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'XOR'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的判断条件显然是错误的（进制和下标都是瞎写的），不过它的思路和真正可用的版本已经很接近了：输入机器码数值，根据文档判断出它是什么指令，只要写一大堆扁平的 <code>else if</code> 就足够了，不难吧？</p>
+<p>把机器码数值转换为汇编码之后，我们需要做的就是最核心的内容了：<strong>根据汇编码的意义来执行它。</strong>这需要一种非常高端、精妙、富有智慧而通用的设计模式——</p>
+<p><strong>兵来将挡，水来土掩模式</strong></p>
+<p>这种模式的背后，是一种非常强大的编程思想，强调在代码中<strong>需求缺什么，就补什么</strong>。在编写模拟器时，这种模式指导我们：</p>
+<ol>
+<li>见到有些汇编码会跳转地址，我们就补一个 <code>count</code> 地址变量，模拟出地址信息让它改。</li>
+<li>见到有些汇编码会改寄存器，我们就补几个 <code>Vx</code> 变量，模拟出寄存器让它改。</li>
+<li>见到有些汇编码会读写内存，我们就补一个 <code>memory</code> 数组，模拟出内存让它改。</li>
+<li>见到有些汇编码会改堆栈数组，我们就补一个 <code>stack</code> 数组和一个 <code>pointer</code> 变量，模拟出一个能进能出的栈让它进进出出。</li>
+<li>……</li>
+</ol>
+<p>很多人误用了这种模式，在每次遇上小改动就琐碎地修修补补。在这里，我们的本意其实<strong>是在通读文档后，找出所有指令会修改的东西，用变量来模拟它。</strong>如果用伪代码表示，我们模拟出的一条汇编指令大致形如：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ADD</span> (<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> a + b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们先定义一个 <code>ADD</code> 函数，在函数内部处理好 <code>ADD</code> 汇编指令所修改的内容，这样我们就模拟出一条汇编指令了！实际的代码牵扯到一些位运算，但总体来说，你大可以把每条指令都当做一个单纯的函数。</p>
+<p>在实现了这一堆汇编指令的功能以后，最后的关键问题就是<strong>该怎么样运行它呢？</strong>我们知道，每个 CPU 都有特定的运行频率，一旦运行就会按照这个频率不停地执行指令。所以，我们可以把 CPU 的这种运行方式，模拟为一个死循环：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">  <span class="comment">// 读取下一条指令。</span></span><br><span class="line">  <span class="keyword">const</span> ins = nextIns()</span><br><span class="line">  <span class="comment">// 将指令喂给 CPU 执行。</span></span><br><span class="line">  cpu.run(ins)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>好了！到此为止，我们知道了用 JavaScript 写模拟器的话，只需要：</p>
+<ul>
+<li>用函数模拟指令功能。</li>
+<li>用变量模拟寄存器、内存和堆栈。</li>
+<li>用循环模拟 CPU 运行。</li>
+</ul>
+<p>这样是不是就足以让模拟器运行起来了呢？事情并没有这么单纯…再坚持一下就够了！</p>
+<h3 id="把冰箱门关上：如何处理输入输出？"><a href="#把冰箱门关上：如何处理输入输出？" class="headerlink" title="把冰箱门关上：如何处理输入输出？"></a><del>把冰箱门关上</del>：如何处理输入输出？</h3><p>对函数式编程有所了解的同学们，应该都了解【副作用】的概念。副作用代表着所有计算之外，【不纯粹】的东西，最典型的副作用就是【输入】和【输出】了。</p>
+<p>如果没有副作用，那么模拟器就会毫无疑问地陷入死循环（比如用户打开游戏不按键，那么界面会卡在一个 <code>Press Start to Continue</code> 之类的标题画面不动）。所以，我们需要在上一步的基础上，实现某种机制，来合适地处理输入和输出。</p>
+<p>在 JavaScript 的语义中，我们有 <code>setTimeout</code> 的概念。通过定时器，我们能够把同步的代码转为异步执行。对 CPU 不停进行计算的模拟会阻塞我们的主线程，所以对于一个真实世界的模拟器，我们需要使用一些异步的小技巧来为输入输出腾出空间。这个过程可以简化为：</p>
+<ol>
+<li>把原来 <code>while</code> 不停执行指令的<strong>同步</strong>死循环，变成每隔一段时间执行若干条指令的<strong>异步</strong>循环。</li>
+<li>设置事件监听器，在按下特定按钮的时候，<strong>更改模拟器的状态</strong>（这时候 CPU 的循环被定时器暂停了）。</li>
+<li>每次触发 CPU 的异步循环，执行到一些判断输入状态的指令时，就可以获取到被输入事件修改过的状态了。</li>
+</ol>
+<p>这样，我们就解决了输入的问题了！输出问题则简单得多：在 CPU 执行输出指令时，渲染 Canvas 即可。或者，你也可以另开一个定时器来不停地渲染屏幕状态。</p>
+<p>到此为止，我们已经介绍了对模拟器而言，这几个最核心功能点的实现方式：</p>
+<ul>
+<li>如何读取 ROM 文件。</li>
+<li>如何模拟运行机器指令。</li>
+<li>如何处理输入输出。</li>
+</ul>
+<p>理论水平已经足够了，下面就是实战啦😀</p>
+<h2 id="Chip-8-简介"><a href="#Chip-8-简介" class="headerlink" title="Chip-8 简介"></a>Chip-8 简介</h2><p>我们的 <a href="https://ewind.us/h5/merry8">Merry8</a> 模拟器实现的是 <a href="https://en.wikipedia.org/wiki/CHIP-8" target="_blank" rel="noopener">Chip-8</a> 汇编语言。这是一种上世纪 70 年代的中古语言。和小霸王 NES 使用的 6502 汇编不同的是，Chip-8 并没有一种官方的硬件实现，只要按照它的规范实现了完整的指令集，就可以运行兼容的 ROM 了。由于其结构的简单，它非常适合作为<strong>模拟器开发的入门语言</strong>。</p>
+<p>符合 Chip-8 规范的解释器（或者虚拟机、模拟器…）可使用的资源包括：</p>
+<ul>
+<li>4KB 大小的内存</li>
+<li>V0 到 V15 共 16 个 16 位寄存器</li>
+<li>一个 PC 计数器</li>
+<li>一个 I 索引寄存器</li>
+<li>一个 SP 栈指针</li>
+<li>一个延迟定时器</li>
+<li>一个 16 键的键盘</li>
+<li>一个音效寄存器</li>
+<li>一个 64x32 的黑白屏幕</li>
+</ul>
+<p>基于上面的背景介绍，我们可以非常自然地把这些资源抽象成 JavaScript：</p>
+<ul>
+<li>内存和堆栈：存放连续数据的 <strong>ArrayBuffer 数组</strong>！</li>
+<li>寄存器和计数器：表示相应值的 <strong>number 变量</strong>！</li>
+<li>键盘：表示各按键是否按下的 <strong>boolean 数组</strong>！</li>
+<li>黑白屏幕：<strong>表达颜色的 boolean 二维数组</strong>！</li>
+</ul>
+<p>对指令而言，基础的 Chip8 规范共有 35 条指令，虽然每条指令长度都固定在 2 个字节，但不同指令中的参数格式是不同的。例如读取到的指令机器码为 <code>60 12</code> 时，整个处理流程就是：</p>
+<ol>
+<li>匹配出该指令是 <code>6xkk</code> 指令，这是 <code>LD</code>（Load）指令，第一个操作数为 0 且第二个操作数为 12。</li>
+<li>根据文档，将 <code>0x12</code> 这个操作数写入 V0 寄存器。</li>
+</ol>
+<p>在明白了这条指令的含义后，我们就可以模拟出它的指令逻辑，来操纵模拟的硬件资源了。把这 35 条指令覆盖一遍后，我们就能实现整个模拟器啦。</p>
+<p>对每条指令的实现细节，在 <a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.0" target="_blank" rel="noopener">Chip-8 文档</a> 和 <a href="https://github.com/doodlewind/merry8/blob/master/src/ops.js" target="_blank" rel="noopener">模拟器 CPU 源码</a> 里都有相应的信息，在此就不再赘述啦。</p>
+<h2 id="Merry8-模拟器架构"><a href="#Merry8-模拟器架构" class="headerlink" title="Merry8 模拟器架构"></a>Merry8 模拟器架构</h2><p>Merry8 模拟器是笔者在 <a href="https://github.com/doodlewind/merry8/commit/5764fa83109f99ad007f2fb9d112f55a250dcfba" target="_blank" rel="noopener">去年的圣诞节</a> 花了一个周末实现的。这也是 <code>Merry</code> 命名的由来。不过鉴于当时只有不到半年的前端经验，它在一些工程细节上并不优雅，整体更接近于一个应用而非类库，把它写完丢到 Github 上以后也是疏于打理。值此白色相簿的季节，在优化了一些代码结构后，现在它已经是一个有着可用 API 且具备清晰模块结构的轮子了，主要的模块包括：</p>
+<ul>
+<li><code>disassembler</code> 模块，负责将机器码反汇编为可读的格式。</li>
+<li><code>ops</code> 模块，封装了 Chip-8 的 CPU 指令逻辑。</li>
+<li><code>view</code> 模块，负责渲染状态到 Canvas 上。</li>
+</ul>
+<p>整个模拟器的运作方式基本和上文中的描述一致，用一句话说清楚，就是<strong>在异步循环中处理指令逻辑</strong>。</p>
+<p>在最近的 <code>v0.3.0</code> 更新中，它基于 OO 的基本方式，理清了几个模块之间的关系：你可以通过 <code>new Merry8()</code> 新建一个模拟器实例，每个模拟器实例都有着自己的虚拟 CPU、内存、堆栈指针、寄存器和 Canvas 上下文。这样，你可以很轻松地在一个页面里实例化多个模拟器，加载不同的 ROM 并进行不同的控制。</p>
+<p>在前端的工程化方面，这个玩具也有些靠谱的实践：</p>
+<ul>
+<li>Rollup 构建。</li>
+<li>StandardJS 风格 Lint。</li>
+<li>对若干反汇编函数和 CPU 指令，实现了单元测试。</li>
+</ul>
+<p>目前，Merry8 还处于 Beta 状态，它的游戏兼容性还很不理想，测试覆盖也很欠缺，但如果你有兴趣来参与完善它，非常欢迎你提出 PR！</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>毫无疑问，Merry8 就算再完善，也不过是一个玩具而已。那么，为什么我还愿意花这么多精力来正经地实现、维护并介绍它呢？我能想到几个理由：</p>
+<ul>
+<li>开发模拟器，是一个<strong>了解计算机基础知识如何工作</strong>的好方式。它不光有着容易展示出成果的乐趣，还可以让你借此了解到指令如何运作、内存如何分配、堆栈如何增减的基础知识。</li>
+<li>编写模拟器比起其它了解底层技术的方式而言，<strong>思维负担更轻</strong>。比如，你并不需要学习如何使用 C 或 C++ 之类底层的编程语言。注意，开发模拟器并不需要会写汇编语言，我到现在也不会用 Chip-8 汇编写游戏，只知道每条指令做什么就足够了。</li>
+<li>它能给你真正意义上<strong>根据文档来思考模块结构</strong>的机会。不同于日常根据接口文档编写的【入参格式、出参格式】胶水代码，你要实现的东西是一份<strong>技术规范</strong>。别忘了，多少人啃过的 ECMA-262 同样也只是一份技术规范。</li>
+<li>它能够锻炼你<strong>调试与单元测试</strong>的能力。在一个每秒执行成千上万次的循环里，<strong>一条指令的细微偏移就会让整个模拟器失效</strong>。所以，你需要用单元测试来保证每条指令的正确性，并在出现问题时用比 <code>console.log</code> 更靠谱的调试技术来定位并解决。</li>
+<li>它能够培养你<strong>诊断性能瓶颈</strong>并优化的思考方式。比如，在第一个版本里，模拟器的 CPU 占用一直是满的。我以为问题出在定时逻辑上，但 Profiling 后发现问题出在渲染层：当时使用 DOM 绘图，对 64X32 的上千个 DOM 节点，60fps 的全量更新已经使得浏览器不堪重负。在迁移到 Canvas 后，CPU 负载问题就顺利解决了。</li>
+</ul>
+<p>最后不得不提的是，在调试模拟器 ROM 的时候，会让你对技术和历史有更多的敬畏。不要觉得 3KB 内实现一个模拟器有多么了不起，要知道它所模拟的 PONG 游戏只有 <strong>246 字节</strong>！天知道它的作者是怎么在 200 多个字节的空间里实现碰撞、计分和 IO 交互的，<strong>也许这就是上古时期程序员的神级操作吧</strong>。</p>
+<p>如果你觉得本文的主题有些意思，在我的 <a href="https://github.com/doodlewind" target="_blank" rel="noopener">Github</a> 还有一些类似的玩具，旨在用最简单的逻辑来实现编译器、解释器、前端框架等轮子的基础。欢迎关注哦😀</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/CHIP-8" target="_blank" rel="noopener">Wikipedia</a></li>
+<li><a href="http://chip8.sourceforge.net/chip8-1.1.pdf" target="_blank" rel="noopener">Chip8 Reference Manual</a></li>
+<li><a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.0" target="_blank" rel="noopener">Chip-8 Technical Reference</a></li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JS/">JS</a><a href="/tags/Algorithms/">Algorithms</a><a href="/tags/Assembly/">Assembly</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/chip8-emu-intro/" data-title="如何用 3KB 不到的 JavaScript 实现微机模拟器 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/boring-tech-post/" title="为什么源码分析味同嚼蜡？浅析技术写作中的思维误区">
+  <strong>上一篇：</strong><br/>
+  <span>
+  为什么源码分析味同嚼蜡？浅析技术写作中的思维误区</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/mobile-js-benchmark/"  title="移动端逆袭！iPad 的 JavaScript 性能已超越 rMBP">
+ <strong>下一篇：</strong><br/> 
+ <span>移动端逆袭！iPad 的 JavaScript 性能已超越 rMBP
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#模拟器开发入门"><span class="toc-number">1.</span> <span class="toc-text">模拟器开发入门</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#把冰箱门打开：游戏-ROM-是什么格式？"><span class="toc-number">1.1.</span> <span class="toc-text">把冰箱门打开：游戏 ROM 是什么格式？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#把大象装进去：如何运行-ROM-的代码？"><span class="toc-number">1.2.</span> <span class="toc-text">把大象装进去：如何运行 ROM 的代码？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#把冰箱门关上：如何处理输入输出？"><span class="toc-number">1.3.</span> <span class="toc-text">把冰箱门关上：如何处理输入输出？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Chip-8-简介"><span class="toc-number">2.</span> <span class="toc-text">Chip-8 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Merry8-模拟器架构"><span class="toc-number">3.</span> <span class="toc-text">Merry8 模拟器架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

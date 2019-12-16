@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html ng-app="match.recorder" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+    <title>Match Recorder</title>
+    <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link rel="apple-touch-icon" href="img/touch-icon-iphone.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="img/touch-icon-iphone-retina.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="img/touch-icon-ipad-retina.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        * { border-radius: 0 !important; }
+        .server { width: 16px; }
+        @font-face { font-family: AgencyFB; src: url('font/AgencyFB.ttf'); }
+        body { font-family: 'AgencyFB', sans-serif; }
+        table {font-size: larger; !important;}
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#ustc-tennis-nav-collapse" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" ui-sref="config"><span class="glyphicon glyphicon-list-alt"></span> Match Recorder</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="ustc-tennis-nav-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a ui-sref="help"><span class="glyphicon glyphicon-bookmark"></span> Help</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div ui-view class="container"></div>
+
+<script src="bower_components/angular/angular.min.js"></script>
+<script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+<script src="next-point.js"></script>
+<script src="demo-progress.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

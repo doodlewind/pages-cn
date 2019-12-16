@@ -1,0 +1,30 @@
+<h1 id="USTC-GPA"><a href="#USTC-GPA" class="headerlink" title="USTC-GPA"></a>USTC-GPA</h1><p>GPA calculator for USTCers</p>
+<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h2><ul>
+<li>一键粘贴导入教务处成绩单。</li>
+<li>按不同绩点算法计算算术均分、加权均分和绩点。</li>
+<li>支持不同学校要求的多种计算方式，如选择是否包含放弃、未通过课程等。</li>
+<li>学期绩点可视化。</li>
+<li>可即时修改输入成绩，便于找出性价比最高的重修课程。</li>
+</ul>
+<h2 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h2><h3 id="输入"><a href="#输入" class="headerlink" title="输入"></a>输入</h3><ul>
+<li>进入<a href="http://mis.teach.ustc.edu.cn">教务系统</a>的成绩查询页，全选或手动选择复制成绩单。</li>
+<li>粘贴到输入框中即可，表头等其它格式会被自动过滤。</li>
+</ul>
+<h3 id="选项"><a href="#选项" class="headerlink" title="选项"></a>选项</h3><ul>
+<li><strong>Failed Credits</strong> - 是否包含补考未通过的课程。</li>
+<li><strong>Score for 5 Grades</strong> - 五分制课程对应百分制的换算，可选最大、最小和平均三种。</li>
+<li><strong>Score for 2 Grades</strong> - 二分制课程对应百分制的换算法。可选不计入、80 分或 60 分三种。</li>
+</ul>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>重修或放弃等标记为「放弃」的课程不参与均分和 GPA 计算。</li>
+<li>补考通过的课程按一次 60 计算均分和 GPA（教务系统会将补考课程的 GPA 计入两次）。</li>
+<li>补考未通过的课程按期末成绩而非补考成绩计算（别问为什么我知道）。</li>
+<li>「课程类别」为空的课程不参与均分计算，如英语高级班的 4 个学分等。</li>
+<li>按默认选项计算，可得到与教务系统一致的均分。</li>
+</ul>
+<h3 id="各种绩点算法"><a href="#各种绩点算法" class="headerlink" title="各种绩点算法"></a>各种绩点算法</h3><p>参见 <a href="http://apps.chasedream.com/gpa">GPA 计算器</a></p>
+<h2 id="已知问题"><a href="#已知问题" class="headerlink" title="已知问题"></a>已知问题</h2><ol>
+<li>教务系统对五分制换算有误（并非严格按照分数区间的均值），如 <code>B+</code> 实际按 83.5 而非 83 计，<code>A-</code> 实际按 87.5 而非 87 计等。计算器尽量与教务系统保持一致，然而仍然有一些五分制等级的换算存在一些细微（精确到小数点后两位）的区别。</li>
+<li>若在某门课程新出成绩后使用本计算器，均分结果可能会与教务系统不一致。这是由于教务系统对绩点的计算是非实时的，出分与更新绩点之间存在一定的时间间隔。</li>
+</ol>
+<h2 id="隐私"><a href="#隐私" class="headerlink" title="隐私"></a>隐私</h2><p>这是一个静态的计算器页面，不含有上传数据等功能。</p>

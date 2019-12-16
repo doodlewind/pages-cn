@@ -1,0 +1,647 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>文字渲染那些事（一）字体是如何存储的？ | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="在现代生活里，我们几乎每天都会和屏幕上的文字打交道——文字看起来是如此平凡，以至于不少与 UI 相关的专业人士都对其下的复杂性知之甚少。这个系列旨在以开发者的角度，介绍一些从文字的二进制数据到像素之间流程的科普知识，希望对感兴趣的同学能有一些启发。">
+<meta name="keywords" content="Font">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文字渲染那些事（一）字体是如何存储的？">
+<meta property="og:url" content="https://ewind.us/2018/text-in-depth-1/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="在现代生活里，我们几乎每天都会和屏幕上的文字打交道——文字看起来是如此平凡，以至于不少与 UI 相关的专业人士都对其下的复杂性知之甚少。这个系列旨在以开发者的角度，介绍一些从文字的二进制数据到像素之间流程的科普知识，希望对感兴趣的同学能有一些启发。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/text-in-depth/truetype-bitmap.gif">
+<meta property="og:image" content="https://ewind.us/images/text-in-depth/ttf-bin.png">
+<meta property="og:image" content="https://ewind.us/images/text-in-depth/typr-demo.png">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.559Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="文字渲染那些事（一）字体是如何存储的？">
+<meta name="twitter:description" content="在现代生活里，我们几乎每天都会和屏幕上的文字打交道——文字看起来是如此平凡，以至于不少与 UI 相关的专业人士都对其下的复杂性知之甚少。这个系列旨在以开发者的角度，介绍一些从文字的二进制数据到像素之间流程的科普知识，希望对感兴趣的同学能有一些启发。">
+<meta name="twitter:image" content="https://ewind.us/images/text-in-depth/truetype-bitmap.gif">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/text-in-depth-1/" title="文字渲染那些事（一）字体是如何存储的？" itemprop="url">文字渲染那些事（一）字体是如何存储的？</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-12-19T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-12-20</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#字体的标准与格式"><span class="toc-number">1.</span> <span class="toc-text">字体的标准与格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小探-TTF-文件"><span class="toc-number">2.</span> <span class="toc-text">小探 TTF 文件</span></a></li></ol>
+		
+		</div>
+		
+		<p>在现代生活里，我们几乎每天都会和屏幕上的文字打交道——文字看起来是如此平凡，以至于不少与 UI 相关的专业人士都对其下的复杂性知之甚少。这个系列旨在以开发者的角度，介绍一些从文字的二进制数据到像素之间流程的科普知识，希望对感兴趣的同学能有一些启发。</p>
+<a id="more"></a>
+<h2 id="字体的标准与格式"><a href="#字体的标准与格式" class="headerlink" title="字体的标准与格式"></a>字体的标准与格式</h2><p>喜欢折腾系统的同学，对于常见的字体格式肯定不会陌生：Windows 系统长久以来，在 <code>C:\Windows\Fonts</code> 里面就放着一大堆 TTF 格式的字体文件。相应地，在 macOS 的 <code>/Library/Fonts</code> 目录里，也有一堆字体：不过这里除了 TTF 之外，还有后缀名为 TTC 和 OTF 的格式。它们又有什么关系呢？</p>
+<p>有个有趣的问题，那就是为什么 TTF 格式字体在 macOS 和 Windows 上都能通用呢？这里其实藏着一段微软与苹果的 py 交易史：在 80 年代，Adobe 开发出了基于矢量的私有字体格式 Type 1，以及打印语言 PostScript（在 PDF 格式里就能看到）。矢量字体比起当时的点阵字体，那妥妥的就是步兵和骑兵的区别啊：</p>
+<p><img src="/images/text-in-depth/truetype-bitmap.gif" alt="truetype-bitmap"></p>
+<p>Adobe 虽然活好，但由于一些非技术因素（钱）的问题，苹果和微软决定另起炉灶。苹果开发出了矢量字体标准 TrueType，而微软则开发出了 PostScript 的替代品 TrueImage。这两项技术虽然在 Mac 和 Windows 之间互相授权，但真正落地成为事实标准的只有苹果搞的 TrueType，这对应的就是 TTF 字体格式了。</p>
+<p>知道了 TTF 代表着 TrueType Font 之后，其它的格式都可以举一反三地推出来：</p>
+<ul>
+<li>怎么把一堆 TTF 字体全家桶打包发布呢？我们来个 Collection（合集）吧——于是有了 TTC 格式。</li>
+<li>大佬们不要再打啦，我们一起合作开放吧——于是有了 OpenType 的 OTF 格式。</li>
+<li>我们搞 Web 最在乎体积了，你们这些玩意都太大了不行啊——于是有了 WOFF 格式。</li>
+</ul>
+<p>当然了，光知道后缀名，跟精通 Java/C++ 的拼写没啥区别。我们不妨来看看，字体文件的里面都藏着些什么呢？</p>
+<h2 id="小探-TTF-文件"><a href="#小探-TTF-文件" class="headerlink" title="小探 TTF 文件"></a>小探 TTF 文件</h2><p>很多字体格式的规范文档中，都会强调字体文件是由<strong>表</strong>构成的。喵喵喵？这里说的表是 Excel 那样的表格吗？打开一个 TTF 格式的字体文件，你的第一印象恐怕和表格很难沾上边：</p>
+<p><img src="/images/text-in-depth/ttf-bin.png" alt="ttf-bin"></p>
+<p>说好的几行几列呢？不过，表格暗示着一种相对规整的数据结构。眼尖的同学也许已经注意到了，上面的数据最右一列都是一组四个字母的合集。这并非偶然，依据的是 TTF 格式的规范。</p>
+<p>在继续介绍它们的具体含义之前，我们不妨考虑这样的一个问题：怎么样为设计一种符合下面这些需求的数据格式呢？</p>
+<ul>
+<li>你有多种不同的字段需要存储，每种数据有固定的格式，但长度都是可变的。</li>
+<li>需要存储的字段种类可能不同，也有可能在日后扩展出一些新字段。这时应该能够向上和向下兼容。</li>
+<li>无需遍历整个文件，就应该能够获知字段的基本信息（位置、长度等）。</li>
+<li>数据体积需要尽量小，还需要支持对内容完整性的检验。</li>
+</ul>
+<p>现在应用层开发中流行的 JSON 格式，光是在体积尽量小这一项上就会被首先干掉。而 TTF 规范则给出了一种在设计数据格式规范时，可供参考的工程实践：</p>
+<ul>
+<li>给所有的字段取个四个字母的唯一名字，它们各自的内容都是一段连续的二进制数据。</li>
+<li>在文件头部，首先存储一张「表达整体表结构」的表。在其中指定有多少种不同字段，以及它们的长度、起始位置等信息。这张表叫做 Offset 表。</li>
+<li>紧接在这张表之后，逐段将这些字段表的内容拼接起来，就获得了最终的 TTF 格式字体。</li>
+</ul>
+<p>让我们来看看这种设计是如何解决上面的这些需求的吧：</p>
+<ul>
+<li>用于存储字体信息的各个表，其长度和排列顺序都完全自由（是不是有些类似 Map 结构呢）。</li>
+<li>字段种类和后续扩展都没有兼容问题，解析程度可以从 Offset 表中判断自己对数据的支持程度。</li>
+<li>在 Offset 表中，各字段数据的偏移量和长度都可以直接获知。</li>
+<li>各个字段数据都以约定的二进制形式存储，Offset 表中还存储了它们的校验和，作为完整性判断的基本依据。</li>
+</ul>
+<p>举个简单的例子就能说明二进制数据结构的紧凑性。例如，在表达字体是否为粗体、斜体、等宽等元数据的时候，JSON 格式对每个状态，都需要约定好一个形如 <code>xxx: true</code> 的字段，这至少需要五个字节。而基于位运算的约定，在一个字节的 8 位中就可以保存 8 个这样 <code>true|false</code> 的布尔类型变量，往往还留有冗余。在需要区分存储不同精度数据的时候，它也有着得天独厚的优势。所以说，在需要构建专有的数据结构的时候，TTF 这种表驱动的设计还是有一定的参考价值的。另外，在解析这样的二进制格式的时候，传统命令式编程的控制流也会相当趁手：别被社区里浮躁的声音淹没了，学好真正适用于不同场景的技术吧。</p>
+<p>回到最初的话题，字体里面存储着哪些表达不同内容的表呢？这里推荐 <a href="https://photopea.github.io/Typr.js/" target="_blank" rel="noopener">Typr.js</a> 这个非常简单的 Web 工具，可以点开即用，大概是这样：</p>
+<p><img src="/images/text-in-depth/typr-demo.png" alt="typr-demo"></p>
+<p>看到了解析出的各个表内容了吗？它们之中就存储着从二进制比特到屏幕像素的关键信息。暂时到此为止，我们介绍了字体文件的格式与解析它的基本方式。但怎样基于字形数据来渲染出文字呢？让我们下一篇见吧（如果有的话）</p>
+<p>P.S.1 如果希望对字体的数据结构有更进一步的了解，这篇科普性的文章是远远不够的，不妨从这篇正式的 <a href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6.html" target="_blank" rel="noopener">TrueType Reference Manual</a> 文档开始吧。注意，这篇苹果的文档一开头就甩出了个到微软官网的链接，这在其他场合恐怕很难看到了……</p>
+<p>P.S.2 我们的前端团队非常欢迎有志于对「渲染」这件事追根究底的同学，感兴趣请邮件 xuebi at gaoding.com 哈</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Font/">Font</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/text-in-depth-1/" data-title="文字渲染那些事（一）字体是如何存储的？ | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/fe-deps/" title="如何管理前端项目中的复杂依赖关系">
+  <strong>上一篇：</strong><br/>
+  <span>
+  如何管理前端项目中的复杂依赖关系</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/semantic-naming/"  title="浅谈变量类型之外的变量命名">
+ <strong>下一篇：</strong><br/> 
+ <span>浅谈变量类型之外的变量命名
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#字体的标准与格式"><span class="toc-number">1.</span> <span class="toc-text">字体的标准与格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小探-TTF-文件"><span class="toc-number">2.</span> <span class="toc-text">小探 TTF 文件</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

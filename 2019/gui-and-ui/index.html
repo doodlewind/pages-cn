@@ -1,0 +1,624 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>我不想成为不懂 GUI 的 UI 开发者 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="作为一个程序员，我是从切图开始职业生涯的。行业内一般把我这种编写用户界面 (UI) 的岗位，叫做前端开发。工作几年后我发现了个奇怪的现象，那就是整个前端圈子里，虽然大家常常谈 UI，但很少有人谈 GUI。 这话要从何说起呢？前端圈子里从上游到下游，强调的都是 UI 这个概念：  最上游的开源基础库，清一色地宣称自己是 UI Framework 或 UI Library。 业内同行交流时各种 PPT">
+<meta name="keywords" content="Web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我不想成为不懂 GUI 的 UI 开发者">
+<meta property="og:url" content="https://ewind.us/2019/gui-and-ui/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="作为一个程序员，我是从切图开始职业生涯的。行业内一般把我这种编写用户界面 (UI) 的岗位，叫做前端开发。工作几年后我发现了个奇怪的现象，那就是整个前端圈子里，虽然大家常常谈 UI，但很少有人谈 GUI。 这话要从何说起呢？前端圈子里从上游到下游，强调的都是 UI 这个概念：  最上游的开源基础库，清一色地宣称自己是 UI Framework 或 UI Library。 业内同行交流时各种 PPT">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-31T12:31:23.175Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我不想成为不懂 GUI 的 UI 开发者">
+<meta name="twitter:description" content="作为一个程序员，我是从切图开始职业生涯的。行业内一般把我这种编写用户界面 (UI) 的岗位，叫做前端开发。工作几年后我发现了个奇怪的现象，那就是整个前端圈子里，虽然大家常常谈 UI，但很少有人谈 GUI。 这话要从何说起呢？前端圈子里从上游到下游，强调的都是 UI 这个概念：  最上游的开源基础库，清一色地宣称自己是 UI Framework 或 UI Library。 业内同行交流时各种 PPT">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/gui-and-ui/" title="我不想成为不懂 GUI 的 UI 开发者" itemprop="url">我不想成为不懂 GUI 的 UI 开发者</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2019-10-27T16:00:00.000Z" itemprop="datePublished"> 发表于 2019-10-28</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<p>作为一个程序员，我是从切图开始职业生涯的。行业内一般把我这种编写用户界面 (UI) 的岗位，叫做前端开发。工作几年后我发现了个奇怪的现象，那就是整个前端圈子里，虽然大家常常谈 UI，但很少有人谈 GUI。</p>
+<p>这话要从何说起呢？前端圈子里从上游到下游，强调的都是 UI 这个概念：</p>
+<ul>
+<li>最上游的开源基础库，清一色地宣称自己是 UI Framework 或 UI Library。</li>
+<li>业内同行交流时各种 PPT 里的架构图，常常在最上面画个名叫 UI 的模块。</li>
+<li>与非技术同事们协作时，大家关心的主要也是 UI 设计稿和 UI 的开发排期。</li>
+</ul>
+<p>但由于工作需要，我接触了一些浏览器之外的 UI 框架。有意思的是，这时候我经常能看到 GUI 这个概念了。比如 Qt 框架的核心模块名就是 QtGui，GTK 和 wxWidget 都将自己定义为 GUI 库，更不要说名字里带着 GUI 的 Dear ImGUI 了。那么问题来了，说自己做的是 GUI 还是 UI，有很大的差别吗？</p>
+<p>别小看 G 这个一字之差，这里的差别未必比 Java 和 JavaScript 的差别来得小。GUI 的 G 是什么的缩写？Graphics。少了这个 G 意味着什么？<strong>意味着今天的应用层 UI 开发，已经不太需要关心如何渲染 Graphics 图形了</strong>。</p>
+<p>很多前端同学可能会对此有意见，认为只要熟读了 Vue 或 React 等现代前端框架的源码，就已经对渲染这件事了如指掌了。如果你也这么认为，那么不妨问自己下面这么几个问题：</p>
+<ul>
+<li>浏览器是如何将布局数据计算为像素数据的，你能实现出原理类似的渲染器吗？</li>
+<li>浏览器在各个平台上的文字排版渲染结果是否一致，你能解释原因吗？</li>
+<li>你所负责的前端应用，其渲染性能还有多大的提升空间，你能量化地证明吗？</li>
+<li>你能设计实现出类似 RN 和小程序那样的 Hybrid 方案吗？</li>
+<li>你能自己控制 GPU 渲染管线，实现渲染的硬件加速吗？</li>
+</ul>
+<p>它们不是孔乙己式的钻牛角尖面试题，而是对我所在的前端团队而言，非常具备探索乐趣和商业价值的实际问题。当开发普通的 Web 应用时，你大可不必关心它们。但如果你希望挑战 Web 的极限，在浏览器里跑起像 Office 和 PS 那样复杂的应用时 ，这些问题多半是绕不开的。在我的理解里，这些问题的答案，多数和现在浏览器里某种具体的 UI 框架关系不大，是更为「底层」的问题。</p>
+<p>什么，难道 Web App 里还有比 React 和 Vue 源码更底层的东西吗？那就是 GUI 里的这个 Graphics，一个人类已经探索了四十多年的领域。</p>
+<p>从 1979 年乔布斯造访施乐 PARC 算起，科技巨头们在 GUI 上的努力从未停止过。某种程度上说，前端开发的历史，不是从 jQuery 甚至 JavaScript 的诞生开始的，而是从 Macintosh 时代的上古平台开始的。当你用这种方式来回顾几十年来的 GUI 软件开发框架时，相信你会对软件工程架构的进步有全新的认识。</p>
+<p>在我目前的理解里，GUI 应用的架构实现，依次走过了这些重要的阶段：</p>
+<ul>
+<li><strong>过程化绘制时代</strong> - 直接调用 drawLine / drawRect 风格的 API 来绘制像素。在我的树莓派里，只要 include X11 的头文件，就能用 C 语言体验这种硬派的 GUI 开发了。HTML5 中的 Canvas，其实也属于这种风格。</li>
+<li><strong>面向对象抽象时代</strong> - 纯粹过程化的代码，并不利于维护事件驱动的业务逻辑。比如，你需要自行计算来判断出某次点击应该选中哪个 UI 元素。在 MFC 和 GTK 的时代，人们实现了面向对象风格的 UI 框架。按钮、输入框等 UI 控件具备了实例方法，能更好地组织代码。</li>
+<li><strong>界面与样式分离时代</strong> - 用 C++ 系语言的代码来描述 UI，很容易写出面条式的丑陋代码。因此人们又引入了 XML 风格的语言，专门来表达嵌套式的界面。DirectUI 和 HTML / CSS / JS 基础上的经典 Web，都是这个时代的产物。</li>
+<li><strong>MVC 与 MVVM 时代</strong> - 如何维护日益复杂的 UI 交互逻辑？许多框架引入了软件工程中的 MVC 和 MVVM 等设计模式。这个时代的代表产物有苹果的 Cocoa 和微软的 WPF，以及 Web 上的 Angular 1 框架。</li>
+<li><strong>声明式组件化时代</strong> - 为什么我们必须编写连接 UI 布局语言和业务逻辑的面条代码呢？Facebook 的 React 提出了新的 UI 开发思路。通过 JSX，很容易用 JS 来编写嵌套的、声明式的、更易维护的 UI 组件，并借助 JavaScript 的动态性来实时调试 UI。当前风口上的 Vue，Flutter 和 SwiftUI，都明显地借鉴了这种思想。</li>
+</ul>
+<p>理解了 GUI 技术架构的演进后，就不难明白一些口水问题的答案了。例如在我一个关于拖控件式编程的知乎回答里，有些人反对我的论据是「拖控件比写代码更高效」。没错，拖控件属于<strong>界面与样式分离时代</strong>的产物，这确实比<strong>面向对象抽象时代</strong>编写面条代码更好。但到了<strong>声明式组件化时代</strong>，编写代码反而比拖控件更高效而方便了。</p>
+<p>看起来一切都在进步，一切都欣欣向荣。长期被原生开发者们鄙视的 Web，甚至引领了最新的 UI 开发技术浪潮。但这有什么问题呢？</p>
+<p>问题就是，<strong>Graphics 被封装得太好了，以至于都不需要被关心了</strong>。</p>
+<p>在最早的 GUI 时代，计算机甚至是没有 GPU 的。你绘制的文字和图像，都是内存里的 Bitmap。这时的 UI 框架作者们，必须认真考虑如何优化窗口化的 2D 渲染，并实现文字渲染、布局算法、点击测试等基础功能。而到了装机必备独立显卡的时代，如何用 GPU 来实现硬件加速的渲染，也变成了一个新的重要课题。最后，现代 GUI 应用基本都需要一个异步非阻塞的 Main Loop 配合子线程来保证渲染不卡顿，这也需要对操作系统的多线程技术有充分的理解。</p>
+<p>可以看到，要成为原生 GUI 库的作者，多半需要扎实的操作系统和计算机图形学基础。但在今天流行的 Web 和 App 平台，这些计算机基础知识，已经被藏在厂商提供的 API 后面了。而流行的 React 和 Vue 等 UI 框架，其输入和输出都已经是相当结构化的数据，更不涉及困难的 Graphics 部分。虽然大多数场景下这些 API 是够用的，但当你需要更多的自由、更多的掌控时，你会发现自己被限制住了：<strong>你能用 JavaScript，直接读写某个 DOM 元素在某个像素下的颜色吗</strong>？</p>
+<p>这种能力上的限制，不仅影响了前端工程师的长期技术成长，还使得社区的风气都变得有些古怪。React 的声明式 UI 确实有用，但在其影响下函数式编程被社区奉为圭臬，某些布道者甚至连 for 循环都要抵制，这就有些舍本逐末了——要想掌握原生的图形渲染管线，几乎必须掌握非常命令式的编程。在渲染能力的限制下，整个社区的发展都倾向于关心代码自动格式化、强类型提示、编写更优雅的状态管理代码等层面的东西。这些技术方向固然有用，但多半只能增量地提高开发效率，并不能创造出全新的用户体验。</p>
+<p>怎样突破标准化 API 的限制，创造出全新的用户体验呢？我很喜欢举 Photopea 的例子，这是个浏览器内的 PS 替代品（其国内版是我们部署的 ps.gaoding.com）。当我在捷克与作者 Ivan 交流时，他告诉我一般的 Web App 可能有 90% 的代码是第三方框架实现的，但他的 Photopea 则有 90% 的代码都需要自己写。他将 PS 中各种重要的算法实现到了 Web 上，最终获得了 WOW 级别的图像编辑体验。他明确地告诉我，他并不认为自己是一个 Front End Developer，而是一个 Programmer，能根据需要去学习并解决具体的技术问题。他对技术的态度，对我个人有很大的影响。</p>
+<p>当然，我相信 99.9% 以上的前端同学，都不需要重复发明这么多轮子，更不需要在浏览器里实现一个 PS。但是现在国内的前端业界，对 GUI，对 Graphics，以至于对基础的计算机科学的理解，真的足够吗？很多抱怨 35 岁焦虑的同行根本没有认识到，前端框架快速变迁的真正原因，在于 GUI 背后的整个产业链，还具备巨大的发展和改进空间，仍然处于朝气蓬勃而充满机遇的时期。当下一个机遇到来的时候，它一定只会给有准备的人。</p>
+<p>回顾计算机产业的历史，几个对普通人影响最为深远的进步，都是和 UI 分不开的的：微处理器浪潮普及了命令行 CLI；个人 PC 浪潮普及了桌面 GUI；Internet 浪潮普及了 Web 网页；移动端浪潮普及了掌上 GUI。这些十年一遇的变革，深刻地影响了我们的日常生活。我相信在未来，Web 应用一定会更多地使用到浏览器之外的能力，和传统的 Native 技术栈有更多的连接和融合。需要对整个 GUI 系统及其背后的计算机科学有着更深刻的了解，才能把握住这样的机会。</p>
+<p>虽然我现在的 Title 是一个「前端工程师」，但我真正的理想，是成为一个自由的人。在职业生涯中，我追求的是发挥创造力的自由。当我入门时，浏览器给了我巨大的自由。但当我追求对渲染更高程度的掌控时，浏览器反而限制了我的自由。我确实很熟悉 JavaScript，但我也随时乐意拥抱不同场景下更合适、更优秀的技术栈，以发挥技术自由而非语言偏见作为准则，向更多的 GUI 开发者们学习。</p>
+<p>GUI 技术栈大团结万岁！</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2019/gui-and-ui/" data-title="我不想成为不懂 GUI 的 UI 开发者 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/react-ssd1306/" title="将 React 渲染到嵌入式液晶屏">
+  <strong>上一篇：</strong><br/>
+  <span>
+  将 React 渲染到嵌入式液晶屏</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/hk-visit/"  title="摩登与裂痕：我的国庆香港见闻">
+ <strong>下一篇：</strong><br/> 
+ <span>摩登与裂痕：我的国庆香港见闻
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

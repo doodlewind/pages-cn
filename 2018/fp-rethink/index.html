@@ -1,0 +1,636 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>反对函数式编程的政治正确 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="在技术社区里，与函数式编程相关的话题一直十分火热，这尤以素有娱乐圈之称的前端社区为甚。大量相关的入门文章中，面向对象与命令式编程常常被作为对比的反例，彷佛它们已经是丑陋而肮脏的过时技术了。对这种矫枉过正观点的担忧，正是这篇文章写作的初心。">
+<meta name="keywords" content="Summary">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反对函数式编程的政治正确">
+<meta property="og:url" content="https://ewind.us/2018/fp-rethink/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="在技术社区里，与函数式编程相关的话题一直十分火热，这尤以素有娱乐圈之称的前端社区为甚。大量相关的入门文章中，面向对象与命令式编程常常被作为对比的反例，彷佛它们已经是丑陋而肮脏的过时技术了。对这种矫枉过正观点的担忧，正是这篇文章写作的初心。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.523Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="反对函数式编程的政治正确">
+<meta name="twitter:description" content="在技术社区里，与函数式编程相关的话题一直十分火热，这尤以素有娱乐圈之称的前端社区为甚。大量相关的入门文章中，面向对象与命令式编程常常被作为对比的反例，彷佛它们已经是丑陋而肮脏的过时技术了。对这种矫枉过正观点的担忧，正是这篇文章写作的初心。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/fp-rethink/" title="反对函数式编程的政治正确" itemprop="url">反对函数式编程的政治正确</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-12-03T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-12-04</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			
+		
+		</div>
+		
+		<p>在技术社区里，与函数式编程相关的话题一直十分火热，这尤以素有娱乐圈之称的前端社区为甚。大量相关的入门文章中，面向对象与命令式编程常常被作为对比的反例，彷佛它们已经是丑陋而肮脏的过时技术了。对这种矫枉过正观点的担忧，正是这篇文章写作的初心。</p>
+<a id="more"></a>
+<p>为什么这里会牵扯到政治正确呢？这是因为对编程范式的执着，已经或多或少地成为了一种道德绑架了：这很接近政治正确的背后，那种强大的道德信念。这种信念掺杂在了对编程语言的信仰之中，其结果是用非强迫的方式完成了对话语权的控制。比如下面这样的观点：</p>
+<ul>
+<li>你这段代码用了 for 循环，这是过程式的。为了优雅，你应该写成函数式的。</li>
+<li>你这段代码有副作用，这是肮脏的。为了纯净性，你应该把 IO 包在 Monad 里。</li>
+<li>你这段代码用了 class，这是面向对象的。为了无状态，你应该写成高阶函数。</li>
+</ul>
+<p>这种粗暴的逻辑和【父母都是为你好】与【女性不适合编程】有什么区别吗？许多这样不负责任的偏激言辞，造就了当前社区中对于面向对象与命令式编程的 Stereotype 刻板印象。实际上，把函数式编程与面向对象 / 命令式编程对立的观点，其本身在分类上就是不严谨的。姑且不论这点，这些论调也相当武断，忽略了技术的适用场景。</p>
+<p>例如，对于函数式编程的最主要的赞誉之一，就在于纯函数的无状态性质。关于它的好处我们已经听到太多了：结果可预期、利于测试、利于复用、利于并发……一切听起来都这么理想，所以我们能够自底到上地用纯函数来编写出一个完整的系统了吗？这里的荒诞之处在于，<strong>当你越接近一台计算机 under the hood 的原貌时，你离纯函数与无状态越远</strong>。</p>
+<p>当你想要尝试理解 CPU / 显卡 / 网络等真正的基础的时候，你会发现它们一点儿也不函数式：</p>
+<ul>
+<li>CPU 本身就是个最典型的状态机。例如笔者的周末玩具 <a href="https://github.com/doodlewind/merry8" target="_blank" rel="noopener">CHIP-8 模拟器</a> 里，它的 CPU 状态就是用几个变量模拟出的一堆寄存器、堆栈指针和计数器罢了。每条指令都是个修改全局状态的函数罢了——这当然很不纯粹，但十分符合对 CPU 运行方式的直觉与抽象。</li>
+<li>驱动显卡工作的 API 有状态得令人发指。相信任何尝试过从头搭建 WebGL 渲染管线的同学都能够明白这是什么意思。并且在下一代以压榨出极致性能到导向的显示驱动 API 里，需要人肉维护的状态还会更琐碎。</li>
+<li>网络协议栈的状态机如何迁移，已经在《计算机网络》的课本里画出了无数次了。即便是已经封装到应用层的最傻瓜的 Web 页面里，看看控制台里执行一句 <code>performance.timing</code> 的内容，要想正确地画出这些字段间的状态迁移关系都已经绝非易事了。</li>
+</ul>
+<p>当你想要理解上面的这些玩意如何工作的时候，你所能查到的最经典的资料与业界最经过实战检验的实现，几乎都是清一色地在过程式、命令式的编程范式下非常地【有状态】的。难道说编写这些基础性工程壮举的开发者们，其技术水平都不如函数式编程的布道师们吗？</p>
+<p>这个矛盾可以这样归结：函数式编程的理念，更接近理论上的数学概念。而命令式、过程式的编程，更贴近实际工程中硬件的工作方式。二者的简洁性是体现在不同维度的。作为例子，许多函数式编程狂热者所不屑乃至唾弃的 C 风格 while 循环，其实是个非常易于实现与硬件优化的设计。只要你尝试过阅读 gcc 生成的汇编码，不难发现一个 while 非常容易与汇编的跳转指令联系起来：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">       JMP LOOP   ; 首先跳到底部以开始循环</span><br><span class="line">BEGIN: NOP        ; 空指令占位符</span><br><span class="line">                  ; ...此处开始放置循环体中代码</span><br><span class="line">                  ; ...</span><br><span class="line">                  ; ...</span><br><span class="line">                  ; ...执行完循环体内代码</span><br><span class="line">LOOP:  CMP ...    ; 检查条件</span><br><span class="line">       JNE BEGIN  ; 若不满足则跳转到 BEGIN 位置</span><br></pre></td></tr></table></figure>
+<p>而对于饱受函数式爱好者们抨击的 for 循环，实现时只需在上面的控制流里增加初始化过程与计数器临时变量就行。而被嫌弃的 break 与 continue 等语法也只需要增加更多的标号即可灵活地基于 <code>JMP</code> 实现。相比于函数调用并返回时所需小心翼翼地保存并恢复上下文的一系列跳转逻辑，命令式的循环语法显然更易于实现——当然了，你可以硬杠说 Scheme 这样的函数式语言，其解释器更容易实现，笔者也确实作为周末玩具而实现过一门 Scheme 方言 <a href="https://github.com/doodlewind/ove-lang" target="_blank" rel="noopener">哦语言</a> 的解释器。但是，这种几乎等于手写语法树的语言有多少工程中的实用价值呢？类似的地方还体现在对各种数学计算的抽象上。如笔者蹭 PR 贡献过的 <a href="http://glmatrix.net/" target="_blank" rel="noopener">gl-matrix</a> 矩阵运算库，其中大量的 mutation 也非常不函数式，但它实际上仍然十分简洁可靠而高效呀。</p>
+<p>有些函数式编程的爱好者们，对递归一类函数式手法的 all in 推崇也有些令人费解：你写的什么 for 循环太低端啦，看我写成优雅的尾递归还自带解释器优化不会爆栈呢！诚然，在处理嵌套的数据结构的时候，使用递归是相当简洁易读的。这一点笔者在毕业前尝试实现递归下降和 LALR 语法分析器的课后作业时，就有了这样的体会：这时非递归的写法实在很啰嗦。然而，这种本来是以一定的性能代价来提高可读性的手法，却常常被误解为优秀的实现而被滥用。例如，一个深拷贝算法用递归实现固然简单，但它客观地存在 Stack Overflow 的风险。作为解决方案，我们可以用数组模拟栈来实现它。这时你的代码就没有那么函数式了：你会因为函数式的代码更加优雅，就拒绝修复栈溢出的 bug 吗？</p>
+<p>类似的舍近求远，还体现在对一些实际上更加晦涩的概念的推崇上。许多希望入门函数式编程的初学者，都会被 Monad 这个【自函子上的幺半群】概念唬住。诚然，你可以把 Hooks 和 Promise 这些简单易用的概念解释成为 Monad，笔者在入门时也确实写了一篇文章从单位元与结合律的角度出发，来证明 <a href="https://zhuanlan.zhihu.com/p/32734492" target="_blank" rel="noopener">为什么 Promise 是一种 Monad</a>。然而，明明是实际开发中非常实用且易于理解的东西，却要使用更难以懂的一套概念去形式化地定义和解释，这恐怕并不利于优秀工具和理念的普及。比如，日语里函数的概念叫做関数，不懂日语体系里的这个词，也并不影响一个汉语使用者知识体系的自洽以及对函数的使用呀。并且，Monad 其实已经相当于函数式编程范式中的一种【设计模式】了，而对设计模式的摒弃，不正是函数式编程自身的优势之一吗？</p>
+<p>提到了设计模式，就绕不开软件工程。这时候我们有不少【道】层面的设计准则，但这些真正利于工程 Scale Up 的准则，反倒和具体的编程范式关系不大了。比如，我们都知道高内聚低耦合的模块划分是利于维护的，但在这个维度上起最重要作用的并不是与函数式相关的语法特性，而是语言的包管理器与模块加载规范等。再比如变更游戏业界的 ECS 架构，它在【组合优于继承】方向上的演进也仍然是在面向对象语言上就能够实现的。即便到了实际的工程案例上，对于前端这种与 UI 深度相关的领域，其中最大规模且最可靠的实现仍然是非常面向对象的——Windows 和 macOS 的桌面 UI 环境并非源于函数式语言，难道操作系统的桌面管理器会像 Redux 那样在单个 store 里管理全局状态吗？</p>
+<p>行文至此，这篇文章的吐槽应该告一段落了。但我们显然并不应该为了发泄而写作，笔者更不是命令式编程的死忠粉（相反地，笔者还特地写过一篇 <a href="https://juejin.im/post/59a2d93051882511264e8617" target="_blank" rel="noopener">RxJS 模拟电梯调度</a> 的安利文章）。差不多时候做一些澄清与提出诉求了：</p>
+<ul>
+<li>函数式编程非常重要，且在许多细分领域值得学习与推广。但不能一概而论地认为它优于面向对象或过程式等其它范式。</li>
+<li>函数式编程同样存在着自身固有的缺陷，这些地方要客观地看待。</li>
+<li>我们希望能够平等地看待各种编程范式，保持开放的心态，拒绝哗众取宠的引战言论，根据实际需求折衷选择更具开发效率与运行效率的技术方案。</li>
+</ul>
+<p>在实际的编码中，笔者更关注【符合直觉】这一点。这大概包括两个维度：</p>
+<ul>
+<li>一个语言特性的使用方式，是否符合它设计出来要解决的场景。</li>
+<li>一个具体需求的实现方式，是否符合对其最为简单直接的抽象。</li>
+</ul>
+<p>不管黑猫白猫，只要能抓到老鼠就是好猫。只要是可读可维护的高质量代码，为什么要在乎它属于哪个范式呢 :)</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Summary/">Summary</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/fp-rethink/" data-title="反对函数式编程的政治正确 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/surface-go-log/" title="一个前端开发者的 Surface Go 体验">
+  <strong>上一篇：</strong><br/>
+  <span>
+  一个前端开发者的 Surface Go 体验</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/hammer-nail-thoughts/"  title="技术选型中的锤子与钉子">
+ <strong>下一篇：</strong><br/> 
+ <span>技术选型中的锤子与钉子
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ 
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

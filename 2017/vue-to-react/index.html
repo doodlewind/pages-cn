@@ -1,0 +1,658 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>Vue 用户的 React 上手小结 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="这是一份从 Vue 用户角度出发的 React 上手总结与对比。">
+<meta name="keywords" content="Web,JS,Vue,React">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue 用户的 React 上手小结">
+<meta property="og:url" content="https://ewind.us/2017/vue-to-react/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="这是一份从 Vue 用户角度出发的 React 上手总结与对比。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.565Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue 用户的 React 上手小结">
+<meta name="twitter:description" content="这是一份从 Vue 用户角度出发的 React 上手总结与对比。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/vue-to-react/" title="Vue 用户的 React 上手小结" itemprop="url">Vue 用户的 React 上手小结</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-05-19T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-05-20</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#构建系统"><span class="toc-number">1.</span> <span class="toc-text">构建系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础-API-与功能实现"><span class="toc-number">2.</span> <span class="toc-text">基础 API 与功能实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染数据"><span class="toc-number">2.1.</span> <span class="toc-text">渲染数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#更新数据"><span class="toc-number">2.2.</span> <span class="toc-text">更新数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用户输入"><span class="toc-number">2.3.</span> <span class="toc-text">用户输入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事件传递"><span class="toc-number">2.4.</span> <span class="toc-text">事件传递</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#状态管理"><span class="toc-number">2.5.</span> <span class="toc-text">状态管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生态与工具"><span class="toc-number">3.</span> <span class="toc-text">生态与工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见反模式"><span class="toc-number">4.</span> <span class="toc-text">常见反模式</span></a></li></ol>
+		
+		</div>
+		
+		<p>这是一份从 Vue 用户角度出发的 React 上手总结与对比。</p>
+<a id="more"></a>
+<h2 id="构建系统"><a href="#构建系统" class="headerlink" title="构建系统"></a>构建系统</h2><p>正常的前端工程化项目中，二者均采用 Webpack / NPM 作为模块打包和依赖管理工具。虽然不同脚手架所定制的 Webpack 配置有所区别，但实际上切换脚手架的难度可以说是最低的。以至于 <a href="https://github.com/doodlewind/vue-springbud" target="_blank" rel="noopener">vue-springbud</a> 这个 Vue 脚手架可以构建配置一行不改，直接用于打包 React 项目（当然了会缺失 HMR 与样式预编译等高级功能）。</p>
+<p>React 的生态更大而松散，体现在构建配置上，就是官方的 loader 更加专注 JSX 编译，而不像 vue-loader 这样既编译模板，又预编译样式。React 的脚手架配置需要更多地定制样式方面的配置，如 css-loader / 预处理器 / CSS Module 配置等。不过在 JS 转译 / Uglify / CommonChunk 提取 / 全局变量 / 各类 Assets loaders / 开发环境 Proxy 等通用的 Webpack 功能使用上，二者的配置方式基本是一致的。</p>
+<h2 id="基础-API-与功能实现"><a href="#基础-API-与功能实现" class="headerlink" title="基础 API 与功能实现"></a>基础 API 与功能实现</h2><h3 id="渲染数据"><a href="#渲染数据" class="headerlink" title="渲染数据"></a>渲染数据</h3><p>和 Vue 在 HTML template 内写 <code></code> 的形式不同，React 将各种数据嵌套在 JSX 表达式中，然后 render JSX 到页面上。</p>
+<p>在渲染数组时，React 中经常利用 map 将数据片段映射成一段 JSX，然后在列表区域中直接引用 map 后的 JSX 变量来渲染数组数据。而 Vue 中则使用类似 Smarty 语法的 <code>v-for</code> 指令来渲染数组。同时，React 需要为数据添加 <code>key</code> 来保证虚拟 DOM diff 算法的效率，而 Vue 中除非渲染的列表也是组件，否则一般不需提供类似用于优化的字段。</p>
+<p>渲染数据时另一种常见的需求是，将后端提供的数据进行一些简单的转换后再渲染至页面上。在 Vue 中提供了组件的 computed 属性来实现这一功能，而 React 中则需要在 render 函数中定义一个新变量，将转换后的值赋给这个变量后 render 它。</p>
+<h3 id="更新数据"><a href="#更新数据" class="headerlink" title="更新数据"></a>更新数据</h3><p>Vue 和 React 组件内的 <code>this</code> 指向的都是组件的实例，它们都可以通过修改实例数据来更新页面。区别在于，Vue 中的 <code>this</code> 没有提供 <code>state</code> / <code>props</code> / <code>setState</code> API，不论是父组件传入的数据还是子组件的数据，都在同一个 <code>this</code> 的作用域下（这样业务代码会更短一些）。并且，Vue 也没有 <code>setState</code> 这样的 setter 方法来更新数据，直接通过全量赋值 <code>this.xxx = yyy</code> 数据的方式就可以更新 DOM 了。</p>
+<p>React 和 Vue 的设计区别，在更新数据的 API 中可以得到体现。Vue 的依赖追踪 Hack 了对象的 setter，因此在执行简单的赋值操作时可以直接获知状态树中的修改位置，但 DOM 更新是异步的。因此在 Vue 中如下的代码是没有问题的：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">this</span>.hasData = <span class="literal">true</span></span><br><span class="line"><span class="comment">// 数据状态同步更改，但 v-if="hasData" 的元素还没有出现</span></span><br><span class="line"><span class="keyword">this</span>.hasData === <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>需要显式 setState 的 React 则不能从基础的赋值操作中获知变更内容，而是需要通过 <code>setState</code> 触发一次 render，而后在 render 中更新 DOM 状态。因此这是一个容易踩的坑：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">this</span>.setState(&#123; <span class="attr">hasData</span>: <span class="literal">true</span> &#125;)</span><br><span class="line"><span class="comment">// 有问题，必须在 setState 回调中数据状态才得到更改</span></span><br><span class="line"><span class="keyword">this</span>.hasData === <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>React 中 DOM 状态和数据状态都是异步更新的。Vue 中仅 DOM 状态异步更新，需要保证 DOM 状态正确更新时，所使用的 <code>Vue.nextTick()</code> API 实际上也类似于 React 的 setState 回调。</p>
+<h3 id="用户输入"><a href="#用户输入" class="headerlink" title="用户输入"></a>用户输入</h3><p>与 Vue 中通过 <code>v-model</code> 绑定 input 等输入元素的方式不同，React 中在 JSX 里使用 Input 标签时，需要显式为表单的 JSX 提供一个 <code>onChange</code> 属性，在此属性中指定一个名称形如 <code>handleInput</code> 的函数，在函数中调用 React 的 <code>this.setState()</code> 来更改状态。这个 handler 函数如果不在 React 组件实例中声明，那么则需要通过在 constructor 中添加 <code>this.handleXXX = handleXXX.bind(this)</code> 的方式来绑定函数中的 this 到 React 组件实例。</p>
+<p>当存在多个 input 标签时，React 可以复用同一个 handler 函数，并在其中通过类似 <code>setState({ [name]: data })</code> 的语法糖来减少冗余代码（当然了这样也比 <code>v-model</code> 要繁琐一些）。</p>
+<p>减少这些冗余代码的一种方式，是将基础的输入标签（或标签组）封装为 React 的组件，并通过父子组件通信的方式来处理表单中用户输入状态的更新。</p>
+<h3 id="事件传递"><a href="#事件传递" class="headerlink" title="事件传递"></a>事件传递</h3><p>事件传递在 Vue 中是通过 <code>v-on</code> 和 <code>$emit</code> 来实现的。在父组件模板中声明子组件时，通过 <code>v-on:childEventName=&quot;parentHandler&quot;</code> 语法来指定对子组件特定名称事件的 Handler method。而迁移到 React 中后，其事件传递的机制有所区别。Handler 虽然同样是在父组件中声明，但 Handler 需要以 props 的形式传入子组件，在子组件中触发事件时，以 <code>this.props.parentHandler</code> 形式调用父组件传入的 props 状态。</p>
+<p>另外，在 React 中常见组件 ref 属性，可以使用这一属性来在父组件中安全地调用子组件方法。而在 Vue 中虽然可以通过 <code>$ref</code> 获取到子组件状态，但这并不是一个推荐的做法。</p>
+<h3 id="状态管理"><a href="#状态管理" class="headerlink" title="状态管理"></a>状态管理</h3><p>React 本身是一个纯 View 库，没有状态管理功能。因此在大型应用中需要 Redux 这样的库来做状态管理。相应的概念在 Vue 中则是 Vuex。二者所引入的新概念学习成本是相近的，从一种迁移到另一种也并不困难。</p>
+<p>Vuex 中，需要理解的核心概念是 mutation 和 action。这两种概念是从同步和异步的角度出发去实现的。可以简单理解为【同步状态改变就 commit 一个 mutation，异步的状态操作就 dispatch 一个 action】。在 action 中可以 commit 一个或多个 mutation，也可以触发其它 Promise / async 化的 action 来实现灵活的异步控制流组合。</p>
+<p>这个思维模式切换到 Redux 的 reducer / action 概念中，需要澄清的则是：</p>
+<ol>
+<li>mutation 和 reducer 并没有什么关系（不过它们确实都是同步的）。</li>
+<li>Redux 的 action 既可以同步，也可以异步。</li>
+</ol>
+<p>在最简单的情景下，Redux 中状态的更改，首先需要 dispatch 一个 action 函数。这个 action 函数会返回一个带有 type 类型的原生 JS 对象，action 触发后，Redux 根据 action 的类型去执行 reducer 中的逻辑，根据 action 返回的 type 以及相应的数据，决定如何更新全局状态。reducer 中的逻辑是同步的纯函数，并且可以通过 combileReducers 的 API 来组合多个子页面的 reducer，最后得到整个页面的状态树处理逻辑。</p>
+<p>在需要异步的情景下，action 可以不返回原生 JS 对象，而是返回 thunk / promise 一类用于异步操作的数据类型，通过 Redux 的 applyMiddleware API 引入处理这些类型数据的能力。例如 redux-thunk 就可以使得 redux 的 action 不局限于返回一个原生 JS 对象，而是返回一个【接收 dispatch 函数】的 thunk 函数。这个函数在异步操作成功时再去调用传入的 dispatch 方法，在此提交一个真正触发 reducer 逻辑的 action。</p>
+<p>Redux 提供的 subscribe API 使得它能够迁移到其它 View 库中作为其状态管理方案。不过在 React 中，有 react-redux 这一中间层包装了 subscribe 以及其它的 Redux API，从而可以通过包装根节点组件到 Provider 组件内，而后 connnet 组件到 Redux 的方式，简化 Redux 在 React 项目中的使用。</p>
+<p>由于 action 异步情境下 Redux 没有提供【官方且唯一】的处理方案，因此催生了 redux-thunk / redux-promise / redux-saga / dva 这样种类繁多的辅助 Middleware。在这方面，React 系确实有更高的可定制性，不过若需要一一了解它们并做技术选型，学习成本还是比引入 Vuex 要高的。</p>
+<h2 id="生态与工具"><a href="#生态与工具" class="headerlink" title="生态与工具"></a>生态与工具</h2><p>前文中已经提到了在状态管理方面，React 和 Vue 的一些异同。下面对比一些其它相关的周边生态：</p>
+<p>Devtools 方面，React 提供的 Chrome 开发插件和 Vue 的插件都对提升开发效率很有帮助。一些区别在于：</p>
+<ul>
+<li>React 插件支持将选中的组件映射到 console 的 <code>$r</code> 变量，更方便地实现调试。</li>
+<li>React 插件支持对生产环境的页面进行调试。这在很多时候是很重要的。</li>
+<li>React 的插件不支持显示【仅组件】的视图，较难直接从 devtool 视图中选中想要调试的组件。</li>
+<li>调试 Redux 时 React 插件没有官方解决方案，而 Vue 的插件集成了 Vuex 的调试功能。</li>
+</ul>
+<p>组件库方面，目前 React 有相对更加丰富的组件库，也有 RN 这样的跨端解决方案。在 Vue 方面靠谱的组件库除了 Element UI 外并不是很多。</p>
+<p>在 CSS 预处理器支持方面，vue-loader 提供了相对更完善的预处理器支持。引入 Sass / Less / Stylus 只需指定 <code>.vue</code> 组件中 style 标签中的 lang 属性即可。React 的 CSS Modules 支持需要引入一些自定义的 Webpack 配置，相对定制性更强，也对 boilerplate 有更高的要求。</p>
+<p>在第三方库支持方面，二者都有不少封装第三方库的组件库（当然了还是 React 更多）。不过它们较 Angular 更为友好的地方在于，在 React 和 Vue 的组件中调用第三方库都是较为方便的，不需要通过 <code>react-xxx</code> 或 <code>vue-xxx</code> 的封装就能够快速使用常见第三方库（如图表、ajax 等）的功能。</p>
+<h2 id="常见反模式"><a href="#常见反模式" class="headerlink" title="常见反模式"></a>常见反模式</h2><p>在接触了中等规模（去除组件库后，整个项目在约万行级）的 React 业务代码后，可以总结出一些常见的坑：</p>
+<ul>
+<li>需要前端【更改一下数据格式】的数据一般都会通过 map 的形式转换为 JSX。但这些代码经常直接就是放置在 render 函数中的局部变量，会降低 render 的可读性。</li>
+<li>未引入 Redux 时存在着多层组件间的事件传递，较为繁琐。</li>
+<li>React 缺少原生的 watch 机制以订阅某种数据的变更。</li>
+<li>新手编写的 JSX 页面中容易混淆模板与 UI 逻辑，破坏数据和模板的分离解耦。并且 JSX 也容易变得冗长而不易维护，典型情况如【在 JSX 中嵌套三目运算符】。</li>
+<li>constructor 中可能存在大量的 bind。</li>
+<li>在组件方法中直接编写各种 ajax 业务逻辑。</li>
+</ul>
+<p>而相应地，在同等规模的 Vue 项目中也存在一些常见的坑：</p>
+<ul>
+<li>未引入 Vuex 时存在多层的数据传递。</li>
+<li>相对更简单的语法造成新人加入时采用各种 ES5 语法（如使用 ES6 的函数而非箭头函数、不用 computed 而在 method 中用古老的 for 循环拼凑数据并手动重置 data 属性等）。</li>
+<li>在组件中直接执行各种 ajax 业务逻辑。</li>
+<li>类型检查相对更松。如 Vue 在 2.3 之前 HTML 模板允许标签不闭合，造成升级后一些模板编写不严谨的页面大规模报错等。</li>
+</ul>
+<p>总之，React 最重要的组件化和状态管理理念和 Vue 是一致的，熟悉 Vue 的开发者迁移过来并不需要很大的学习成本，更多考虑的还是团队的已有积累和业务方向。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a><a href="/tags/Vue/">Vue</a><a href="/tags/React/">React</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/vue-to-react/" data-title="Vue 用户的 React 上手小结 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/react-legacy-maintain/" title="React 历史项目维护与优化实践">
+  <strong>上一篇：</strong><br/>
+  <span>
+  React 历史项目维护与优化实践</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/farewell-iflytek/"  title="小记在讯飞的 300 天">
+ <strong>下一篇：</strong><br/> 
+ <span>小记在讯飞的 300 天
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#构建系统"><span class="toc-number">1.</span> <span class="toc-text">构建系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础-API-与功能实现"><span class="toc-number">2.</span> <span class="toc-text">基础 API 与功能实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染数据"><span class="toc-number">2.1.</span> <span class="toc-text">渲染数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#更新数据"><span class="toc-number">2.2.</span> <span class="toc-text">更新数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用户输入"><span class="toc-number">2.3.</span> <span class="toc-text">用户输入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事件传递"><span class="toc-number">2.4.</span> <span class="toc-text">事件传递</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#状态管理"><span class="toc-number">2.5.</span> <span class="toc-text">状态管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生态与工具"><span class="toc-number">3.</span> <span class="toc-text">生态与工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见反模式"><span class="toc-number">4.</span> <span class="toc-text">常见反模式</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

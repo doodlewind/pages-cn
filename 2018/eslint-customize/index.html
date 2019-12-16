@@ -1,0 +1,657 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>如何为团队潜规则明码标价 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="靠谱的前端团队一般都会引入自己的代码风格规范，但真实项目中的问题常常不是统一了空格数量和是否加分号就能解决的，而是有很多看不见的暗坑。我们是否有代码风格之上，对代码质量的更高级把控呢？ESLint 插件或许能够为你打开新世界的大门。">
+<meta name="keywords" content="JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何为团队潜规则明码标价">
+<meta property="og:url" content="https://ewind.us/2018/eslint-customize/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="靠谱的前端团队一般都会引入自己的代码风格规范，但真实项目中的问题常常不是统一了空格数量和是否加分号就能解决的，而是有很多看不见的暗坑。我们是否有代码风格之上，对代码质量的更高级把控呢？ESLint 插件或许能够为你打开新世界的大门。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.520Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何为团队潜规则明码标价">
+<meta name="twitter:description" content="靠谱的前端团队一般都会引入自己的代码风格规范，但真实项目中的问题常常不是统一了空格数量和是否加分号就能解决的，而是有很多看不见的暗坑。我们是否有代码风格之上，对代码质量的更高级把控呢？ESLint 插件或许能够为你打开新世界的大门。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/eslint-customize/" title="如何为团队潜规则明码标价" itemprop="url">如何为团队潜规则明码标价</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-05-02T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-05-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境配置"><span class="toc-number">1.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建规则"><span class="toc-number">2.</span> <span class="toc-text">创建规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试驱动"><span class="toc-number">3.</span> <span class="toc-text">测试驱动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>靠谱的前端团队一般都会引入自己的代码风格规范，但真实项目中的问题常常不是统一了空格数量和是否加分号就能解决的，而是有很多看不见的暗坑。我们是否有代码风格之上，对代码质量的更高级把控呢？ESLint 插件或许能够为你打开新世界的大门。</p>
+<a id="more"></a>
+<p>在前端发展日新月异的这个时代，我们实际上正在面临日益严峻的前端代码腐化问题。譬如，但凡接手维护过前端项目的同学，应该多少都遇到过这样的场景：</p>
+<ul>
+<li>约定好的模块路径、命名方式等规范没有被遵守，项目展开像是一盘散沙。</li>
+<li>要做同样的事情，有的地方用了第三方库、有的地方用了内部库、有的地方自己重新裸写。</li>
+<li>老语法和新语法混编共存。比如光导入一个库的方式，就有 ESM / CommonJS / UMD 等不一而足。</li>
+<li>……</li>
+</ul>
+<p>按照破窗理论，如果环境中的不良现象如果被放任存在，会诱使人们仿效，甚至变本加厉。但代码中的熵增现象并不意味着程序员们都是犯罪分子，很多时候上面这些问题，实际上源自于项目中对新人来说陌生的<strong>隐式潜规则</strong>：</p>
+<ul>
+<li>如果新同学不知道我们已经习惯了导入 <code>lodash/xxx</code> 来减少包体积，那么他可能会全量导入 lodash。</li>
+<li>如果新同学不知道我们已经封装了一个处理请求、序列化之类常见业务需求的基础库，那么他可能安装一个第三方库，甚至重新发明轮子。</li>
+<li>如果新同学不知道我们的业务组件约定了需从某个公共基类继承，那么他就有可能另起炉灶搞一个他最容易理解的新版本。</li>
+<li>……</li>
+</ul>
+<p>这个层面上的一致性问题已经超出了是用空格还是 tab，或者行尾加不加分号的范畴，市面上已有的代码风格检查工具是「管不到这么宽」的。当然了，这个层面的问题也确实可以用 Code Review 来解决，但人工评审未必在每个标榜敏捷和 Moving Fast 的团队中都推得开。那么，我们是否有更高效率的手段，来将这些隐式的「潜规则」沉淀下来呢？这里我们尝试给出一种答案：<strong>编写自己的业务 Lint 插件</strong>。</p>
+<p>在 2018 年，ESLint 基本已经是靠谱前端脚手架中的必备依赖了。但多数情况下我们都是使用一个现成的代码<strong>风格</strong>规范。但 ESLint 实际上并不仅仅可以用于检测空格、换行等风格问题，在与业务开发规范相结合后，就会发现它还具有非常大的潜力。而自己从头编写一个 ESLint 插件的过程其实也并不复杂，让我们来看看如何实践吧：</p>
+<h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>和普通的前端项目一样，ESLint 插件也提供了一套开箱即用的脚手架。只需要安装全局依赖：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g yo generator-eslint</span><br></pre></td></tr></table></figure>
+<p>就可以创建我们自己的插件了：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mkdir eslint-plugin-demo</span><br><span class="line"><span class="built_in">cd</span> eslint-plugin-demo</span><br><span class="line"></span><br><span class="line">yo eslint:plugin</span><br><span class="line"></span><br><span class="line">? What is your name? ...</span><br><span class="line">? What is the plugin ID? demo</span><br><span class="line">? Type a short description of this plugin: ...</span><br><span class="line">? Does this plugin contain custom ESLint rules? Yes</span><br><span class="line">? Does this plugin contain one or more processors? No</span><br><span class="line"></span><br><span class="line">npm install</span><br></pre></td></tr></table></figure>
+<p>初始化一个插件，就和 <code>create-react-app</code> 一样简单对吧？</p>
+<h2 id="创建规则"><a href="#创建规则" class="headerlink" title="创建规则"></a>创建规则</h2><p>现在是时候来创建我们的第一条 Lint 规则了！作为例子，空格排版强迫症患者的笔者不喜欢在代码里看到这样的注释：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取abc数据2次</span></span><br></pre></td></tr></table></figure>
+<p>Web 上中文排版的惯例其实是这样的：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取 abc 数据 2 次</span></span><br></pre></td></tr></table></figure>
+<p>但是并不是谁都和笔者一样甚至在微信聊天里都坚持手动插入空格，而在 commit 记录里强行改动别人的注释，也有种替人挖鼻孔的不适感。那么我们把这个约定升级为 ESLint 的规则呢？我们需要理解一点 ESLint 的工作原理。</p>
+<p>ESLint 使用 <a href="https://github.com/eslint/espree" target="_blank" rel="noopener">Espree</a> 这个 JavaScript parser 来解析你的项目源码。Parser 会将源代码字符串解析为一棵抽象语法树（AST），对于树中的每一个节点，ESLint 都会寻找是否存在与之匹配的规则，若匹配则计算出该规则是否满足。而 AST 是什么样的呢？譬如一行 <code>// hello world</code> 的 JS 代码文件，AST 格式形如：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"type"</span>: <span class="string">"Program"</span>,</span><br><span class="line">  <span class="attr">"start"</span>: <span class="number">14</span>,</span><br><span class="line">  <span class="attr">"end"</span>: <span class="number">14</span>,</span><br><span class="line">  <span class="attr">"body"</span>: [],</span><br><span class="line">  <span class="attr">"innerComments"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"Line"</span>,</span><br><span class="line">      <span class="attr">"value"</span>: <span class="string">" hello world"</span>,</span><br><span class="line">      <span class="attr">"start"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"end"</span>: <span class="number">14</span></span><br><span class="line">      <span class="string">"range"</span>: [</span><br><span class="line">        <span class="number">0</span>,</span><br><span class="line">        <span class="number">12</span></span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"//"</span>: <span class="string">"......"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>基于这个数据结构，如果希望对所有的变量声明语句添加规则，那么我们的插件规则就形如：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> (<span class="params">context</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="string">'VariableDeclaration'</span> (node) &#123;</span><br><span class="line">      <span class="comment">// 在这里搞事情</span></span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个 <code>VariableDeclaration</code> 是哪来的呢？这就是时候展示你作为资深前端，对于 ES Spec 的熟悉了！实际上，JavaScript 中的每一种语句，在规范中都定义了相应的类型，我们按照类型名称即可编写对其进行校验的规则了。如果我们希望对注释做校验，那么将上面示例中的名称换成 <code>Comment</code> 即可。是不是很符合直觉呢？</p>
+<p>上面的这种方式可以理解为非常经典的 Visitor 模式，它在方便声明式地编写规则的同时，也有相邻节点之间完全透明，不方便一些复杂操作的问题。因此你也可以使用一些更过程式的 API 来辅助规则的编写：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  create: <span class="function"><span class="keyword">function</span> (<span class="params">context</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> sourceCode = context.getSourceCode()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="comment">// Program 相当于 AST 根节点</span></span><br><span class="line">      Program () &#123;</span><br><span class="line">        <span class="keyword">const</span> comments = sourceCode.getAllComments()</span><br><span class="line">        comments.forEach(<span class="function"><span class="params">node</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="comment">/* 满足校验规则 */</span>) &#123;</span><br><span class="line">            context.report(node, <span class="string">'Something WRONG!'</span>)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于我们现在检测空格的需求，一个现成的依赖是 <code>pangu.js</code>。我们在上面的注释处调用 pangu 的格式化 API 就能够实现校验了。但在实际编写自己的插件时，具体的业务规则往往不是难点，难点实际上在于对 JS 语法树结构的熟悉。这里特别推荐 <a href="https://astexplorer.net/" target="_blank" rel="noopener">astexplorer</a> 这个工具，它能够直观地让你了解源码对应的 AST 结构，方便校验规则的编写。</p>
+<p>到这里，我们应该已经对编写规则有了一些直观的认识了。回到开头提出的问题，我们就可以用 ESLint 对症下药了：</p>
+<ul>
+<li>对于特定模块文件，我们能够编写 ESLint 规则，要求其变量命名满足特殊的约定。</li>
+<li>对于经过团队基础库封装后的原生 API，在 ESLint 规则中禁止它的出现，从而避免重新发明 <code>fetch</code> 一类的问题。</li>
+<li>对于不符合最佳实践的语法使用，我们可以及时告警。比如，发现 require 语句正在为 <code>_</code> 或 <code>lodash</code> 赋值时，这多半会带来包体积的剧增，可以编写规则来避免。</li>
+<li>……</li>
+</ul>
+<h2 id="测试驱动"><a href="#测试驱动" class="headerlink" title="测试驱动"></a>测试驱动</h2><p>我们已经知道了怎么编写灵活的校验规则，但这些代码多半在日常的业务开发中不会遇到，该怎么保证它靠谱呢？这就需要我们引入测试驱动的开发模式了。</p>
+<p>在插件的 package.json 里，会有这样的脚本：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">"scripts": &#123;</span><br><span class="line">  "test": "mocha ./tests/**/*.js"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>作为示例，我们在 <code>/tests</code> 目录下添加 <code>spacing-test.js</code> 测试用例，填入这样的内容：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> rule = <span class="built_in">require</span>(<span class="string">'../lib/rules/spacing'</span>)</span><br><span class="line"><span class="keyword">const</span> RuleTester = <span class="built_in">require</span>(<span class="string">'eslint'</span>).RuleTester</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ruleTester = <span class="keyword">new</span> RuleTester()</span><br><span class="line">ruleTester.run(<span class="string">'comment'</span>, rule, &#123;</span><br><span class="line">  valid: [</span><br><span class="line">    <span class="string">'// 白色相簿 2'</span></span><br><span class="line">  ],</span><br><span class="line">  invalid: [</span><br><span class="line">    &#123;</span><br><span class="line">      code: <span class="string">'// 白色相簿2'</span>,</span><br><span class="line">      errors: [&#123;</span><br><span class="line">        message: <span class="string">'Something WRONG!'</span>,</span><br><span class="line">        type: <span class="string">'Line'</span></span><br><span class="line">      &#125;]</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这就是通过测试驱动 ESLint 插件开发的基础方式了。对于规则所希望覆盖到的代码片段，可以通过测试用例的形式提供，这会在很大程度上便利后来者的理解和维护。编写完测试用例后，执行用例的方式也非常简单：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<p>测试用例全部通过，就代表着插件大功告成了！剩下的就是将它发布到 NPM 上，按照 ESLint 插件的配置方式，在你的项目中引入就行啦。在第一步脚手架为你生成的 README 中，这个过程已经有了很详尽的文档，在此就不赘述了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>很多前端同学为了钻研技术深度，会去阅读 ES Spec 的规范文档。但可惜的是这个层面的内容很多时候对于一般的业务开发用处不是很大。但在你具备了开发（而不是使用）ESLint 插件的能力后，配合上你对 JS 本身的熟悉，就会有种解锁了「控制代码的代码」技能的船新感觉：用代码去约束和优化代码本身，这就是 Meta Programming 的威力了吧。</p>
+<p>上文中编写的注释插件也已经发布到 <a href="https://github.com/doodlewind/eslint-plugin-pangu-comment" target="_blank" rel="noopener">GitHub</a>，欢迎参考或供强迫症同学试用哦。最后突然想没来由地提一句…</p>
+<blockquote>
+<p>愿意为你在微信里加空格的妹子，一定是真爱了。</p>
+</blockquote>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/eslint-customize/" data-title="如何为团队潜规则明码标价 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/xiamen-taiwan-permit-guide/" title="对台通行证办理经验">
+  <strong>上一篇：</strong><br/>
+  <span>
+  对台通行证办理经验</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/drawing-triangles/"  title="三角形的 N 种画法与浏览器的开放世界">
+ <strong>下一篇：</strong><br/> 
+ <span>三角形的 N 种画法与浏览器的开放世界
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境配置"><span class="toc-number">1.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建规则"><span class="toc-number">2.</span> <span class="toc-text">创建规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试驱动"><span class="toc-number">3.</span> <span class="toc-text">测试驱动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

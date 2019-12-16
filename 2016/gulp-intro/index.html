@@ -1,0 +1,687 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>Gulp 自动化构建入门 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="随着前端项目复杂度的提升与各种类库的引入，在发布前人工处理 JS 和 CSS 等静态文件的方式逐渐显现出了其弊端。虽然静态文件在没有经过预处理的情况下也能直接上线，但未经合并和压缩的脚本和样式不仅存在请求数过多、体积过大等性能问题，代码中未处理的注释也可能造成信息的泄露。">
+<meta name="keywords" content="Web,JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gulp 自动化构建入门">
+<meta property="og:url" content="https://ewind.us/2016/gulp-intro/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="随着前端项目复杂度的提升与各种类库的引入，在发布前人工处理 JS 和 CSS 等静态文件的方式逐渐显现出了其弊端。虽然静态文件在没有经过预处理的情况下也能直接上线，但未经合并和压缩的脚本和样式不仅存在请求数过多、体积过大等性能问题，代码中未处理的注释也可能造成信息的泄露。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.525Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gulp 自动化构建入门">
+<meta name="twitter:description" content="随着前端项目复杂度的提升与各种类库的引入，在发布前人工处理 JS 和 CSS 等静态文件的方式逐渐显现出了其弊端。虽然静态文件在没有经过预处理的情况下也能直接上线，但未经合并和压缩的脚本和样式不仅存在请求数过多、体积过大等性能问题，代码中未处理的注释也可能造成信息的泄露。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/gulp-intro/" title="Gulp 自动化构建入门" itemprop="url">Gulp 自动化构建入门</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2016-08-06T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-08-07</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#需求"><span class="toc-number">1.</span> <span class="toc-text">需求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Gulp"><span class="toc-number">2.</span> <span class="toc-text">Why Gulp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Node-基础"><span class="toc-number">3.</span> <span class="toc-text">Node 基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概念"><span class="toc-number">3.1.</span> <span class="toc-text">概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装-Node"><span class="toc-number">3.2.</span> <span class="toc-text">安装 Node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化项目"><span class="toc-number">3.3.</span> <span class="toc-text">初始化项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装第三方库"><span class="toc-number">3.4.</span> <span class="toc-text">安装第三方库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#管理第三方库"><span class="toc-number">3.5.</span> <span class="toc-text">管理第三方库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CNPM"><span class="toc-number">3.6.</span> <span class="toc-text">CNPM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gulp-基础"><span class="toc-number">4.</span> <span class="toc-text">Gulp 基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-number">4.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编写-Gulp-Task"><span class="toc-number">4.2.</span> <span class="toc-text">编写 Gulp Task</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用-Gulp-Watch"><span class="toc-number">4.3.</span> <span class="toc-text">使用 Gulp Watch</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gulp-插件"><span class="toc-number">5.</span> <span class="toc-text">Gulp 插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SASS-编译"><span class="toc-number">5.1.</span> <span class="toc-text">SASS 编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JS-CSS-压缩"><span class="toc-number">5.2.</span> <span class="toc-text">JS / CSS 压缩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML-预处理"><span class="toc-number">5.3.</span> <span class="toc-text">HTML 预处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#任务执行管理"><span class="toc-number">5.4.</span> <span class="toc-text">任务执行管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#More"><span class="toc-number">5.5.</span> <span class="toc-text">More</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>随着前端项目复杂度的提升与各种类库的引入，在发布前人工处理 JS 和 CSS 等静态文件的方式逐渐显现出了其弊端。虽然静态文件在没有经过预处理的情况下也能直接上线，但未经合并和压缩的脚本和样式不仅存在请求数过多、体积过大等性能问题，代码中未处理的注释也可能造成信息的泄露。</p>
+<a id="more"></a>
+<p>当然，现代的 IDE 都附带了强大的构建和发布功能，不过这些功能实质上都是命令行构建工具的图形化界面。而在 Web 前端方向上，框架的百花齐放导致 IDE 产商难以对每个构建工具都提供一个完整的图形界面。并且，若纯粹使用 IDE 的构建功能，在新建和发布项目时需要许多难以文档化描述的 GUI 操作，实际上提高了自动化构建的难度。</p>
+<p>为了解决前端自动化构建的问题，这里引入了基于 Node.js 的 Gulp 构建工具，逐步搭建起一套基于轻量级组件的自动构建流程。</p>
+<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>自动化构建除了自动预处理以外，也不应降低开发时的体验。对于 JS 这样的脚本语言，每次保存代码文件时都可以进行即时构建（毕竟没有做实质上的编译）。总体而言，一个初步完善的构建流程，需要满足以下这些需求：</p>
+<ul>
+<li>定制各类文件的源码路径和发布路径，如将 <code>src/js</code> 发布到 <code>app/js</code> 等。</li>
+<li>将为项目编写的 <strong>JavaScript 文件压缩合并</strong>，即所谓的 uglify 处理。</li>
+<li>对样式进行预处理，如 <strong>SASS</strong> 的编译、添加浏览器前缀、压缩合并等。</li>
+<li>构建 <strong>HTML</strong> 文件，如将 HTML 源文件中引用的多个样式标签替换为压缩后的一个。</li>
+<li><strong>监测文件改动</strong>。每当修改、新增或删除文件时重新按需执行预处理流程。</li>
+<li>根据测试环境和线上环境，<strong>变更构建流程</strong>。如测试时略过对脚本和样式的压缩。</li>
+</ul>
+<p>以上这几点需求对一般的前端开发具有很强的普适性。Gulp 也提供了成熟可靠的解决方案，从而优雅且高效地将构建过程流程化。</p>
+<h2 id="Why-Gulp"><a href="#Why-Gulp" class="headerlink" title="Why Gulp"></a>Why Gulp</h2><p>在初步选型时，可供使用的成熟解决方案一共有三个：Grunt、Gulp 和 Webpack。选择 Gulp 主要是基于以下的几个原因：</p>
+<ol>
+<li>Grunt 的构建过程需要在磁盘写临时文件，而基于 Node Stream 流概念的 Gulp 通过管道的方式，可将构建过程在内存中完成。</li>
+<li>Grunt 只支持串行处理，但 Gulp 可并发处理任务。多个第三方 Benchmark 均显示 Gulp 速度更快。</li>
+<li>Grunt 的配置基于配置文件，每项任务都需要写 JSON 风格的配置文件。而 Gulp 的配置基于 JS 的链式函数调用，代码量比 Grunt 少很多。</li>
+<li>Webpack 的亮点是对 require 等模块语法的支持，对未引入模块机制的项目支持没有 Gulp 友好。</li>
+<li>到目前（2016 年 8 月）为止，三者中 Gulp 在 Github 上具有最高的 Star 数（超过 2 万个）。而 Webpack 和 Grunt 的 Star 均为 1 万余个。</li>
+</ol>
+<p>可以看出 Gulp 在性能和易用性上均具有比较优势，这个选择既非盲目追新，也非墨守成规。</p>
+<h2 id="Node-基础"><a href="#Node-基础" class="headerlink" title="Node 基础"></a>Node 基础</h2><p>当前的前端构建工具链无一例外都是基于 Node.js 生态的。因此在引入 Gulp 前，首先对 Node 进行一些简要的介绍。</p>
+<h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>浏览器产商的军备竞赛，直接导致浏览器中的 JavaScript 成为了目前执行最快的脚本语言（比 Python 2 快三倍以上）。而 Node 充分利用了 Google V8 这个高效的 JS 引擎，使得 JS 具有了在服务端工作的能力。Node 带动了第三方 JS 类库的发展，从而催生了 NPM 这一实用的 JS 包管理工具，它相当于 <code>apt-get</code> 之于 Ubuntu，<code>pip</code> 之于 Python，提升了 JS 工程化的能力。NPM 上的包具有很大的多样性，除了安装用于服务器的 JS 类库之外，也可以安装用于浏览器等其它环境的包。</p>
+<p>需要注意的是，在前端自动化构建的过程中，Node 并非作为服务器提供 Web 服务，只是提供了用于执行 Gulp 的环境而已。NPM 在此过程中则用于安装 Gulp 及其插件。</p>
+<h3 id="安装-Node"><a href="#安装-Node" class="headerlink" title="安装 Node"></a>安装 Node</h3><p><a href="https://nodejs.org/en/" target="_blank" rel="noopener">Node 项目主页</a>上提供了跨平台的 Node 安装包，在 Windows 下只需在按照提示操作后重启，即可完成安装。在 Linux 和 OS X 这类不需要重启即可修改环境变量的操作系统上，安装完 Node 后是可以直接运行的。在终端下执行 <code>node -v</code> 命令即可查看 Node 的版本信息，而 <code>node -h</code> 则可查看帮助。</p>
+<p>一个 JS 工程常常是需要许多第三方库的。NPM 作为 Node.js 的包管理工具，能够便捷地安装并管理这些依赖文件。在安装完成 Node 后，可以直接运行 <code>npm -v</code> 命令查看 NPM 版本。以下是几个常用的 NPM 命令介绍。</p>
+<h3 id="初始化项目"><a href="#初始化项目" class="headerlink" title="初始化项目"></a>初始化项目</h3><p><code>npm init</code> 命令会交互式地建立一个空的 JS 工程目录结构。执行结束后，会在当前目录下生成 <code>node_modules</code> 目录和 <code>package.json</code> 文件。特别需要注意 <code>package.json</code> 这一文件，它是 Node 应用声明依赖的地方。</p>
+<h3 id="安装第三方库"><a href="#安装第三方库" class="headerlink" title="安装第三方库"></a>安装第三方库</h3><p><code>npm install xxx</code> 命令会安装库。但默认情况下安装的库是不会加入 <code>package.json</code> 作为项目的依赖的。推荐直接执行下面的命令以修改 <code>package.json</code> 从而将第三方库安装为依赖。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev package1 package2 ...</span><br></pre></td></tr></table></figure>
+<p>基于 NPM 的某些系统级工具是可以在终端下运行的。对这些工具，可以用如下的方式安装。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --global package</span><br></pre></td></tr></table></figure>
+<h3 id="管理第三方库"><a href="#管理第三方库" class="headerlink" title="管理第三方库"></a>管理第三方库</h3><p><code>npm update</code> 命令可以升级全部或指定的依赖版本，而 <code>npm uninstall xxx</code> 命令则可以卸载之。</p>
+<h3 id="CNPM"><a href="#CNPM" class="headerlink" title="CNPM"></a>CNPM</h3><p>由于国内网络条件问题，部分 NPM 库可能难以下载。通过淘宝维护的 <a href="http://npm.taobao.org" target="_blank" rel="noopener">CNPM</a> 可以解决这一问题。安装 CNPM 也只需一条命令即可。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
+<p>CNPM 的功能和 NPM 完全一致，只需将 <code>$ npm</code> 替换为 <code>$ cnpm</code> 即可。</p>
+<h2 id="Gulp-基础"><a href="#Gulp-基础" class="headerlink" title="Gulp 基础"></a>Gulp 基础</h2><p>Gulp 是一个易用且高效的自动化构建工具。通过 NPM 可以管理其插件，实现各种构建功能。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>在安装好 Node 之后，就可以安装并配置 Gulp 了。</p>
+<p>首先将 Gulp 安装到全局。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --global gulp-cli</span><br></pre></td></tr></table></figure></p>
+<p>然后初始化项目。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm init</span><br></pre></td></tr></table></figure></p>
+<p>接下来将 Gulp 安装为项目依赖。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install --save-dev gulp</span><br></pre></td></tr></table></figure></p>
+<p>这样就完成了安装。作为测试，在项目根目录创建 <code>gulpfile.js</code> 并写入如下内容：<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 导入 gulp 模块</span></span><br><span class="line"><span class="keyword">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);</span><br><span class="line">gulp.task(<span class="string">'default'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 在这里编写默认的 Gulp Task</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>最后执行 Gulp 即可。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gulp</span><br></pre></td></tr></table></figure>
+<p>命令执行并结束，说明 Gulp 完成了安装和配置。</p>
+<h3 id="编写-Gulp-Task"><a href="#编写-Gulp-Task" class="headerlink" title="编写 Gulp Task"></a>编写 Gulp Task</h3><p>上面的代码中，我们定义了 <code>default</code> 这一默认任务。在 Gulp 中可以便捷地自定义任务，并将多个任务组合成更大的任务。例如要自定义一个 Hello World 任务，修改 <code>gulpfile.js</code> 如下即可。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);</span><br><span class="line">gulp.task(<span class="string">'hello-world'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'Hello World!'</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这样在终端执行 <code>gulp hello-world</code> 就能输出 <code>Hello World!</code> 了。</p>
+<p>下文中的 Gulp 任务均假定目录结构如下所示，src 为所有静态文件的源目录， resource 为 JS 和 CSS 的目标目录，而 view 为 HTML 的目标目录。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">├── resource</span><br><span class="line">│   ├── css</span><br><span class="line">│   └── js</span><br><span class="line">├── src</span><br><span class="line">│   ├── css</span><br><span class="line">│   ├── index.html</span><br><span class="line">│   └── js</span><br><span class="line">└── view</span><br><span class="line">    └── index.html</span><br></pre></td></tr></table></figure>
+<p>首先，在 Gulp 任务里可以利用管道功能传递文件，如下所示。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gulp.task(&apos;copy-css&apos;, function() &#123;</span><br><span class="line">    return gulp.src(&apos;src/css/**/*&apos;)</span><br><span class="line">        .pipe(gulp.dest(&apos;resource/css&apos;));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面的 <code>copy-css</code> 任务会将 <code>src/css</code> 目录中的所有文件复制到 <code>resource/css</code> 目录中，其中 <code>src/css/**/*</code> 表示递归复制所有文件。如果不递归，只复制源目录下的 CSS 文件，也可以写成 <code>src/css/*.css</code> 的方式。</p>
+<p>对于其它格式的文件，也可以用同样的方法指定源目录和目标目录。</p>
+<h3 id="使用-Gulp-Watch"><a href="#使用-Gulp-Watch" class="headerlink" title="使用 Gulp Watch"></a>使用 Gulp Watch</h3><p>Gulp Watch 可以监测磁盘文件改动并触发任务。<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">gulp.task(<span class="string">'my-watch'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> gulp.watch(<span class="string">'src/css/**/*'</span>, [<span class="string">'copy-css'</span>];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>这样只要执行 <code>gulp my-watch</code> 后，即可在 CSS 目录变动时自动执行之前定义的 <code>copy-css</code> 任务了。可以定义不同的 Watch 任务监视不同的目录，这样在修改样式的时候就不会触发针对脚本和图片等无关文件的冗余任务了。</p>
+<h2 id="Gulp-插件"><a href="#Gulp-插件" class="headerlink" title="Gulp 插件"></a>Gulp 插件</h2><p>Gulp 默认的 Task 和 Watch 机制可以和下面介绍的各类插件实现无缝结合，具备很高的可定制性。下文中介绍的插件可以用一条命令一次性完成安装。</p>
+<p>在 <code>gulpfile.js</code> 中要使用这些插件，只需按照下面的形式导入插件即可。<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> sass = <span class="built_in">require</span>(<span class="string">'gulp-ruby-sass'</span>);</span><br><span class="line"><span class="keyword">var</span> cssnano = <span class="built_in">require</span>(<span class="string">'gulp-cssnano'</span>);</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="SASS-编译"><a href="#SASS-编译" class="headerlink" title="SASS 编译"></a>SASS 编译</h3><p>SASS 自动编译任务 <code>pack-sass</code> 如下所示。<br><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">gulp.task(<span class="string">"pack-sass"</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> sass(<span class="string">'src/sass/*.scss'</span>, &#123; <span class="attr">style</span>: <span class="string">'expanded'</span> &#125;)</span><br><span class="line">        .pipe(autoprefixer(<span class="string">'last 2 version'</span>))</span><br><span class="line">        .pipe(gulp.dest(<span class="string">'src/css'</span>));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<h3 id="JS-CSS-压缩"><a href="#JS-CSS-压缩" class="headerlink" title="JS / CSS 压缩"></a>JS / CSS 压缩</h3><p>gulp-uglify 插件可以实现对 JS 代码文件的压缩，而 gulp-cssnano 插件实现了对 CSS 文件的压缩。示例任务如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 压缩 js</span></span><br><span class="line">gulp.task(<span class="string">"build-js"</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> sass(<span class="string">'src/js/*.js'</span>)</span><br><span class="line">        .pipe(uglify())</span><br><span class="line">        .pipe(gulp.dest(<span class="string">'resource/js'</span>));</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 压缩 css</span></span><br><span class="line">gulp.task(<span class="string">"build-css"</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> sass(<span class="string">'src/css/*.css'</span>)</span><br><span class="line">        .pipe(cssnano())</span><br><span class="line">        .pipe(gulp.dest(<span class="string">'resource/css'</span>));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="HTML-预处理"><a href="#HTML-预处理" class="headerlink" title="HTML 预处理"></a>HTML 预处理</h3><p>上文中对样式和脚本的处理方式尚存在一个问题：在 HTML 中引用 CSS 和 JS 的路径无法根据 Gulp Task 中定义的发布路径自动修改。并且，实际项目中，有些自定义的脚本需要合并与压缩，jQuery 等已经压缩的库文件则不需要再次压缩。但所有脚本在上面的任务中都会被直接压缩。为了提高对静态资源处理的定制性，需要引入 useref 这一插件以进一步实现 HTML 预处理。</p>
+<p>引入 useref 后，可以在 HTML 文件中书写如下的标签，定义脚本和样式的合并路径。</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"/resource/js/common/jquery-1.11.0.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"/resource/js/common/jquery.cookie.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- build:js /resource/js/index.min.js --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"js/default/switchpicture.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"js/default/encode.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"js/default/index.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"js/default/login.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- endbuild --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>上面的示例中，被 <code>build</code> 包裹起来的后四个标签会按照 <code>build</code> 中声明的路径，合并成一个脚本文件（只是简单合并，不包含压缩处理）。而前两个标签则会保持原样。<strong>注意，需要合并的脚本路径可采用相对路径，而不需合并的脚本以及合并后输出的脚本，其路径均为绝对路径。</strong></p>
+<p>最后添加对应的 Gulp Task 即可实现按需合并脚本和样式了。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">gulp.task(<span class="string">'useref'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> gulp.src(<span class="string">'src/*.html'</span>)</span><br><span class="line">        .pipe(useref())</span><br><span class="line">        .pipe(gulpIf(<span class="string">'*.min.js'</span>,uglify()))</span><br><span class="line">        .pipe(gulpIf(<span class="string">'*.css'</span>, cssnano()))</span><br><span class="line">        .pipe(gulp.dest(<span class="string">'view'</span>));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面的 Task 利用了 gulp-if 来实现对不同文件的不同处理方式，最后输出处理过的 HTML 文件。</p>
+<h3 id="任务执行管理"><a href="#任务执行管理" class="headerlink" title="任务执行管理"></a>任务执行管理</h3><p>Gulp 的一大特色在于其利用了 Node.js 的异步回调方式，实现了对任务的并发（不是并行）处理。如对 CSS 样式的构建和对 JS 的构建实际上相互独立，因而默认情况下这些任务都是并发执行的。</p>
+<p>然而，实际项目中的构建流程是涉及顺序执行的。例如，应该在 SASS 编译任务完成后才能执行 CSS 任务，删除之前构建文件的 Clean 任务完成后才应当执行其它文件的构建任务等。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">gulp.task(<span class="string">'build-css'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    sass(...);</span><br><span class="line">    cssnano(...);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>和 PHP 等脚本语言不同的是，上面的任务中 <code>sass</code> 和 <code>cssnano</code> 两个任务会并发执行，而不是等待 <code>sass</code> 完成后再执行下一个任务。引入 <code>run-sequence</code> 插件即可保证特定任务的串行性。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">gulp.task(<span class="string">'default'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">    runSequence(<span class="string">'clean'</span>, [<span class="string">'build-css'</span>, <span class="string">'build-image'</span>], <span class="string">'build-html'</span>, callback);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>在上面的示例中，<code>clean</code> 完成后可以并发执行 <code>build-css</code> 和 <code>build-image</code> 两个任务以预编译 SASS 并优化图片，这两个任务都完成后，才会执行 <code>build-html</code> 任务以替换 HTML 文件、合并压缩脚本和样式表。</p>
+<p>能够自定义任务的执行顺序，表明 Gulp 有能力组合并构建出更加强大的前端工作流。最后，如果需要在测试环境中关闭压缩，在线上环境中启用，只需在 JS 中加入变量参数控制即可。</p>
+<h3 id="More"><a href="#More" class="headerlink" title="More"></a>More</h3><p>尚未在项目中应用，但已有成熟插件的 Gulp 高级应用包括但不仅限于：</p>
+<ul>
+<li>PhpStorm 的 <a href="https://www.jetbrains.com/help/phpstorm/2016.2/using-gulp-task-runner.html" target="_blank" rel="noopener">Task Runner</a> 支持</li>
+<li>Git 部署</li>
+<li>Google Closure Compiler 优化并删除冗余 JS 代码</li>
+<li>生成 Sprite 图</li>
+<li>整合 Mocha 测试框架</li>
+<li>Karma 在多个浏览器上同步测试等</li>
+</ul>
+<p>对 Gulp 的进阶使用，还有待后续的探索。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2016/gulp-intro/" data-title="Gulp 自动化构建入门 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/js-render-html-template/" title="JS 绑定数据到 HTML 模板的简易模式">
+  <strong>上一篇：</strong><br/>
+  <span>
+  JS 绑定数据到 HTML 模板的简易模式</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/css-emoji/"  title="画画 CSS Emoji">
+ <strong>下一篇：</strong><br/> 
+ <span>画画 CSS Emoji
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#需求"><span class="toc-number">1.</span> <span class="toc-text">需求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Gulp"><span class="toc-number">2.</span> <span class="toc-text">Why Gulp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Node-基础"><span class="toc-number">3.</span> <span class="toc-text">Node 基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概念"><span class="toc-number">3.1.</span> <span class="toc-text">概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装-Node"><span class="toc-number">3.2.</span> <span class="toc-text">安装 Node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化项目"><span class="toc-number">3.3.</span> <span class="toc-text">初始化项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装第三方库"><span class="toc-number">3.4.</span> <span class="toc-text">安装第三方库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#管理第三方库"><span class="toc-number">3.5.</span> <span class="toc-text">管理第三方库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CNPM"><span class="toc-number">3.6.</span> <span class="toc-text">CNPM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gulp-基础"><span class="toc-number">4.</span> <span class="toc-text">Gulp 基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-number">4.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编写-Gulp-Task"><span class="toc-number">4.2.</span> <span class="toc-text">编写 Gulp Task</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用-Gulp-Watch"><span class="toc-number">4.3.</span> <span class="toc-text">使用 Gulp Watch</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gulp-插件"><span class="toc-number">5.</span> <span class="toc-text">Gulp 插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SASS-编译"><span class="toc-number">5.1.</span> <span class="toc-text">SASS 编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JS-CSS-压缩"><span class="toc-number">5.2.</span> <span class="toc-text">JS / CSS 压缩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML-预处理"><span class="toc-number">5.3.</span> <span class="toc-text">HTML 预处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#任务执行管理"><span class="toc-number">5.4.</span> <span class="toc-text">任务执行管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#More"><span class="toc-number">5.5.</span> <span class="toc-text">More</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

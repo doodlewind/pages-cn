@@ -1,0 +1,53 @@
+<div class="row"><form name="configForm">
+    <div class="col-xs-12 col-sm-offset-3 col-sm-6">
+        <div class="col-xs-12">
+            <input type="text" ng-model="match.title" class="form-control input-lg" placeholder="Match Title" required>
+            <br>
+        </div>
+        <div class="col-xs-6">
+            <input type="text" ng-model="match.player1" class="form-control input-lg" placeholder="P1 Name" required>
+            <br>
+        </div>
+        <div class="col-xs-6">
+            <input type="text" ng-model="match.player2" class="form-control input-lg" placeholder="P2 Name" required>
+            <br>
+        </div>
+        <div class="col-xs-6">
+            <h4 class="text-muted text-right">Sets</h4>
+            <br>
+        </div>
+        <div class="col-xs-6">
+            <div class="btn-group">
+                <label class="btn btn-default btn-lg" ng-model="match.sets" uib-btn-radio="'2'" required>2</label>
+                <label class="btn btn-default btn-lg" ng-model="match.sets" uib-btn-radio="'4'" required>4</label>
+                <label class="btn btn-default btn-lg" ng-model="match.sets" uib-btn-radio="'6'" required>6</label>
+            </div>
+            <div>&nbsp;</div>
+        </div>
+        <div class="col-xs-6">
+            <h4 class="text-muted text-right">1st Server</h4>
+        </div>
+        <div class="col-xs-6">
+            <div class="btn-group">
+                <label class="btn btn-default btn-lg" ng-model="match.server" uib-btn-radio="'P1'" required>P1</label>
+                <label class="btn btn-default btn-lg" ng-model="match.server" uib-btn-radio="'P2'" required>P2</label>
+            </div>
+            <div>&nbsp;</div>
+        </div>
+        <div class="col-xs-6">
+            <h4 class="text-muted text-right">Advantage</h4>
+        </div>
+        <div class="col-xs-6">
+            <div class="btn-group">
+                <label class="btn btn-default btn-lg" ng-model="match.advantage" uib-btn-radio="true" required>T</label>
+                <label class="btn btn-default btn-lg" ng-model="match.advantage" uib-btn-radio="false" required>F</label>
+            </div>
+        </div>
+        <div class="col-xs-6 col-xs-offset-6">
+            <br><br>
+            <a ui-sref="scoring">
+                <button ng-click="submitMatch()" ng-disabled="configForm.$invalid" class="btn btn-default btn-lg btn-block"><span class="text-primary glyphicon glyphicon-chevron-right"></span></button>
+            </a>
+        </div>
+    </div>
+</form></div>

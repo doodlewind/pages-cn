@@ -1,0 +1,646 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>50 行代码的 HTML 编译器 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="虚拟 DOM 几乎已经是现代 JS 框架的标配了。那么该怎样将 HTML 字符串编译为虚拟 DOM 呢？这样的编译器并不是什么黑科技，这里只用了不到 50 行 JS 就实现了一个。">
+<meta name="keywords" content="JS,Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="50 行代码的 HTML 编译器">
+<meta property="og:url" content="https://ewind.us/2016/toy-html-parser/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="虚拟 DOM 几乎已经是现代 JS 框架的标配了。那么该怎样将 HTML 字符串编译为虚拟 DOM 呢？这样的编译器并不是什么黑科技，这里只用了不到 50 行 JS 就实现了一个。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.561Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="50 行代码的 HTML 编译器">
+<meta name="twitter:description" content="虚拟 DOM 几乎已经是现代 JS 框架的标配了。那么该怎样将 HTML 字符串编译为虚拟 DOM 呢？这样的编译器并不是什么黑科技，这里只用了不到 50 行 JS 就实现了一个。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/toy-html-parser/" title="50 行代码的 HTML 编译器" itemprop="url">50 行代码的 HTML 编译器</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2016-11-13T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-11-14</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Demo"><span class="toc-number">1.</span> <span class="toc-text">Demo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译器-101"><span class="toc-number">2.</span> <span class="toc-text">编译器 101</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#词法分析"><span class="toc-number">3.</span> <span class="toc-text">词法分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语法分析"><span class="toc-number">4.</span> <span class="toc-text">语法分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语义分析"><span class="toc-number">5.</span> <span class="toc-text">语义分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TODO"><span class="toc-number">6.</span> <span class="toc-text">TODO</span></a></li></ol>
+		
+		</div>
+		
+		<p>虚拟 DOM 几乎已经是现代 JS 框架的标配了。那么该怎样将 HTML 字符串编译为虚拟 DOM 呢？这样的编译器并不是什么黑科技，这里只用了不到 50 行 JS 就实现了一个。</p>
+<a id="more"></a>
+<h2 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h2><p>在 <a href="http://ewind.us/h5/html-toy-parser/">HTML Toy Parser Demo</a> 中，可以将输入的 HTML 字符串编译成虚拟 DOM 并渲染在页面上。这个玩具项目的源码在 <a href="https://github.com/doodlewind/HTML-Toy-Parser" target="_blank" rel="noopener">Github</a> 上。</p>
+<p>作为一个玩具编译器，它还不能支持一些常见的 HTML 格式，如类似 <code>&lt;h2&gt;123&lt;small&gt;456&lt;/small&gt;&lt;/h2&gt;</code> 这样将值和标签混合的写法。不过，这个玩具是能完善地解析多个并列标签或深层嵌套标签的。下面分享一下如何从头开始搭建出这样一个简单的编译器。</p>
+<h2 id="编译器-101"><a href="#编译器-101" class="headerlink" title="编译器 101"></a>编译器 101</h2><p>编译器和解释器不同的地方在于，编译器是将一种编程语言的代码编译为另一种（例如将高级语言编译为机器语言），而解释器则是将一种编程语言的代码逐条解释执行（例如执行各种脚本语言）。编译器并不需要执行编译得到的代码（如 <code>gcc xxx.c</code> 以后是通过 OS 来执行编译得到的 x86 机器码）而解释器是直接执行语言代码（如各种脚本语言都需要通过诸如 <code>python xxx.py</code> 或 <code>node xxx.js</code> 的方式来执行）。</p>
+<p>所以，将 HTML 字符串转换为 DOM 对象的程序就是一个编译器（虽然十分简陋）。按照经典的教科书，一般一个完整的编译过程由三步组成：词法分析、语法分析和语义分析。这三个流程各对应一个模块：词法分析器、语法分析器和语义计算模块。</p>
+<p>以 <code>&lt;p&gt;123&lt;/p&gt;</code> 这段字符串为例，对它的编译过程，首先始于类似【分词】操作的词法分析。这个过程就是输入一段字符串，输出 <code>&lt;p&gt;</code> / <code>123</code> / <code>&lt;/p&gt;</code> 三个词法 Token 的过程。这些 Token 都有各自的属性（或类型），比如 <code>&lt;p&gt;</code> 是一个开始标签、而 <code>&lt;/p&gt;</code> 是一个结束标签等。</p>
+<p>词法分析器输入的这些 Token 被输入语法分析器中进行语法分析。语法分析，其实就是将输入的一连串 Token 数组构建为一棵抽象语法树（AST）的过程。比如，类似 <code>&lt;h2&gt;&lt;small&gt;123&lt;/small&gt;&lt;/h2&gt;</code> 这样嵌套的标签，解析成语法树后，<code>&lt;small&gt;</code> 就是 <code>&lt;h2&gt;</code> 的子节点。而类似 <code>&lt;div&gt;123&lt;/div&gt; &lt;a&gt;456&lt;/a&gt;</code> 这样并列的标签则是语法树中的兄弟节点。构建好这棵语法树后，就可以进行语义计算了。</p>
+<p>最后的语义计算过程就是遍历语法树的过程。例如在遍历一棵虚拟 DOM 语法树的过程中，可以将每个语法树上的节点都渲染为真实的 DOM 节点，从而将虚拟 DOM 绑定到真实 DOM，这样就实现了完整的从 HTML 字符串编译到 DOM 元素的流程。</p>
+<h2 id="词法分析"><a href="#词法分析" class="headerlink" title="词法分析"></a>词法分析</h2><p>这里的词法分析器 <a href="https://github.com/doodlewind/HTML-Toy-Parser/blob/master/app/lexer.js" target="_blank" rel="noopener">Lexer</a> 就是一个切分 HTML 字符串的工具。在最简化的情景下，HTML 字符串所包含的内容可以分为这三种：</p>
+<ul>
+<li>起始标签，如 <code>&lt;body&gt;</code> / <code>&lt;div&gt;</code> / <code>&lt;span&gt;</code> 等</li>
+<li>标签内容，如 <code>123</code> / <code>abc</code>/ <code>!@#$%</code> 等</li>
+<li>结束标签，如 <code>&lt;/body&gt;</code> / <code>&lt;/div&gt;</code> / <code>&lt;/span&gt;</code> 等</li>
+</ul>
+<p>一个学术上严谨的词法分析器，需要用有限状态机来将文本切分成以上的三种类型。这里为了简单起见，使用了用正则表达式来切分文本。算法很简单：</p>
+<ol>
+<li>从字符串开头开始，首先匹配一个结束标签 Token</li>
+<li>如果没有匹配到结束标签，那么从字符串开头开始匹配一个开始标签 Token</li>
+<li>如果还是没有匹配到开始标签，那么匹配一段标签值 Token</li>
+<li>每次匹配到一个 Token，都记录下这个 Token 的类型和文本</li>
+<li>将 Token 的 HTML 字符串去除掉，回到步骤 1 直到切完字符串为止</li>
+</ol>
+<p>词法分析完成后，所获得的 Token 数组内容大致如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">tokens = [</span><br><span class="line">    &#123; <span class="attr">type</span>: <span class="string">'TagOpen'</span>, <span class="attr">val</span>: <span class="string">'&lt;p&gt;'</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">type</span>: <span class="string">'Value'</span>, <span class="attr">val</span>: <span class="string">'hello'</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">type</span>: <span class="string">'TagClose'</span>, <span class="attr">val</span>: <span class="string">'&lt;/p&gt;'</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">type</span>: <span class="string">'TagOpen'</span>, <span class="attr">val</span>: <span class="string">'&lt;div&gt;'</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">type</span>: <span class="string">'TagOpen'</span>, <span class="attr">val</span>: <span class="string">'&lt;h2&gt;'</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">type</span>: <span class="string">'TagOpen'</span>, <span class="attr">val</span>: <span class="string">'&lt;small&gt;'</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">type</span>: <span class="string">'Value'</span>, <span class="attr">val</span>: <span class="string">'world'</span> &#125;,</span><br><span class="line">    &#123; <span class="attr">type</span>: <span class="string">'TagClose'</span>, <span class="attr">val</span>: <span class="string">'&lt;/small&gt;'</span> &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<h2 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h2><p>语法分析是将上面得到的 <code>tokens</code> 数组构造为一棵语法树的过程，实现语法分析器 Parser 也是实现简单编译器时的难点。Parser 的算法有自顶向下（LL）和自底向上（LR）之分，<a href="http://stackoverflow.com/questions/5975741/what-is-the-difference-between-ll-and-lr-parsing" target="_blank" rel="noopener">对比讨论</a>暂且略过，下面介绍这个简单编译器的 Parser 实现：</p>
+<p>首先，词法分析中得到的 Tokens 所得到的 <code>TagOpen</code> / <code>Value</code> / <code>TagClose</code> 这三种类型，在语法树中的位置是有区别的。例如，只有 <code>Value</code> 能成为叶子节点，而 <code>TagOpen</code> 和 <code>TagClose</code> 这两种类型只能用来包裹出一个 HTML 标签 <code>Tag</code> 类型。而一个或多个 <code>Tag</code> 类型又能够组成 <code>Tags</code> 类型。而一棵语法树的根节点则是一个只有一个 <code>Tags</code> 子节点的 <code>Html</code> 类型。</p>
+<p>现在我们有了五种类型：即 <code>TagOpen</code> / <code>Value</code> / <code>TagClose</code> / <code>Tag</code> / <code>Tags</code>。这五种类型中，前三种是从词法分析直接得到的，称他们为【<strong>终止符</strong>】，而后两种为构建语法树过程中的 “抽象” 类型，称它们为【<strong>非终止符</strong>】</p>
+<p>这个 <a href="https://github.com/doodlewind/HTML-Toy-Parser/blob/master/app/parser.js" target="_blank" rel="noopener">Parser</a> 采用了最简单的递归下降算法来解析 Tokens 数组。递归下降的过程是这样的：</p>
+<ol>
+<li>首先从语法树顶部的根节点开始，向前【匹配非终止符】。每个【匹配非终止符】的过程，都是调用一个函数的过程。例如匹配 <code>Tag</code> 需要调用 <code>tag()</code> 函数，匹配 <code>Tags</code> 需要调用 <code>tags()</code> 函数等</li>
+<li>每个非终止符的函数中，都按照这个非终止符的语法结构，依次匹配各种终止符或非终止符。例如 <code>tag()</code> 函数需要依次匹配 <code>TagOpen</code> - <code>Value</code> - <code>TagClose</code> 三个终止符，或者 <code>TagOpen</code> - <code>Tag</code> - <code>TagClose</code> 这样两个终止符和一个非终止符。如果在 <code>tag()</code> 函数中遇到了又需要匹配 <code>Tag</code> 的情况（这就是 HTML 标签嵌套的情形）时，就需要再次调用 <code>tag()</code> 函数来向下匹配一个新的 <code>Tag</code>，这也就是所谓的递归下降了。</li>
+<li>当所有的 Token 都被吃入并匹配后，完成匹配。</li>
+</ol>
+<p>教科书级的代码示例是这样的（但是这不是伪代码，是能够实际执行语法分析的）：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 简化的 parser.js</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// tokens 为输入的词法 Token 数组</span></span><br><span class="line"><span class="comment">// currIndex 为当前语法分析过程所匹配到的下标，只会逐个向前递增，不回退</span></span><br><span class="line"><span class="comment">// lookahead 为当前语法分析遇到的 Token，即 tokens[currIndex]</span></span><br><span class="line"><span class="keyword">var</span> tokens, currIndex, lookahead</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回下一个 token 并将下标前移一位</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">nextToken</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> tokens[++currIndex]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按照所需匹配的终止符类型，匹配下一个终止符</span></span><br><span class="line"><span class="comment">// 若下一个终止符和需要匹配的类型不一直，则说明代码中存在语法错误</span></span><br><span class="line"><span class="comment">// 如在解析 &lt;a&gt; 123 &lt;a&gt; 这三个 Token 时，最后需要 match('TagClose')</span></span><br><span class="line"><span class="comment">// 但此时最后一个 Token 类型为 TagOpen，这时就会抛出语法错误</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">match</span>(<span class="params">terminalType</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (lookahead &amp;&amp; terminalType === lookahead.type) lookahead = nextToken()</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">throw</span> <span class="string">'SyntaxError'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// LL 中的函数均是用于匹配非终止符的函数</span></span><br><span class="line"><span class="comment">// 如果有更复杂的非终止符，在此添加它们所对应的函数即可</span></span><br><span class="line"><span class="keyword">const</span> LL = &#123;</span><br><span class="line">  <span class="comment">// 匹配 Html 类型非终止符的函数</span></span><br><span class="line">  html() &#123;</span><br><span class="line">    <span class="comment">// 当存在 lookahead 时，不停向前匹配 Tag 标签</span></span><br><span class="line">    <span class="keyword">while</span> (lookahead) LL.tag()</span><br><span class="line">    <span class="comment">// 当完成对所有 Token 的匹配后，lookahead 为越界的 undefined</span></span><br><span class="line">    <span class="comment">// 这时退出循环，在此结束语法分析过程</span></span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'parse complete!'</span>)</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// 匹配 Tag 类型非终止符的函数</span></span><br><span class="line">  tag() &#123;</span><br><span class="line">    <span class="comment">// HTML 标签的第一个 Token 一定是 TagOpen 类型</span></span><br><span class="line">    match(<span class="string">'TagOpen'</span>)</span><br><span class="line">    <span class="comment">// 匹配完成 TagOpen 后，可能需要匹配一个嵌套的标签</span></span><br><span class="line">    <span class="comment">// 也可能需要匹配一个标签的 Value</span></span><br><span class="line">    <span class="comment">// 这时候就需要通过向前看符号 lookahead 来判断怎样匹配</span></span><br><span class="line">    <span class="comment">// 若需要匹配嵌套的标签，那么下一个符号必然是 TagOpen 类型</span></span><br><span class="line">    lookahead.type == <span class="string">'TagOpen'</span> ? LL.tag() : match(<span class="string">'Value'</span>)</span><br><span class="line">    <span class="comment">// 最后匹配一个结束标签，即 TagClose 类型的 Token</span></span><br><span class="line">    match(<span class="string">'TagClose'</span>)</span><br><span class="line">    <span class="comment">// 执行到这里时，就完成了对一个 HTML 标签的语法解析</span></span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'tag matched'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  parse(inputTokens) &#123;</span><br><span class="line">    <span class="comment">// 初始化各变量</span></span><br><span class="line">    tokens = inputTokens, currIndex = <span class="number">0</span>, lookahead = tokens[currIndex]</span><br><span class="line">    <span class="comment">// 开始语法分析，目标是将 Tokens 解析为一整个 HTML 类型</span></span><br><span class="line">    LL.html()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h2><p>上面的语法分析过程中，并没有显式构建一棵语法树的代码。实际上，语法树是在 <code>LL</code> 中各个匹配非终止符的函数的互相调用中，隐式地构建出来的。要将这棵语法树转换为虚拟 DOM，只需要在 <code>tag()</code> 和 <code>html()</code> 等互相调用的函数中传入参数即可。</p>
+<p>例如将 <code>tag()</code> 函数签名修改为如下的形式，即可实现</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">tag(currNode) &#123;</span><br><span class="line">  match(<span class="string">'TagOpen'</span>)</span><br><span class="line">  <span class="comment">// 在遇到嵌套标签的情况时，递归向下解析</span></span><br><span class="line">  <span class="keyword">if</span> (lookahead.type == <span class="string">'TagOpen'</span>) &#123;</span><br><span class="line">    <span class="comment">// 将当前节点作为参数，调用 tags 匹配掉嵌套的标签</span></span><br><span class="line">    <span class="comment">// 将会返回挂载完成了所有子节点的当前节点</span></span><br><span class="line">    currNode = NT.tags(currNode)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 当前标签是一个叶子节点，这时直接修改当前节点的值</span></span><br><span class="line">    <span class="comment">// 这时 lookahead 指向的已经是一个 Value 类型的 Token 了</span></span><br><span class="line">    currNode.val = lookahead.val</span><br><span class="line">    <span class="comment">// 匹配掉这个 Value 类型，</span></span><br><span class="line">    match(<span class="string">'Value'</span>)</span><br><span class="line">    <span class="comment">// 这时的 lookahead 指向 TagClose 类型</span></span><br><span class="line">  &#125;</span><br><span class="line">  match(<span class="string">'TagClose'</span>)</span><br><span class="line">  <span class="comment">// 最后返回计算完成的节点给上层</span></span><br><span class="line">  <span class="keyword">return</span> currNode</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以，这种语法分析方式下，语义计算的完整代码实际上耦合在了语法分析器中。最后 <code>html()</code> 函数返回的结果，就是一棵虚拟 DOM 语法树了。</p>
+<p>要将获得的虚拟 DOM 渲染为真实 DOM，是非常容易的。只需要深度遍历这棵虚拟 DOM 树，将每个节点通过 API 插入 DOM 中即可：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// generator.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">renderNode</span>(<span class="params">target, nodes</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// nodes 由调用者传入，是调用者的全部子节点</span></span><br><span class="line">  nodes.forEach(<span class="function"><span class="params">node</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// trim 用于修剪标签的首尾文本，例如将 &lt;p&gt; 剪为 p</span></span><br><span class="line">    <span class="comment">// 然后生成一个全新的 DOM 节点 newNode</span></span><br><span class="line">    <span class="keyword">let</span> newNode = <span class="built_in">document</span>.createElement(trim(node.type))</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// node.val 不存在时，说明当前节点不是子节点</span></span><br><span class="line">    <span class="comment">// 此时传入 node 的子节点递归调用自己，深度优先遍历树</span></span><br><span class="line">    <span class="keyword">if</span> (!node.val) newNode = renderNode(newNode, node.children)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// node.val 存在时，说明当前 node 是叶子节点</span></span><br><span class="line">    <span class="comment">// 此时 node.val 就是当前 DOM 元素的 innerHTML</span></span><br><span class="line">    <span class="keyword">else</span> newNode.innerHTML = node.val</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 将新生成的节点挂载到 DOM 上</span></span><br><span class="line">    target.appendChild(newNode)</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// 向调用者返回挂载后的元素</span></span><br><span class="line">  <span class="keyword">return</span> target</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><p>上面的一套流程走完后，实际上就实现了从 HTML 字符串到虚拟 DOM 再到真实 DOM 的流程了。由于虚拟 DOM 的抽象性，因此可以在 HTML 字符串中通过模板语法来绑定若干变量，然后在这些变量改变后，修改虚拟 DOM 对应的位置，并将虚拟 DOM 的相应部分重新渲染到真实 DOM，从而减少手动重新绘制 DOM 的冗余代码，并通过尽量少地重绘 DOM 来提高性能。</p>
+<p>当然了，这个编译器的语法分析部分采用的是教科书中最简单的递归下降算法，递归的方式在很多时候性能都不是最好的。如果希望语法分析能够有尽可能高的性能，那么表驱动的 LR 分析可以做到这一点。不过 LR 分析中构造分析表的过程是相当复杂的，在此并没有杀鸡用牛刀的必要。</p>
+<p>最后，这个玩具级的编译器能支持的文法其实相当有限，只是 HTML 的一个子集而已。希望它能够为编写其它更有趣的 Parser 提供一些启发吧。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JS/">JS</a><a href="/tags/Algorithms/">Algorithms</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2016/toy-html-parser/" data-title="50 行代码的 HTML 编译器 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/vue-cmap/" title="Vue 中国地图可视化组件 vue-cmap">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Vue 中国地图可视化组件 vue-cmap</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/cookie-2-lines/"  title="两行代码的 Cookie 操作库">
+ <strong>下一篇：</strong><br/> 
+ <span>两行代码的 Cookie 操作库
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Demo"><span class="toc-number">1.</span> <span class="toc-text">Demo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译器-101"><span class="toc-number">2.</span> <span class="toc-text">编译器 101</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#词法分析"><span class="toc-number">3.</span> <span class="toc-text">词法分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语法分析"><span class="toc-number">4.</span> <span class="toc-text">语法分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语义分析"><span class="toc-number">5.</span> <span class="toc-text">语义分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TODO"><span class="toc-number">6.</span> <span class="toc-text">TODO</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

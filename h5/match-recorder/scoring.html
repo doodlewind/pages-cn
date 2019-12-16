@@ -1,0 +1,91 @@
+<div class="row"><form name="scoringForm">
+    <div class="col-xs-12 col-sm-offset-3 col-sm-6">
+        <div class="col-xs-2"><h4 class="text-muted">P1</h4></div>
+        <div class="col-xs-4">
+            <h4 class="text-center">
+                <span class="badge">{{status.setsP1}}</span> {{status.pointsP1}}
+                <span><br><img ng-hide="status.currentServer == 'P2'" class="server" src="img/tennis-logo.png"></span>
+            </h4>
+        </div>
+        <div class="col-xs-4">
+            <h4 class="text-center">
+                {{status.pointsP2}} <span class="badge">{{status.setsP2}}</span>
+                <span><br><img ng-hide="status.currentServer == 'P1'" class="server" src="img/tennis-logo.png"></span>
+            </h4>
+        </div>
+        <div class="col-xs-2"><h4 class="text-muted">P2</h4></div>
+        <div class="col-xs-12">
+            <h4 class="text-center">{{currentPoint.serveTime}} Serve &nbsp;&nbsp;
+                <button ng-click="setPointServeTime()" ng-model="outBtn" ng-init="outBtn='OUT'" class="btn btn-default btn-lg">{{outBtn}}</button>
+            </h4>
+        </div>
+
+        <!--P1 Name / P2 Name-->
+        <div class="col-xs-12">
+            <div class="btn-group btn-group-justified">
+                <label class="btn btn-default btn-lg" ng-model="currentPoint.win" uib-btn-radio="'P1'" required>{{match.player1}} WIN</label>
+                <label class="btn btn-default btn-lg" ng-model="currentPoint.win" uib-btn-radio="'P2'" required>{{match.player2}} WIN</label>
+            </div>
+        </div>
+
+        <!--ACE / W / UE / FE-->
+        <div class="col-xs-12">
+            <br>
+            <div class="btn-group btn-group-justified" role="group">
+                <div class="btn-group">
+                    <label class="btn btn-default btn-lg" ng-model="currentPoint.type" uib-btn-radio="'ACE'" required>ACE</label>
+                </div>
+                <div class="btn-group">
+                    <label class="btn btn-default btn-lg" ng-model="currentPoint.type" uib-btn-radio="'W'" required>Winner</label>
+                </div>
+            </div>
+            <div class="btn-group btn-group-justified" role="group">
+                <div class="btn-group">
+                    <label class="btn btn-default btn-lg" ng-model="currentPoint.type" uib-btn-radio="'UE'" required>UE</label>
+                </div>
+                <div class="btn-group">
+                    <label class="btn btn-default btn-lg" ng-model="currentPoint.type" uib-btn-radio="'FE'" required>FE</label>
+                </div>
+            </div>
+        </div>
+
+        <!--Forehand / Backhand-->
+        <div class="col-xs-12">
+            <br>
+            <div class="btn-group btn-group-justified" role="group">
+                <div class="btn-group">
+                    <label class="btn btn-default btn-lg" ng-model="currentPoint.hand" uib-btn-radio="'F'" uncheckable>Forehand</label>
+                </div>
+                <div class="btn-group">
+                    <label class="btn btn-default btn-lg" ng-model="currentPoint.hand" uib-btn-radio="'B'" uncheckable>Backhand</label>
+                </div>
+            </div>
+        </div>
+
+        <!--P1 Net / P2 Net-->
+        <div class="col-xs-12">
+            <br>
+            <div class="btn-group btn-group-justified" role="group">
+                <div class="btn-group">
+                    <label class="btn btn-default btn-lg" ng-model="currentPoint.net" uib-btn-radio="'P1'" uncheckable>P1 Net</label>
+                </div>
+                <div class="btn-group">
+                    <label class="btn btn-default btn-lg" ng-model="currentPoint.net" uib-btn-radio="'P2'" uncheckable>P2 Net</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="col-xs-4 col-xs-offset-8">
+                <br>
+                <button ng-click="updatePoint()" ng-disabled="scoringForm.$invalid" class="btn btn-default btn-lg btn-block"><span class="text-primary glyphicon glyphicon-chevron-right"></span></button>
+            </div>
+        </div>
+
+        <div hidden class="col-xs-12">
+            <!--debug-->
+            <br>
+            <!--<pre ng-bind="progress | json"></pre>-->
+        </div>
+    </div>
+</form></div>

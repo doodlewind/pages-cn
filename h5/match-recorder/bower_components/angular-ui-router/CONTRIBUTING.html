@@ -1,0 +1,47 @@
+<h1 id="Report-an-Issue"><a href="#Report-an-Issue" class="headerlink" title="Report an Issue"></a>Report an Issue</h1><p>Help us make UI-Router better! If you think you might have found a bug, or some other weirdness, start by making sure<br>it hasn’t already been reported. You can <a href="https://github.com/angular-ui/ui-router/search?q=wat%3F&amp;type=Issues">search through existing issues</a><br>to see if someone’s reported one similar to yours.</p>
+<p>If not, then <a href="http://bit.ly/UIR-Plunk">create a plunkr</a> that demonstrates the problem (try to use as little code<br>as possible: the more minimalist, the faster we can debug it).</p>
+<p>Next, <a href="https://github.com/angular-ui/ui-router/issues/new">create a new issue</a> that briefly explains the problem,<br>and provides a bit of background as to the circumstances that triggered it. Don’t forget to include the link to<br>that plunkr you created!</p>
+<p><strong>Note</strong>: If you’re unsure how a feature is used, or are encountering some unexpected behavior that you aren’t sure<br>is a bug, it’s best to talk it out on<br><a href="http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router">StackOverflow</a> before reporting it. This<br>keeps development streamlined, and helps us focus on building great software.</p>
+<table>
+<thead>
+<tr>
+<th>Issues only!</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Please keep in mind that the issue tracker is for <em>issues</em>. Please do <em>not</em> post an issue if you need help or support. Instead, see one of the above-mentioned forums or <a href="irc://irc.freenode.net/#angularjs">IRC</a>.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>####Purple Labels<br>A purple label means that <strong>you</strong> need to take some further action.</p>
+<ul>
+<li><img src="ngdoc_assets/incomplete.png" alt="Not Actionable - Need Info">: Your issue is not specific enough, or there is no clear action that we can take. Please clarify and refine your issue.</li>
+<li><img src="ngdoc_assets/example.png" alt="Plunkr Please">: Please <a href="http://bit.ly/UIR-Plunk">create a plunkr</a></li>
+<li><img src="ngdoc_assets/so.png" alt="StackOverflow">: We suspect your issue is really a help request, or could be answered by the community.  Please ask your question on <a href="http://stackoverflow.com/questions/ask?tags=angularjs,angular-ui-router">StackOverflow</a>.  If you determine that is an actual issue, please explain why.</li>
+</ul>
+<p>If your issue gets labeled with purple label, no further action will be taken until you respond to the label appropriately.</p>
+<h1 id="Contribute"><a href="#Contribute" class="headerlink" title="Contribute"></a>Contribute</h1><p><strong>(1)</strong> See the <strong><a href="#developing">Developing</a></strong> section below, to get the development version of UI-Router up and running on your local machine.</p>
+<p><strong>(2)</strong> Check out the <a href="https://github.com/angular-ui/ui-router/milestones">roadmap</a> to see where the project is headed, and if your feature idea fits with where we’re headed.</p>
+<p><strong>(3)</strong> If you’re not sure, <a href="https://github.com/angular-ui/ui-router/issues/new?title=RFC:%20My%20idea">open an RFC</a> to get some feedback on your idea.</p>
+<p><strong>(4)</strong> Finally, commit some code and open a pull request. Code &amp; commits should abide by the following rules:</p>
+<ul>
+<li><em>Always</em> have test coverage for new features (or regression tests for bug fixes), and <em>never</em> break existing tests</li>
+<li>Commits should represent one logical change each; if a feature goes through multiple iterations, squash your commits down to one</li>
+<li>Make sure to follow the <a href="https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#commit-message-format">Angular commit message format</a> so your change will appear in the changelog of the next release.</li>
+<li>Changes should always respect the coding style of the project</li>
+</ul>
+<h1 id="Developing"><a href="#Developing" class="headerlink" title="Developing"></a>Developing</h1><p>UI-Router uses <code>grunt &gt;= 0.4.x</code>. Make sure to upgrade your environment and read the<br><a href="http://gruntjs.com/upgrading-from-0.3-to-0.4">Migration Guide</a>.</p>
+<p>Dependencies for building from source and running tests:</p>
+<ul>
+<li><a href="https://github.com/gruntjs/grunt-cli">grunt-cli</a> - run: <code>$ npm install -g grunt-cli</code></li>
+<li>Then, install the development dependencies by running <code>$ npm install</code> from the project directory</li>
+</ul>
+<p>There are a number of targets in the gruntfile that are used to generating different builds:</p>
+<ul>
+<li><code>grunt</code>: Perform a normal build, runs jshint and karma tests</li>
+<li><code>grunt build</code>: Perform a normal build</li>
+<li><code>grunt dist</code>: Perform a clean build and generate documentation</li>
+<li><code>grunt dev</code>: Run dev server (sample app) and watch for changes, builds and runs karma tests on changes.</li>
+</ul>

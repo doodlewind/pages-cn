@@ -1,0 +1,907 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>UNIX 日常笔记 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="This article is a UNIX beginner’s learning note.">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX 日常笔记">
+<meta property="og:url" content="https://ewind.us/2014/unix-regular-note/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="This article is a UNIX beginner’s learning note.">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.562Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UNIX 日常笔记">
+<meta name="twitter:description" content="This article is a UNIX beginner’s learning note.">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/unix-regular-note/" title="UNIX 日常笔记" itemprop="url">UNIX 日常笔记</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2014-08-25T16:00:00.000Z" itemprop="datePublished"> 发表于 2014-08-26</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Startup"><span class="toc-number">1.</span> <span class="toc-text">Startup</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Login"><span class="toc-number">1.1.</span> <span class="toc-text">Login</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shut-Down"><span class="toc-number">1.2.</span> <span class="toc-text">Shut Down</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Manual"><span class="toc-number">1.3.</span> <span class="toc-text">Manual</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Users-and-Groups"><span class="toc-number">2.</span> <span class="toc-text">Users and Groups</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Type-of-Accounts"><span class="toc-number">2.1.</span> <span class="toc-text">Type of Accounts</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Admin-Users-and-Groups"><span class="toc-number">2.2.</span> <span class="toc-text">Admin Users and Groups</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#File-System"><span class="toc-number">3.</span> <span class="toc-text">File System</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-File-Commands"><span class="toc-number">3.1.</span> <span class="toc-text">Basic File Commands</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Links"><span class="toc-number">3.2.</span> <span class="toc-text">Links</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Files-and-Directory-Permissions"><span class="toc-number">3.3.</span> <span class="toc-text">Files and Directory Permissions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Change-Permissions"><span class="toc-number">3.4.</span> <span class="toc-text">Change Permissions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#View-File"><span class="toc-number">3.5.</span> <span class="toc-text">View File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-Change-Delete-File"><span class="toc-number">3.6.</span> <span class="toc-text">Create/Change/Delete File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-Delete-Directory"><span class="toc-number">3.7.</span> <span class="toc-text">Create/Delete Directory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-File-System-Management"><span class="toc-number">3.8.</span> <span class="toc-text">Basic File System Management</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Modify-Working-Environment"><span class="toc-number">4.</span> <span class="toc-text">Modify Working Environment</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Environment-Variable"><span class="toc-number">4.1.</span> <span class="toc-text">Environment Variable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Path"><span class="toc-number">4.2.</span> <span class="toc-text">Path</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Choose-Shell"><span class="toc-number">4.3.</span> <span class="toc-text">Choose Shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Universal"><span class="toc-number">4.4.</span> <span class="toc-text">Universal</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Understanding-Unix-Commands"><span class="toc-number">5.</span> <span class="toc-text">Understanding Unix Commands</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Metacharacter"><span class="toc-number">5.1.</span> <span class="toc-text">Metacharacter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Output-Redirect"><span class="toc-number">5.2.</span> <span class="toc-text">Output Redirect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Input-redirect"><span class="toc-number">5.3.</span> <span class="toc-text">Input redirect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pipe"><span class="toc-number">5.4.</span> <span class="toc-text">Pipe</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Command-Replacement"><span class="toc-number">5.5.</span> <span class="toc-text">Command Replacement</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vi"><span class="toc-number">6.</span> <span class="toc-text">vi</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Basics"><span class="toc-number">6.1.</span> <span class="toc-text">Basics</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Move-Cursor"><span class="toc-number">6.2.</span> <span class="toc-text">Move Cursor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Search-File"><span class="toc-number">6.3.</span> <span class="toc-text">Search File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exit-and-Save-File"><span class="toc-number">6.4.</span> <span class="toc-text">Exit and Save File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Insert-File"><span class="toc-number">6.5.</span> <span class="toc-text">Insert File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Delete-File"><span class="toc-number">6.6.</span> <span class="toc-text">Delete File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Modify-File"><span class="toc-number">6.7.</span> <span class="toc-text">Modify File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Helps"><span class="toc-number">6.8.</span> <span class="toc-text">Helps</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Replace-files"><span class="toc-number">6.9.</span> <span class="toc-text">Replace files</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Advanced-Tools"><span class="toc-number">7.</span> <span class="toc-text">Advanced Tools</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Regular-Expression-Test-Text"><span class="toc-number">7.1.</span> <span class="toc-text">Regular Expression Test Text</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Metacharacter-1"><span class="toc-number">7.2.</span> <span class="toc-text">Metacharacter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Advanced-Commands"><span class="toc-number">7.3.</span> <span class="toc-text">Advanced Commands</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-Management"><span class="toc-number">8.</span> <span class="toc-text">Process Management</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Process"><span class="toc-number">8.1.</span> <span class="toc-text">Process</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell-Script"><span class="toc-number">8.2.</span> <span class="toc-text">Shell Script</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Current-Process"><span class="toc-number">8.3.</span> <span class="toc-text">Current Process</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<blockquote>
+<p>This article is a UNIX beginner’s learning note.</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="Startup"><a href="#Startup" class="headerlink" title="Startup"></a>Startup</h2><h3 id="Login"><a href="#Login" class="headerlink" title="Login"></a>Login</h3><ul>
+<li>Using ssh/telnet…</li>
+</ul>
+<h3 id="Shut-Down"><a href="#Shut-Down" class="headerlink" title="Shut Down"></a>Shut Down</h3><p><code>halt init 0 init 6 poweroff reboot shutdown</code></p>
+<h3 id="Manual"><a href="#Manual" class="headerlink" title="Manual"></a>Manual</h3><p><code>man -k permission [SNYOPSIS] - arguments</code></p>
+<h2 id="Users-and-Groups"><a href="#Users-and-Groups" class="headerlink" title="Users and Groups"></a>Users and Groups</h2><h3 id="Type-of-Accounts"><a href="#Type-of-Accounts" class="headerlink" title="Type of Accounts"></a>Type of Accounts</h3><ul>
+<li>System accounts: apache/bin/guest…</li>
+<li>User accounts</li>
+<li>Group accounts: One account belongs to multi groups</li>
+</ul>
+<h3 id="Admin-Users-and-Groups"><a href="#Admin-Users-and-Groups" class="headerlink" title="Admin Users and Groups"></a>Admin Users and Groups</h3><ul>
+<li><p>3 main files for user management</p>
+<ul>
+<li><code>/etc/passwd</code></li>
+<li><code>/etc/shadow</code></li>
+<li><code>/etc/group</code></li>
+</ul>
+</li>
+<li><p>Commands to manage users and groups</p>
+<ul>
+<li><code>useradd</code></li>
+<li><code>usermod</code></li>
+<li><code>userdel</code></li>
+<li><code>groupadd</code></li>
+<li><code>groupmod</code></li>
+<li><code>groupdel</code></li>
+</ul>
+</li>
+<li><p>Shell location: <code>/bin/bash</code></p>
+</li>
+<li><code>who</code> / <code>whoami</code> (current) / <code>who am i</code>(init)</li>
+</ul>
+<h2 id="File-System"><a href="#File-System" class="headerlink" title="File System"></a>File System</h2><h3 id="Basic-File-Commands"><a href="#Basic-File-Commands" class="headerlink" title="Basic File Commands"></a>Basic File Commands</h3><ul>
+<li>find pathname options</li>
+</ul>
+<p><code>find /usr -name lostfile (recursive by default)</code></p>
+<ul>
+<li><p><code>which</code> and <code>whereis</code></p>
+<ul>
+<li><code>which</code>: find file in users’ PATH</li>
+<li><code>whereis</code>: find in system’s path</li>
+</ul>
+</li>
+<li><p><code>echo directory*</code> = <code>ls</code>    </p>
+</li>
+</ul>
+<h3 id="Links"><a href="#Links" class="headerlink" title="Links"></a>Links</h3><ul>
+<li>Hard link: same inode</li>
+<li>Soft link: different inode, ref by name <code>ls -i</code></li>
+<li><code>cat</code></li>
+<li>Add line to file tail <code>echo &quot;Hey&quot;&gt;&gt;filename</code></li>
+<li>Edit link will change content of origin file</li>
+</ul>
+<h3 id="Files-and-Directory-Permissions"><a href="#Files-and-Directory-Permissions" class="headerlink" title="Files and Directory Permissions"></a>Files and Directory Permissions</h3><ul>
+<li>r-read / w-write / x-execute</li>
+<li>Output from <code>ls-l</code> <code>-rwxr-xr--</code><ul>
+<li>Permission for file owner</li>
+<li>Permission for group</li>
+<li>Permission for others</li>
+</ul>
+</li>
+</ul>
+<h3 id="Change-Permissions"><a href="#Change-Permissions" class="headerlink" title="Change Permissions"></a>Change Permissions</h3><ul>
+<li><code>chmod</code> in symbol mode <code>chmod [u/g/o][+/-/=][rwx] filename</code></li>
+<li><code>chomod</code> in absolute mode <code>chmod [7=r4+w2+x1]40 filename</code></li>
+<li><code>chgroup groupname filename</code></li>
+<li><code>umask</code> configs default permission of shell created files by minus it from 777, if wants it default, saves it to .profile</li>
+</ul>
+<h3 id="View-File"><a href="#View-File" class="headerlink" title="View File"></a>View File</h3><ul>
+<li><code>more filename</code> show file in a screen. Press Enter to move on</li>
+<li><code>less filename</code> use vi keys to operate</li>
+<li><code>head -n 15 filename</code> view 15 lines of file, 10 or 15 lines by default</li>
+<li><code>tail -n 15 filename</code></li>
+<li><code>tail -f(follow) filename</code></li>
+<li><code>wc filename</code> see files length count by words</li>
+<li><code>wc -[c/l/L] filename</code> count by chars/lines/length of longest line</li>
+</ul>
+<h3 id="Create-Change-Delete-File"><a href="#Create-Change-Delete-File" class="headerlink" title="Create/Change/Delete File"></a>Create/Change/Delete File</h3><ul>
+<li><code>cp fromfile tofile</code></li>
+<li><code>mv fromfile tofile</code></li>
+<li><code>touch filename</code></li>
+<li><code>rm -f(don&#39;t ask) -r(recursive) filename(can be *)</code></li>
+</ul>
+<h3 id="Create-Delete-Directory"><a href="#Create-Delete-Directory" class="headerlink" title="Create/Delete Directory"></a>Create/Delete Directory</h3><ul>
+<li><code>mkdir dirname</code></li>
+<li><code>rmdir dirname(must be empty)</code></li>
+<li><code>rm -r</code> can delete dir that is not empty</li>
+</ul>
+<h3 id="Basic-File-System-Management"><a href="#Basic-File-System-Management" class="headerlink" title="Basic File System Management"></a>Basic File System Management</h3><ul>
+<li><code>df -k</code> show disk space in KB</li>
+<li><code>df -h</code> readable way to show usage</li>
+<li><code>du -h</code> path show usage of a dir</li>
+<li><code>fsck</code> user a super block to trace file system, can repair file system</li>
+<li><code>mount</code> see current file system</li>
+</ul>
+<h2 id="Modify-Working-Environment"><a href="#Modify-Working-Environment" class="headerlink" title="Modify Working Environment"></a>Modify Working Environment</h2><h3 id="Environment-Variable"><a href="#Environment-Variable" class="headerlink" title="Environment Variable"></a>Environment Variable</h3><ul>
+<li><code>PS1=&quot;&gt; &quot;</code> controls command prompt</li>
+<li>Some escape chars:<ul>
+<li><code>\t</code> current time</li>
+<li><code>\d</code> current week</li>
+<li><code>\s</code> current shell</li>
+<li><code>\W</code> working dir</li>
+<li><code>\t</code> complete working dir</li>
+<li><code>\u</code> current username</li>
+<li><code>\h</code> current host name</li>
+<li><code>\#</code> current command number</li>
+<li><code>\$</code> if UID==0, shows #, else shows $</li>
+</ul>
+</li>
+</ul>
+<h3 id="Path"><a href="#Path" class="headerlink" title="Path"></a>Path</h3><ul>
+<li><code>$PATH</code> includes dirs that contains binarys</li>
+<li><code>PATH=$PATH: /root: /home/ewind</code> add multi values to PATH variable in bash shell</li>
+<li>Add <code>export PATH</code> to init file will make PATH variable available in other shells</li>
+<li>Absolute path and relative path<ul>
+<li><code>/path/to/file</code> is absolute path, based on <code>/</code></li>
+<li><code>path/to/file</code> is relative path, based on current path</li>
+</ul>
+</li>
+</ul>
+<h3 id="Choose-Shell"><a href="#Choose-Shell" class="headerlink" title="Choose Shell"></a>Choose Shell</h3><ul>
+<li><code>bash / sh</code> enter bash / Bourne shell</li>
+<li><code>exit</code> to exit</li>
+<li><code>chsh</code> to change shel</li>
+</ul>
+<h3 id="Universal"><a href="#Universal" class="headerlink" title="Universal"></a>Universal</h3><ul>
+<li><code>/etc/profile</code></li>
+<li><code>set</code> check out current environment variables</li>
+<li><code>alias rm = &quot;rm -i&quot;</code> in shell profile</li>
+</ul>
+<h2 id="Understanding-Unix-Commands"><a href="#Understanding-Unix-Commands" class="headerlink" title="Understanding Unix Commands"></a>Understanding Unix Commands</h2><h3 id="Metacharacter"><a href="#Metacharacter" class="headerlink" title="Metacharacter"></a>Metacharacter</h3><ul>
+<li><code>?</code> for any 1 char</li>
+<li><code>*</code> for any 1 char or more</li>
+<li><code>[]</code> for any 1 char in []</li>
+</ul>
+<h3 id="Output-Redirect"><a href="#Output-Redirect" class="headerlink" title="Output Redirect"></a>Output Redirect</h3><ul>
+<li><code>ls &gt; lsoutput</code> takes output of <code>ls</code> and write it to lsoutput (create it if not exists)</li>
+</ul>
+<h3 id="Input-redirect"><a href="#Input-redirect" class="headerlink" title="Input redirect"></a>Input redirect</h3><ul>
+<li><code>sort &lt;terms&gt; terms-alpha</code> input terms to <code>sort</code> and write out to terms-alpha</li>
+<li><code>0</code> for stdin</li>
+<li><code>1</code> for stdout</li>
+<li><code>2</code> for error</li>
+<li><code>myprog 2 &gt; errfile</code> makes error logs</li>
+<li><strong>These redirects only work for files</strong></li>
+</ul>
+<h3 id="Pipe"><a href="#Pipe" class="headerlink" title="Pipe"></a>Pipe</h3><ul>
+<li>Pipe combines input and output redirect, put the output of one command directly the input of another command.</li>
+<li><code>ls -l /etc | more</code></li>
+<li><code>sort &lt; terms &gt; terms-alpha | mail fred</code> becomes command chain</li>
+</ul>
+<h3 id="Command-Replacement"><a href="#Command-Replacement" class="headerlink" title="Command Replacement"></a>Command Replacement</h3><ul>
+<li><code>ls $ (pwd)</code> creates a child shell, and exec command in this child shell, whose output becomes the input of left command.</li>
+<li><code>ls ${pwd}</code> or <code>ls &#39;pwd&#39;</code> works the same</li>
+</ul>
+<h2 id="vi"><a href="#vi" class="headerlink" title="vi"></a>vi</h2><h3 id="Basics"><a href="#Basics" class="headerlink" title="Basics"></a>Basics</h3><ul>
+<li>Command mode: <code>esc</code>*2</li>
+<li>Insert mode: <code>i</code></li>
+</ul>
+<h3 id="Move-Cursor"><a href="#Move-Cursor" class="headerlink" title="Move Cursor"></a>Move Cursor</h3><ul>
+<li><code>h</code> left</li>
+<li><code>j</code> DOWN</li>
+<li><code>k</code> UP</li>
+<li><code>l</code> right</li>
+<li><code>10j</code> DOWN 10 lines</li>
+<li><code>0</code> start of line</li>
+<li><code>$</code> end of line</li>
+<li><code>w</code> next word</li>
+<li><code>b</code> previous word</li>
+<li><code>W</code> next word, ignore symbols</li>
+<li><code>B</code> previoust word, ignore symbols</li>
+<li><code>(</code> start of sentence</li>
+<li><code>)</code> end of sentence</li>
+<li><code>ctrl-F</code> forward screen</li>
+<li><code>Ctrl-B</code> backward screen</li>
+<li><code>G</code> final line</li>
+<li><code>xG</code> go to line x</li>
+<li><code>:x</code> go to line x</li>
+<li><code>set nu</code> show line number</li>
+<li><code>set nomu</code> hide line number</li>
+<li><code>ctrl-G</code> show cursor position</li>
+</ul>
+<h3 id="Search-File"><a href="#Search-File" class="headerlink" title="Search File"></a>Search File</h3><ul>
+<li><code>/string</code> search string</li>
+<li><code>/ string</code> search words begin with string</li>
+<li><code>?string</code> search string backword</li>
+<li><code>n</code> next instance</li>
+<li><code>N</code> previous instance</li>
+</ul>
+<h3 id="Exit-and-Save-File"><a href="#Exit-and-Save-File" class="headerlink" title="Exit and Save File"></a>Exit and Save File</h3><ul>
+<li><code>:q</code> quit vi</li>
+<li><code>:w</code> save file</li>
+<li><code>:wq</code> save and quit</li>
+<li><code>:q!</code> execute command without confirms</li>
+<li><code>ZZ</code> save and quit</li>
+<li><code>w filename</code> save file as filename but stays in origin file</li>
+<li><code>e!</code> open final version</li>
+<li><code>w&gt;&gt;filename</code> add current content to tail of filename</li>
+</ul>
+<h3 id="Insert-File"><a href="#Insert-File" class="headerlink" title="Insert File"></a>Insert File</h3><ul>
+<li><code>i</code> insert before current cursor</li>
+<li><code>I</code> insert at start of current line</li>
+<li><code>a</code> insert after current cursor</li>
+<li><code>A</code> insert after end of current cursor</li>
+<li><code>o</code> new line after current line</li>
+<li><code>O</code> new line before current line</li>
+</ul>
+<h3 id="Delete-File"><a href="#Delete-File" class="headerlink" title="Delete File"></a>Delete File</h3><ul>
+<li><code>x</code> delete</li>
+<li><code>X</code> backspace</li>
+<li><code>dw</code> delete word, including following space</li>
+<li><code>D</code> delete from cursor to end of line</li>
+<li><code>dd</code> delete whole line</li>
+</ul>
+<h3 id="Modify-File"><a href="#Modify-File" class="headerlink" title="Modify File"></a>Modify File</h3><ul>
+<li><code>cc</code> delete currrent line and go to insert mode</li>
+<li><code>cw</code> delete current word(from cursor position) and go to insert mode</li>
+<li><code>r</code> replace current word, then return to command mode</li>
+<li><code>R</code> replace multi words, use <code>esc</code> to stop</li>
+<li><code>s</code> replace current word and stay in insert mode</li>
+<li><code>S</code> replace multi words and stay in insert mode</li>
+</ul>
+<h3 id="Helps"><a href="#Helps" class="headerlink" title="Helps"></a>Helps</h3><ul>
+<li><code>J</code> combine current line and next line</li>
+<li><code>yy</code> copy current line</li>
+<li><code>yw</code> copy current word</li>
+<li><code>p</code> paste after cursor</li>
+<li><code>P</code> paste before cursor</li>
+<li><code>u</code> cancel last edit</li>
+<li><code>U</code> cancel change of current line</li>
+<li><code>ctrl-L</code> hide hint</li>
+<li><code>:! command</code> run shell command</li>
+</ul>
+<h3 id="Replace-files"><a href="#Replace-files" class="headerlink" title="Replace files"></a>Replace files</h3><ul>
+<li><code>:s/to_be_replaced/to_be_replace_with</code> replace word on current line</li>
+<li><code>:x,ys/to_be_replaced/to_be_replaced_with</code> replace word in x-y lines, $ for end</li>
+<li><code>:s/to_be_replaced/to_be_replaced_with/gc</code> replace all, with confirm</li>
+<li><code>\*</code> escape <code>*</code></li>
+<li><code>\&lt;</code> for begin of word</li>
+<li><code>\&gt;</code> for end of word</li>
+</ul>
+<h2 id="Advanced-Tools"><a href="#Advanced-Tools" class="headerlink" title="Advanced Tools"></a>Advanced Tools</h2><h3 id="Regular-Expression-Test-Text"><a href="#Regular-Expression-Test-Text" class="headerlink" title="Regular Expression Test Text"></a>Regular Expression Test Text</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Juliet Capulet</span><br><span class="line">The model identifier is DEn5c89zt.</span><br><span class="line">Sarcastic was what he was.</span><br><span class="line">No, he was just sarcastic.</span><br><span class="line">Simplicity</span><br><span class="line">The quick brown fox jumps over the lazy dog.</span><br><span class="line">It&apos;s a Cello? Not a Violin?</span><br><span class="line">This character is (*) is the splat in Unix.</span><br><span class="line">activity</span><br><span class="line">apricot</span><br><span class="line">capulet</span><br><span class="line">cat</span><br><span class="line">celebration</span><br><span class="line">corporation</span><br><span class="line">cot</span><br><span class="line">cut</span><br><span class="line">cutting</span><br><span class="line">dc9tg4</span><br><span class="line">eclectic</span><br><span class="line">housecat</span><br><span class="line">persnickety</span><br><span class="line">The punctuation and capitalization is important in this example.</span><br><span class="line">simplicity</span><br><span class="line">undiscriminating</span><br><span class="line">Two made up words below:</span><br><span class="line">c?t</span><br><span class="line">C?*.t</span><br><span class="line">cccot</span><br><span class="line">cccccot</span><br></pre></td></tr></table></figure>
+<h3 id="Metacharacter-1"><a href="#Metacharacter-1" class="headerlink" title="Metacharacter"></a>Metacharacter</h3><ul>
+<li><code>.</code> match a character</li>
+<li><code>[]</code> match any character inside, like <code>[ab][a-z][A-Z0-9]</code></li>
+<li><code>*</code> match zero or more characters</li>
+<li><code>[^insert_characters]</code> match any character but insert_characters</li>
+<li><code>^</code> match only if search series at begin of line</li>
+<li><code>$</code> match instance at end of line, like <code>c*t$</code></li>
+<li><code>\</code> find the following character</li>
+<li><code>?</code> zero or one character</li>
+</ul>
+<h3 id="Advanced-Commands"><a href="#Advanced-Commands" class="headerlink" title="Advanced Commands"></a>Advanced Commands</h3><ul>
+<li><code>grep</code> global regular expression print<ul>
+<li><code>grep string file(s)</code></li>
+<li><code>grep -v string file(s)</code> find lines doesn’t contain string</li>
+<li><code>cat /etc/password | grep root</code> combine commands</li>
+</ul>
+</li>
+<li><code>find path options</code> options can be <code>option1 arg1 option2 arg2...</code><ul>
+<li><code>-name passwd</code></li>
+<li><code>-maxdepth n</code></li>
+<li><code>-mindepth n</code></li>
+<li><code>-mount</code> no remote files syetems</li>
+</ul>
+</li>
+<li><code>find /root -name testfile -size +100k -uid 0</code></li>
+<li><code>sort options</code><ul>
+<li><code>sort -d</code> in dict orders</li>
+<li><code>-f</code> ignore case</li>
+<li><code>-g</code> in numeric order</li>
+<li><code>-M</code> in month order</li>
+<li><code>-r</code> reverse order</li>
+<li><code>-u</code> ignore repeat values</li>
+</ul>
+</li>
+<li><code>tee</code> send command output to multi places<ul>
+<li><code>ps -ef | tee /tmp/troubleshooting_file</code> display on screen and</li>
+<li><code>ps -ef | tee -a /tmp/troubleshooting_file</code> add on tail of file</li>
+<li><code>script</code> record all operations of user</li>
+<li><code>script -a /tmp/log</code> add logs to file</li>
+<li><code>exit</code> stop recording</li>
+</ul>
+</li>
+</ul>
+<h2 id="Process-Management"><a href="#Process-Management" class="headerlink" title="Process Management"></a>Process Management</h2><h3 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h3><ul>
+<li><code>ls -l /etc</code> <code>/etc</code> is target, <code>-l</code> is argument</li>
+<li>init has PID 1 and is parent to all processes. When new program starts, fork will generate a copy of current program, with different PID and same resourse</li>
+<li><code>echo $$</code> to see current PID for shell</li>
+</ul>
+<h3 id="Shell-Script"><a href="#Shell-Script" class="headerlink" title="Shell Script"></a>Shell Script</h3><ul>
+<li><code>./filename</code> to execute following lines: <code>#/bin/cat Hello World</code></li>
+</ul>
+<h3 id="Current-Process"><a href="#Current-Process" class="headerlink" title="Current Process"></a>Current Process</h3><ul>
+<li><code>ps</code> to see process status</li>
+<li><code>ps u</code> or <code>ps -l</code> to see details</li>
+<li><code>ps ax</code> to see system process on OS X</li>
+<li><code>ps -e</code> on Solaris</li>
+<li><code>ps -o user,pid,ppid,vsz,comm</code> to see PID/parent PID/virtual memory usage</li>
+<li><code>kill PID</code> to close process</li>
+<li><code>ps auxww | grep Firefox</code> to see Firefox’s PID, then kill this PID</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Linux/">Linux</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2014/unix-regular-note/" data-title="UNIX 日常笔记 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/ustc-campus-autumn/" title="初秋校园">
+  <strong>上一篇：</strong><br/>
+  <span>
+  初秋校园</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/android-analysis/"  title="闲扯：影响安卓流畅性的原因？">
+ <strong>下一篇：</strong><br/> 
+ <span>闲扯：影响安卓流畅性的原因？
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Startup"><span class="toc-number">1.</span> <span class="toc-text">Startup</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Login"><span class="toc-number">1.1.</span> <span class="toc-text">Login</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shut-Down"><span class="toc-number">1.2.</span> <span class="toc-text">Shut Down</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Manual"><span class="toc-number">1.3.</span> <span class="toc-text">Manual</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Users-and-Groups"><span class="toc-number">2.</span> <span class="toc-text">Users and Groups</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Type-of-Accounts"><span class="toc-number">2.1.</span> <span class="toc-text">Type of Accounts</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Admin-Users-and-Groups"><span class="toc-number">2.2.</span> <span class="toc-text">Admin Users and Groups</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#File-System"><span class="toc-number">3.</span> <span class="toc-text">File System</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-File-Commands"><span class="toc-number">3.1.</span> <span class="toc-text">Basic File Commands</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Links"><span class="toc-number">3.2.</span> <span class="toc-text">Links</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Files-and-Directory-Permissions"><span class="toc-number">3.3.</span> <span class="toc-text">Files and Directory Permissions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Change-Permissions"><span class="toc-number">3.4.</span> <span class="toc-text">Change Permissions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#View-File"><span class="toc-number">3.5.</span> <span class="toc-text">View File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-Change-Delete-File"><span class="toc-number">3.6.</span> <span class="toc-text">Create/Change/Delete File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-Delete-Directory"><span class="toc-number">3.7.</span> <span class="toc-text">Create/Delete Directory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-File-System-Management"><span class="toc-number">3.8.</span> <span class="toc-text">Basic File System Management</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Modify-Working-Environment"><span class="toc-number">4.</span> <span class="toc-text">Modify Working Environment</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Environment-Variable"><span class="toc-number">4.1.</span> <span class="toc-text">Environment Variable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Path"><span class="toc-number">4.2.</span> <span class="toc-text">Path</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Choose-Shell"><span class="toc-number">4.3.</span> <span class="toc-text">Choose Shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Universal"><span class="toc-number">4.4.</span> <span class="toc-text">Universal</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Understanding-Unix-Commands"><span class="toc-number">5.</span> <span class="toc-text">Understanding Unix Commands</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Metacharacter"><span class="toc-number">5.1.</span> <span class="toc-text">Metacharacter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Output-Redirect"><span class="toc-number">5.2.</span> <span class="toc-text">Output Redirect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Input-redirect"><span class="toc-number">5.3.</span> <span class="toc-text">Input redirect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pipe"><span class="toc-number">5.4.</span> <span class="toc-text">Pipe</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Command-Replacement"><span class="toc-number">5.5.</span> <span class="toc-text">Command Replacement</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vi"><span class="toc-number">6.</span> <span class="toc-text">vi</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Basics"><span class="toc-number">6.1.</span> <span class="toc-text">Basics</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Move-Cursor"><span class="toc-number">6.2.</span> <span class="toc-text">Move Cursor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Search-File"><span class="toc-number">6.3.</span> <span class="toc-text">Search File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exit-and-Save-File"><span class="toc-number">6.4.</span> <span class="toc-text">Exit and Save File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Insert-File"><span class="toc-number">6.5.</span> <span class="toc-text">Insert File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Delete-File"><span class="toc-number">6.6.</span> <span class="toc-text">Delete File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Modify-File"><span class="toc-number">6.7.</span> <span class="toc-text">Modify File</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Helps"><span class="toc-number">6.8.</span> <span class="toc-text">Helps</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Replace-files"><span class="toc-number">6.9.</span> <span class="toc-text">Replace files</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Advanced-Tools"><span class="toc-number">7.</span> <span class="toc-text">Advanced Tools</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Regular-Expression-Test-Text"><span class="toc-number">7.1.</span> <span class="toc-text">Regular Expression Test Text</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Metacharacter-1"><span class="toc-number">7.2.</span> <span class="toc-text">Metacharacter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Advanced-Commands"><span class="toc-number">7.3.</span> <span class="toc-text">Advanced Commands</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-Management"><span class="toc-number">8.</span> <span class="toc-text">Process Management</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Process"><span class="toc-number">8.1.</span> <span class="toc-text">Process</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell-Script"><span class="toc-number">8.2.</span> <span class="toc-text">Shell Script</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Current-Process"><span class="toc-number">8.3.</span> <span class="toc-text">Current Process</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

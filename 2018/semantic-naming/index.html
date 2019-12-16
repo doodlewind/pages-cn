@@ -1,0 +1,660 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>浅谈变量类型之外的变量命名 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="在编程实践中定义变量时，我们所能控制的无非两点：变量类型与变量名。某种程度上，这两者分别考验的其实是开发者的数学水平与语文水平。在今天，即便已经有了非常高大上的类型系统，「名不副实」的变量名仍然经常能对开发者造成困扰。那么，我们有什么理论能用来指导变量命名呢？">
+<meta name="keywords" content="Pattern">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈变量类型之外的变量命名">
+<meta property="og:url" content="https://ewind.us/2018/semantic-naming/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="在编程实践中定义变量时，我们所能控制的无非两点：变量类型与变量名。某种程度上，这两者分别考验的其实是开发者的数学水平与语文水平。在今天，即便已经有了非常高大上的类型系统，「名不副实」的变量名仍然经常能对开发者造成困扰。那么，我们有什么理论能用来指导变量命名呢？">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.552Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈变量类型之外的变量命名">
+<meta name="twitter:description" content="在编程实践中定义变量时，我们所能控制的无非两点：变量类型与变量名。某种程度上，这两者分别考验的其实是开发者的数学水平与语文水平。在今天，即便已经有了非常高大上的类型系统，「名不副实」的变量名仍然经常能对开发者造成困扰。那么，我们有什么理论能用来指导变量命名呢？">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/semantic-naming/" title="浅谈变量类型之外的变量命名" itemprop="url">浅谈变量类型之外的变量命名</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-12-16T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-12-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#注意命名与类型在语义上的匹配"><span class="toc-number">1.</span> <span class="toc-text">注意命名与类型在语义上的匹配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#保持概念的一致性"><span class="toc-number">2.</span> <span class="toc-text">保持概念的一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#避免制造出反语言直觉的结构"><span class="toc-number">3.</span> <span class="toc-text">避免制造出反语言直觉的结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#慎用宽泛的抽象概念"><span class="toc-number">4.</span> <span class="toc-text">慎用宽泛的抽象概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>在编程实践中定义变量时，我们所能控制的无非两点：变量类型与变量名。某种程度上，这两者分别考验的其实是开发者的数学水平与语文水平。在今天，即便已经有了非常高大上的类型系统，「名不副实」的变量名仍然经常能对开发者造成困扰。那么，我们有什么理论能用来指导变量命名呢？</p>
+<a id="more"></a>
+<p>在计算机科学的萌芽时代，变量名和变量类型之间并没有明确的界限。比如，著名的「匈牙利命名法」提倡的就是把属性 + 类型 + 描述一股脑地写进变量名：例如 const int max 就对应 c_i_max 的名字。编程语言发展到今天，这种实践看起来自然就很别扭了。对于现在的主流编程语言，我们大可以认为，它们中的变量名就应该是纯粹的「对变量的描述」。</p>
+<p>那么，怎么样描述好一个变量呢？这时，我们的关注点其实已经从自然科学中的类型理论转移到人文科学中的文学创作了 :) 在给变量取名时，我们实际上要做的是言简意赅地描述清楚一个抽象的东西，这其实并不是件容易的事情——「名字」可是万恶的自然语言的范畴里的东西，试问列位能在白板上手写 bug-free 红黑树的大神们，可曾用母语写出过满分的高中作文？</p>
+<p>所以，自然语言在编程中其实发挥着非常重要的作用——毕竟代码是写给人看的。笔者相信，每个正常的阅读者，都会在潜意识里用从小耳濡目染的自然语言来理解代码逻辑，然后才是套用（也许是培训班昨天才教的）编程语言语法规则来考量细节。这里，某些标榜着简洁但充斥着大量符号的编程语言就可以作为反例：用它们写出的代码也许对于热爱推导公式的 Geek 来说非常友好，但普通人第一眼看上去就是天书。当然，矫枉过正的例子也不是没有：对于一些鼓励超长变量名的语言，维护它们的代码……多少会有些捏着鼻子的感觉。</p>
+<p>到此，我们已经总结出了变量命名的若干微妙之处:</p>
+<ul>
+<li>变量命名与类型系统是分离的。</li>
+<li>变量命名依据其实是自然语言。</li>
+<li>命名过于简洁时，可读性不好。</li>
+<li>命名过于冗长时，可读性也差。</li>
+</ul>
+<p>听起来是不是很主观，很难量化呢？这就引出了我们的主题：虽然命名难以量化，但你可以依据自然语言的语法，来整理出一些通用的规则呀 :)</p>
+<p>语法是笔者高中时代比较反感的东西——你不学它，光凭「语感」也能中个八九不离十；你学了它，反而可能稀里糊涂套错场景……不过，语法其实很像自然语言的类型系统，它与编程语言中相应的概念有着很微妙的联系。比如，JavaScript 中的关键字，就可以根据语法中的词性来这样粗略地分类：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">名词</span><br><span class="line">function var class</span><br><span class="line"></span><br><span class="line">动词</span><br><span class="line">import export extends return break continue</span><br><span class="line">delete switch new try catch throw yield</span><br><span class="line"></span><br><span class="line">介词</span><br><span class="line">for in else</span><br><span class="line"></span><br><span class="line">连词</span><br><span class="line">if while</span><br><span class="line"></span><br><span class="line">代词</span><br><span class="line">this</span><br></pre></td></tr></table></figure>
+<p>是否能够注意到动词明显地比名词更多？而且，编程语言中还有不少介词 / 连词这类的虚词来表达控制流。相比之下，HTML 则几乎就是名词的天下：吃我 head body form button 啦！HTML 无非是一堆名词的堆叠嵌套，相比存在着复杂逻辑的编程语言来说，较少遇到与命名相关的维护性问题。那么，在维护编程语言的代码时，有哪些自然语言的规则能够有助于提高可读性和可维护性呢？这里笔者总结了这么几点：</p>
+<ul>
+<li>注意命名与类型在语义上的匹配</li>
+<li>保持概念的一致性</li>
+<li>避免制造出反语言直觉的结构</li>
+<li>慎用宽泛的抽象概念</li>
+</ul>
+<p>让我们逐条看一下吧 :-D</p>
+<h2 id="注意命名与类型在语义上的匹配"><a href="#注意命名与类型在语义上的匹配" class="headerlink" title="注意命名与类型在语义上的匹配"></a>注意命名与类型在语义上的匹配</h2><p>前面我们已经知道，词汇的词性和变量的类型有着一些微妙的关系。在命名时，保持这种关系的匹配有利于增强可读性。注意，这并不是像匈牙利命名法那样把类型写入变量名，而是根据类型来选择更契合的变量名：</p>
+<ul>
+<li>对于布尔类型的变量，其命名常用形如 <code>isSomething</code> / <code>hasSomething</code> 的形式。这其实非常接近自然语言里的陈述句——陈述句有着肯定和否定的形式，这就暗合了布尔值的 <code>true</code> 和 <code>false</code>。</li>
+<li>对于数组类型的变量，其命名常用复数形式。例如 <code>apples</code> 在自然语言里就暗示着有不止一个 <code>apple</code>，这和数组的思维模型是非常契合的。</li>
+<li>对于对象类型的变量，其命名常用名词性短语。例如 <code>UserModel</code> 这样的 class。别忘了，名词和动词都属于实词，不过二者一个更加「面向对象」，一个更加「函数式」罢了。</li>
+<li>对于函数类型的变量，其命名常用动词，或者说更接近祈使句式。一个函数就应该明确地去「做某件事」，这时候「说什么就做什么」显然更加简单真诚。比如，你可以尝试给你的类方法前面都加上个 Please，这时候 <code>getUserData()</code> 就能无缝地变成通顺的 <code>Please get user data</code> 的祈使句了。当然，在函数式编程中，面向函数耍出的各种花样，还可以用各种虚词来粉饰。譬如像 <code>withState</code> 这样的名字，其中就暗含着对参数的「修饰」能力。再有各类回调的场景，也常见 on / before / after 这样的介词来表明相应动作的触发时机。</li>
+</ul>
+<p>不同的编程语言和范式，在词汇的选用上会有非常鲜明的区别。比如 Java 就是个名词王国，而函数一等公民的语言里，动词的地位就高得多。这里的风格建议是在什么地方就按什么地方的规矩来说话，这样到哪都吃得开 XD</p>
+<h2 id="保持概念的一致性"><a href="#保持概念的一致性" class="headerlink" title="保持概念的一致性"></a>保持概念的一致性</h2><p>在有了 Lint 等格式化工具之后，项目里的换行缩进一般都能得到统一，这确实能消除代码格式排版上的潦草感觉。但是，许多项目里仍然很常见这样的地方：</p>
+<ul>
+<li>三个类似的操作分别封装成 <code>loadUser</code> / <code>fetchUser</code> / <code>getUser</code> 三个不同的函数，它们好像都是一回事，可是你敢随便换着用吗？</li>
+<li>上面一个 <code>elements.forEach(element)</code>，下面就是 <code>elements.forEach(elem)</code>。一个 index 也可以有 <code>i</code> / <code>idx</code> / <code>inx</code> / <code>ind</code> 四种不同的缩写 :)</li>
+<li>现有模块中私有变量按照形如 <code>$xxx</code> 的格式声明，新代码上来就是个 <code>__xxx</code>。</li>
+</ul>
+<p>其实这些问题单独拿出来，都很难称之为严重，相应的解决方案应该也都是老生常谈的了。但如果这样的不一致性遍布项目的代码库，那么再工整的空格缩进，也掩盖不了代码的杂乱感。这里的一个非技术建议是建立 Code Review 机制：这些问题很难单纯通过 Lint 工具来约束，提出 Review 意见与修改也并不难，关键在于流程：</p>
+<ul>
+<li>新人很难一上来就了解各种隐式的约定，许多老成员轻车熟路的实践，对于新人来说反而是个不熟悉的暗坑。</li>
+<li>一旦代码并入主干，再去修改它的成本就会显著地提高——老代码跑得好好的，重构坏了谁负责？</li>
+</ul>
+<p>当然了，Code Review 还有许多其他的功效，这里就不再展开啦。</p>
+<h2 id="避免制造出反语言直觉的结构"><a href="#避免制造出反语言直觉的结构" class="headerlink" title="避免制造出反语言直觉的结构"></a>避免制造出反语言直觉的结构</h2><p>我们已经提到过，直觉在编码中发挥着潜移默化的作用。那么，什么叫做「反直觉」呢？譬如这么些小地方:</p>
+<ul>
+<li>双重否定表示肯定，那么我们就应该放心地用 2N 重的否定来表示肯定吗？机器当然能正确地理解 <code>if (!dataNotLoaded !== false)</code> 的精妙逻辑，不过这时候恐怕很容易把自己和别人绕进去，尤其是在与或条件多起来的时候 :-p</li>
+<li>把数据「封装一层」是很常见的手法，不过这时候如果出现了 <code>data.data</code>，该怎么确定其它代码中用到的 <code>data</code> 变量指的是谁呢？</li>
+<li>深度嵌套和花式跳转等形式的控制流也是反直觉的，但是这已经超过变量命名的范畴了 XD</li>
+</ul>
+<h2 id="慎用宽泛的抽象概念"><a href="#慎用宽泛的抽象概念" class="headerlink" title="慎用宽泛的抽象概念"></a>慎用宽泛的抽象概念</h2><p>得益于自然语言中丰富的抽象概念，总有一些变量名是非常「方便偷懒」的。比如，如果你实在想不通一个装数据的变量该怎么命名，那就叫它 <code>data</code> 啊！如果一个基类不知道叫什么好，那就叫它 <code>Base</code> 呗！</p>
+<p>其实，如果是因为「没有想清楚该起什么名字」而使用了这样宽泛的概念，实际上就会在暗中欠下「没有清晰正确的设计」的技术债。比如上面的行为，在扩展或重构时很可能遇到这样的问题：</p>
+<ul>
+<li>到处都是 <code>data</code>，以至于不仅没法简单地查找与替换来重构，依赖 IDE 来改个变量名都要提心吊胆，不确定影响范围。</li>
+<li>各种形如 <code>core</code> / <code>base</code> / <code>common</code> 的模块，难以界定边界在哪：core 到底管些什么事，继承它到底会带来哪些副作用，而我的新函数要不要放在里面呢？</li>
+</ul>
+<p>对于装数据的变量来说，<code>data</code> / <code>item</code> 这样的名字写了和没写差不多——当然了，对于可以多处复用的工具函数，这样的命名完全没有问题。相对地，对于函数来说，各种具体的动作就比较容易描述清楚，不过你如果非要把所有的回调名一律写成 <code>callback</code>，那也不是不可以……</p>
+<p>其实上面的这些问题，很多只要在提交前 double check 一遍流程，就能够在自省中发现。这也是一个非常重要的技能：找出自己哪里做得还不够好，本身就是一种进步了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对各种概念的抽象过程常常是编程中最有乐趣的地方之一，而好的变量命名无疑有助于将思维过程更清晰地表达出来。在本文提出的观点里，变量的命名之难，与类型的强弱和类型系统的动态静态并没有直接的关系：数学大师的语文未必就足够好，反之亦然。我们也基于一些自然语言里非常简单的规则来提出了一些对编码实践的建议。不过，如果下次遇到 diss 你变量命名的 review 建议的时候，本文也可以为你提供一个有力的反击论据：</p>
+<p>我们连编程语言的类型系统都很难完全搞明白，更何况自然语言的呢？</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Pattern/">Pattern</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/semantic-naming/" data-title="浅谈变量类型之外的变量命名 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/text-in-depth-1/" title="文字渲染那些事（一）字体是如何存储的？">
+  <strong>上一篇：</strong><br/>
+  <span>
+  文字渲染那些事（一）字体是如何存储的？</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/surface-go-log/"  title="一个前端开发者的 Surface Go 体验">
+ <strong>下一篇：</strong><br/> 
+ <span>一个前端开发者的 Surface Go 体验
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#注意命名与类型在语义上的匹配"><span class="toc-number">1.</span> <span class="toc-text">注意命名与类型在语义上的匹配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#保持概念的一致性"><span class="toc-number">2.</span> <span class="toc-text">保持概念的一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#避免制造出反语言直觉的结构"><span class="toc-number">3.</span> <span class="toc-text">避免制造出反语言直觉的结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#慎用宽泛的抽象概念"><span class="toc-number">4.</span> <span class="toc-text">慎用宽泛的抽象概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

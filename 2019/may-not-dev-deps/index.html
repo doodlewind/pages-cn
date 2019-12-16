@@ -1,0 +1,666 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>你也许不需要 devDependencies | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="敢问 9102 年的前端同学们，上次你折腾依赖和构建配置是为了什么，又花了多少时间呢？对于现在前端项目中常令人诟病的开发环境稳定性问题，笔者认为 NPM 的一个设计难辞其咎，那就是 devDependencies。">
+<meta name="keywords" content="Web,JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你也许不需要 devDependencies">
+<meta property="og:url" content="https://ewind.us/2019/may-not-dev-deps/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="敢问 9102 年的前端同学们，上次你折腾依赖和构建配置是为了什么，又花了多少时间呢？对于现在前端项目中常令人诟病的开发环境稳定性问题，笔者认为 NPM 的一个设计难辞其咎，那就是 devDependencies。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/js-large-modules.png">
+<meta property="og:updated_time" content="2019-08-26T06:03:51.881Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你也许不需要 devDependencies">
+<meta name="twitter:description" content="敢问 9102 年的前端同学们，上次你折腾依赖和构建配置是为了什么，又花了多少时间呢？对于现在前端项目中常令人诟病的开发环境稳定性问题，笔者认为 NPM 的一个设计难辞其咎，那就是 devDependencies。">
+<meta name="twitter:image" content="https://ewind.us/images/js-large-modules.png">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/may-not-dev-deps/" title="你也许不需要 devDependencies" itemprop="url">你也许不需要 devDependencies</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-22T16:00:00.000Z" itemprop="datePublished"> 发表于 2019-08-23</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前端项目的特殊性"><span class="toc-number">1.</span> <span class="toc-text">前端项目的特殊性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#devDependencies-的脆弱性"><span class="toc-number">2.</span> <span class="toc-text">devDependencies 的脆弱性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#我们可以做什么"><span class="toc-number">3.</span> <span class="toc-text">我们可以做什么</span></a></li></ol>
+		
+		</div>
+		
+		<p>敢问 9102 年的前端同学们，上次你折腾依赖和构建配置是为了什么，又花了多少时间呢？对于现在前端项目中常令人诟病的开发环境稳定性问题，笔者认为 NPM 的一个设计难辞其咎，那就是 <code>devDependencies</code>。</p>
+<a id="more"></a>
+<p>一切都是从这条脍炙人口的命令开始的：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install</span><br></pre></td></tr></table></figure>
+<p>毫无疑问，这是条伟大的命令。少了 <code>npm install</code>，估计能废掉今天一个前端的八成功力。它的作用说简单也很简单，那就是把前端项目中始于 <code>dependencies</code> 和 <code>devDependencies</code> 的依赖，递归地安装到 <code>node_modules</code> 目录下。时至今日，相信大家拿到一个前端项目时，潜意识都是「先用一条命令装好全部东西，然后再一条命令跑起开发环境」了吧。相比于刀耕火种的年代，这显然是个巨大的进步。</p>
+<p>然而这个初看之下简单易用的工具背后，槽点一直不少。比如不少同学都可能看过这张生动鲜明的对比：</p>
+<p><img src="/images/js-large-modules.png" alt></p>
+<p>你的项目有多大的 <code>node_modules</code> 呢？对于要正经上线的项目，这目录里的东西没个 500M，恐怕都不好意思和人打招呼了吧。不过，依赖包体积并不是本文的关注点——毕竟这是前端工程化水平飞速发展的最好证明嘛（认真脸求别误伤），这里想要首先指出的，是前端项目的一种特殊性。</p>
+<h2 id="前端项目的特殊性"><a href="#前端项目的特殊性" class="headerlink" title="前端项目的特殊性"></a>前端项目的特殊性</h2><p>前端领域具备一个非常特别的性质，那就是<strong>构建项目所需的资源，不光种类繁多，而且碎片化程度极高</strong>。</p>
+<p>何谓「<strong>资源种类繁多</strong>」呢？对于常见的编程语言，它们的包管理器都是专门为这种语言定制的，从 Python 的 PIP 到 Java 的 Maven 再到 Rust 的 Cargo 无不如此。这些语言的文件格式也都是唯一确定的。然而，前端项目中所需要承载的资源类型，基本上除了 JavaScript 之外，还会包括 CSS、HTML、SVG、字体、图像……这里每种资源的构建、转译、打包、优化……等工具，几乎都是 JS 写出来的，要通过 NPM 来安装。所以说今天的前端项目里，要通过 NPM 安装依赖来搞定的资源种类，早就包罗万象了。</p>
+<p>那么，「<strong>碎片化程度极高</strong>」又是什么概念呢？前端社区的奇妙之处，在于对上面提到的每种资源，都有一大堆百花齐放的解决方案：</p>
+<ul>
+<li>你想写 JS？光是官方标准就有 ES2015/2017/2018/2019……这么多，还有各种 Stage 的魔改语法，更不要说以 TypeScript 为代表的各种 XXScript 了。</li>
+<li>你想写 CSS？听说 Less、Sass、Stylus 都过时了，现在到底流行的是 PostCSS 还是 CSS Modules 呀？哦好像还有个 Styled Components 好像也能用？</li>
+<li>你想写 HTML？来看看你是喜欢 React 党的 JSX 还是 Vue 帮的 <code>.vue</code> 呢？别忘了还有什么 EJS 啊 Pug 啊等等数不胜数的模板语法，任君选择。</li>
+</ul>
+<p>这里的麻烦之处，不在于如何挑选、对比或使用具体的某种工具（这对不少同学来说，反而有着女人挑衣服般的快感），而是你必须做出<strong>高度碎片化的选择</strong>。要知道，上面的每种解决方案（或者标准），几乎都有一到多种构建工具，每种工具除了可能有自己的插件体系外，其版本还会不停更新。你的构建方案选型，几乎注定是海量可能性之中的沧海一粟而已——所以，我们不就正应该把这些碎片都放到 <code>devDependencies</code> 里面去管理吗？这不正是个非常合适的设计吗？</p>
+<p>理论上确实是这样没错。但最麻烦的地方在于，<strong><code>devDependencies</code> 可是和 <code>dependencies</code> 共用同一份 <code>node_modules</code> 目录的</strong>！</p>
+<h2 id="devDependencies-的脆弱性"><a href="#devDependencies-的脆弱性" class="headerlink" title="devDependencies 的脆弱性"></a>devDependencies 的脆弱性</h2><p>先想想编写其他语言的时候，你是怎么更新依赖的吧：更新某个 Python 爬虫包的时候，你会想顺带更新 Python 解释器的版本吗？谁没事这么折腾自己啊——<strong>实际的业务逻辑代码及其依赖，相比于用来构建项目的工具，几乎从来就是两个互相独立的东西</strong>。然而对于前端领域来说，由于前端工具链一大部分都在 <code>node_modules</code> 里面，因此在更新业务逻辑依赖的时候，非常容易影响到你的工具链。</p>
+<p>可能很多同学还没有意识到，<code>node_modules</code> 里工具链类型的依赖，已经有多么重了。以 React 和 Vue 为例，社区的脚手架工具，分别会带来多少 <code>dependencies</code> 和 <code>devDependencies</code> 呢？笔者做了个简单的尝试如下：</p>
+<ul>
+<li>单独安装 React 和 ReactDOM，只占用 3.9M 空间。</li>
+<li>单独安装 Vue，也只占用 3.6M 空间。</li>
+<li>使用 create-react-app 创建一个空白 React 项目，占用 <strong>189.6M</strong> 空间。</li>
+<li>使用 vue-cli 创建一个空白 Vue 项目，占用 <strong>164.5M</strong> 空间。</li>
+</ul>
+<p>掐指一算不难发现，现在主流框架默认搭出来的前端项目里，有 98% 的依赖是 <code>devDependencies</code> 啊！虽然实际项目中的业务依赖肯定会更多，但浏览器端的业务基础库极少有复杂的重型依赖结构，反倒是根据项目需要改进构建配置的时候，很容易大幅增加工具链的整体体积。因此，认为实际前端项目中半壁江山以上的依赖属于 <code>devDependencies</code>，应该是个合理的假设。这带来的问题并不在于绝对的体积大小，而在于<strong>构建资源的高度碎片化会使得构建工具也需要快速迭代，带来大量的依赖版本。这么多依赖的版本一旦意外漂移，组装出来的稳定程度未必让人放心</strong>。这不是 JS 语言层面的问题，而是任何大型软件在系统层面的问题。相信只要是折腾过一些激进 Linux 发行版图形界面依赖的同学，都应该能理解这一点吧。</p>
+<blockquote>
+<p>对了，虽然 create-react-app 掩耳盗铃地把 <code>eject</code> 后的所有依赖全部算在了 <code>dependencies</code> 里面，从应用与类库的角度来看这也说得通，但这并不影响我们的结论。</p>
+</blockquote>
+<p>除了 <code>npm update</code> 之外，每次 <code>npm install</code> 和 <code>yarn install</code>，都可能（注意是可能，不是一定）体贴地基于语义化的版本规范，帮你把工具链版本都更新一遍，进而引入潜在的不稳定问题。同一份 package.json 间隔几天后再全量重装一次，<code>devDependencies</code> 里对应的构建工具版本几乎肯定会有些不一样。你说有谁会日常勤奋地更新 GCC / XCode / Android Studio 这类玩意呢？许多前端项目里恰恰就会发生这一点，因为 <code>node_modules</code> 经常变，而构建许多资源的核心工具都在里面呢。</p>
+<p>看到这里肯定很多同学会坐不住了：不是有专治版本漂移的 Lock 文件吗？没错，Lock 确实能锁住版本，但别忘了 Lock 容易冲突可是天生的，一旦冲突该怎么解决呢？删掉重装啊——恭喜你再次喜提全量更新大礼包。实际上对于下面这些场景，最终 <code>devDependencies</code> 的工具链都很容易被牵连到：</p>
+<ul>
+<li>项目依赖了内部的 NPM 包，并经常需要在不同开发分支上并行更新时</li>
+<li>项目需要 checkout 到某个老版本修复问题，重新同步业务依赖时</li>
+<li>团队内需要使用特殊的私有仓库配置时</li>
+<li>团队成员使用的包管理工具版本不完全一致时</li>
+</ul>
+<p>再说得过分一点，想要保证真实场景下任意两次安装都能生成同样的 Lock，简直就跟要求保证两台型号一致的手机要获得一致的跑分数值一样难办。倒不是说 Lock 设计得不好，只是按照现在的使用方式来说，即便基于它来保证工具链的稳定，还是存在不少意外可能性的。</p>
+<p>所以我们已经知道，不管有没有使用 Lock，只要是和业务依赖混在一起的 <code>devDependencies</code>，都容易被意外更新，从而引入不稳定性。但是，这里「脆弱性」还不止体现在工具链版本容易波动上而已，还有其它麻烦的问题。</p>
+<p>例如，<code>devDependencies</code> 可能影响宏仓库的开发体验。所谓宏仓库 (Mono-Repo)，也就是把一堆 package 按这种形式放到一起管理的仓库：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">my-mono-repo</span><br><span class="line">├── package.json</span><br><span class="line">└── packages</span><br><span class="line">    ├── A</span><br><span class="line">    │   ├── package.json</span><br><span class="line">    │   ├── node_modules</span><br><span class="line">    │   └── src</span><br><span class="line">    ├── B</span><br><span class="line">    │   ├── package.json</span><br><span class="line">    │   ├── node_modules</span><br><span class="line">    │   └── src</span><br><span class="line">    └── C</span><br><span class="line">        ├── package.json</span><br><span class="line">        ├── node_modules</span><br><span class="line">        └── src</span><br></pre></td></tr></table></figure>
+<p>假设我们自己维护了 A B C 三个包，这些包之间也有相互的依赖。那么一般来说，基于 <code>npm link</code> 命令或者更自动化的 Lerna 工具，我们可以通过软链接的方式，把它们之间的依赖关系维护好。如果需要你自己来维护这些包，那么一个很自然的想法就是，A B C 都可以有自己的 <code>dependencies</code> 和 <code>devDependencies</code>，好像没有问题吧？</p>
+<p>我们确实是能这么做的。但问题在于，只要宏仓库里每个包都引入了各自不同的 <code>devDependencies</code>，这些包每个都会带来庞大的 <code>node_modules</code>，不仅会引入大量的冗余，还会减慢仓库的初始化过程，让链接关系更加脆弱，就像在几台巨大的机器之间搭飞线一样。如果仓库里的包还需要被链接到其它项目，那就更麻烦了。在我们的实践中，如果宏仓库里的每个包都各自依赖了 Babel 这样的大型构建工具，它们之间的微妙区别会使得很多时候都不得不重新配置链接关系，然后带来大量无意义的 Lock 文件改动。除非是为了整合老项目而临时处理，否则尽量不要这么干噢。</p>
+<p>某种意义上，宏仓库里折腾的 Link 操作，是 NPM 为了简单性付出的代价。NPM 基于文件系统的目录结构来映射依赖结构，你可以在开发时直接修改 <code>node_modules</code> 里 Webpack 和 Vue 这些基础库的代码看到效果，方便你为社区贡献 PR（逃）。Link 则就是个软链接，能在任意两个目录之间建立依赖关系。然而，需要自己 Link 来管理的依赖，基本都是以私有依赖和业务依赖为主，这时候它们也要和大量用于构建的依赖复用同一个 <code>node_modules</code>「容器」，本身就是一种不稳定因素。</p>
+<p>除了宏仓库和 Link 外，膨胀的 <code>devDependencies</code> 对于 CI 构建也是有影响的。对于自己维护业务 NPM 包的团队，业务依赖很可能被快速地更新。这也就意味着，在 CI 上执行 <code>npm install</code> 的时候，经常要为了微不足道的业务依赖 bugfix 升级，去惊动一整个混沌的 <code>node_modules</code>，影响构建的速度和稳定性。当然，主流的构建系统都具备了构建缓存，但我们还是在生产环境中遇到过 Yarn 对依赖的依赖使用了错误的缓存版本，而导致线上出现问题的意外。这时候怎么办呢？清空构建缓存从头再来吧……对了，前段时间我们构建用的的某台 dev 机器，其磁盘 inode 索引甚至已经被刷到归零了呢。当然，你可以说这些问题是构建缓存、Lock 和 Linux 的锅，但对于动辄带来几万行 Lock 文件的 <code>devDependencies</code>，你等于……你也有责任吧。为什么要把鸡蛋整个打进水里拌匀，然后再把蛋壳挑出来呢？</p>
+<p>当前流行的脚手架工具，某种程度上也加剧了这种环境配置的不稳定性。自从 create-react-app 带头示范了 <code>eject</code> 这个拔屌无情的玩法之后，主流的脚手架工具基本都是比较管生不管养的。不少公司内部的「统一脚手架」工具，也还是以「复制一坨东西 -&gt; install -&gt; run」的素质三连为主。项目少的时候这确实也挺方便，但项目建出来之后的依赖管理，就比较棘手了。</p>
+<h2 id="我们可以做什么"><a href="#我们可以做什么" class="headerlink" title="我们可以做什么"></a>我们可以做什么</h2><p>写到这里，我们已经说了很多 <code>devDependencies</code> 的行为所带来的问题了。那么我们能做什么呢？其实非常简单，把 <code>devDependencies</code> 单独丢到另一个 <code>node_modules</code> 里就好了呀……在这方面，很容易想到不少简单方便的实践，比如：</p>
+<ul>
+<li>对简单的前端应用项目，直接用全局的 Parcel 甚至浏览器原生的 ES Module 就足够了，无需专门配置打包工具。</li>
+<li>对常见的前端应用项目，可以区分 <code>build</code> 和 <code>src</code> 两个路径，让二者都具备自己的 package.json 文件，从而把 <code>node_modules</code> 隔离开。这样它们也都不需要 <code>devDependencies</code> 了。</li>
+<li>对于宏仓库类型的前端项目，可以将每个包里沉重的 <code>devDependencies</code> 提取出来，专门建立一个用来构建的顶层模块。这个顶层模块可以将整个仓库打包为一个来正式发布，而每个小包则直接分发源码即可。</li>
+<li>对于存在一定规范的多个前端应用项目，除了脚手架外，还可以考虑为它们封装一个特化而稳定的 <code>build</code> 工具到全局，类似于非常特化的 Parcel——只要安装它到全局，每个项目里甚至连 Babel 插件都可以不必安装，只要装几个 <code>depencencies</code> 就够了。这造轮子的感觉岂不比素质三连更好吗 XD</li>
+<li>对于需要 CI 的项目来说，专门隔离出 <code>build</code> 类型的依赖，也有利于提高构建速度，以及提高增量构建的稳定性。</li>
+<li>噢可别忘了测试工具。它们确实很适合归属在 <code>devDependencies</code> 里，也相对较少造成令人困扰的构建问题。当然，把它的包隔离出去也是容易做到的，具体就见仁见智啦。</li>
+</ul>
+<p>总结来说，本文看似写了很多东西，但其实真正重要的也就这么几点：</p>
+<ul>
+<li>因为资源的复杂性，用于构建的 <code>devDependencies</code> 依赖很容易大幅膨胀。</li>
+<li>这些构建用的大量依赖，会与项目的实际依赖共用 Lock 和 <code>node_modules</code>，变得较为脆弱而低效。</li>
+<li>只要把这部分臃肿但可以长期稳定的依赖从 <code>node_modules</code> 中分离出去，就很容易改善构建稳定性问题。这种分离实现起来也相当容易。</li>
+</ul>
+<p>说到底，<code>devDependencies</code> 也确实是有存在价值的。但今天我们面对的复杂情况，会使得它很容易超过设计时的负载。因此，前端开发环境的稳定性问题，很大程度上与项目的内在性质，以及我们目前对工具链惯用的用法有关，并不该一言不合就怪到 JS 的弱类型头上。希望本文能减少点日常的折腾，增强些大家对社区的信心吧 :D</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2019/may-not-dev-deps/" data-title="你也许不需要 devDependencies | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/three-text/" title="现在，网页上也能制作专业级 3D 艺术字了">
+  <strong>上一篇：</strong><br/>
+  <span>
+  现在，网页上也能制作专业级 3D 艺术字了</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/ivan-and-photopea/"  title="这个程序员写的免费在线 PS，让他三十岁前财务自由">
+ <strong>下一篇：</strong><br/> 
+ <span>这个程序员写的免费在线 PS，让他三十岁前财务自由
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前端项目的特殊性"><span class="toc-number">1.</span> <span class="toc-text">前端项目的特殊性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#devDependencies-的脆弱性"><span class="toc-number">2.</span> <span class="toc-text">devDependencies 的脆弱性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#我们可以做什么"><span class="toc-number">3.</span> <span class="toc-text">我们可以做什么</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

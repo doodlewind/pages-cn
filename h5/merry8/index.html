@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  <title>Merry8 - PONG</title>
+<style>
+.app-wrapper {
+  width: 500px;
+  margin: auto;
+}
+.btn-wrapper {
+  width: 500px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+.btn-group {
+  text-align: center;
+}
+button {
+  display: block;
+  height: 40px;
+  width: 80px;
+  margin: 10px 0;
+  border: 1px lightgrey solid;
+  background-color: white;
+}
+</style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <canvas id="app"></canvas>
+  </div>
+  <div class="btn-wrapper">
+    <div class="btn-group">
+      <button onclick="emulator.press(1)">↑</button>
+      <button onclick="emulator.press(4)">↓</button>
+    </div>
+    <div class="btn-group">
+      <button onclick="emulator.press(12)">↑</button>
+      <button onclick="emulator.press(13)">↓</button>
+    </div>
+  </div>
+  <script src="dist/merry8.js"></script>
+<script>
+// Load ROM with XHR.
+var xhr = new XMLHttpRequest()
+xhr.open('GET', 'roms/PONG', true)
+xhr.responseType = 'arraybuffer'
+xhr.onload = () => {
+  var rom = new Uint8Array(xhr.response)
+  window.emulator = new Merry8(rom, {
+    el: '#app',
+    width: 500
+  })
+  window.emulator.run()
+}
+xhr.send()
+</script>
+</body>
+</html>

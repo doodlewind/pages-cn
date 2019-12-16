@@ -1,0 +1,62 @@
+<h3 id="UI-Bootstrap-AngularJS-directives-specific-to-Bootstrap"><a href="#UI-Bootstrap-AngularJS-directives-specific-to-Bootstrap" class="headerlink" title="UI Bootstrap - AngularJS directives specific to Bootstrap"></a>UI Bootstrap - <a href="http://angularjs.org/">AngularJS</a> directives specific to <a href="http://getbootstrap.com">Bootstrap</a></h3><p><a href="https://gitter.im/angular-ui/bootstrap?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Gitter"></a><br><a href="http://travis-ci.org/angular-ui/bootstrap"><img src="https://secure.travis-ci.org/angular-ui/bootstrap.svg" alt="Build Status"></a><br><a href="https://david-dm.org/angular-ui/bootstrap#info=devDependencies"><img src="https://david-dm.org/angular-ui/bootstrap/dev-status.svg?branch=master" alt="devDependency Status"></a></p>
+<h3 id="Quick-links"><a href="#Quick-links" class="headerlink" title="Quick links"></a>Quick links</h3><ul>
+<li><a href="#demo">Demo</a></li>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#install-with-npm">NPM</a></li>
+<li><a href="#install-with-bower">Bower</a></li>
+<li><a href="#install-with-nuget">NuGet</a></li>
+<li><a href="#custom-build">Custom</a></li>
+<li><a href="#manual-download">Manual</a></li>
+</ul>
+</li>
+<li><a href="#support">Support</a><ul>
+<li><a href="#faq">FAQ</a></li>
+<li><a href="#supported-browsers">Supported browsers</a></li>
+<li><a href="#need-help">Need help?</a></li>
+<li><a href="#found-a-bug">Found a bug?</a></li>
+</ul>
+</li>
+<li><a href="#contributing-to-the-project">Contributing to the project</a></li>
+<li><a href="#development-meeting-minutes-roadmap-and-more">Development, meeting minutes, roadmap and more.</a></li>
+</ul>
+<h1 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h1><p>Do you want to see directives in action? Visit <a href="http://angular-ui.github.io/bootstrap/!">http://angular-ui.github.io/bootstrap/!</a></p>
+<h1 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h1><p>Installation is easy as UI Bootstrap has minimal dependencies - only the AngularJS and Twitter Bootstrap’s CSS are required.<br>Note: Since version 0.13.0, UI Bootstrap depends on <a href="https://docs.angularjs.org/api/ngAnimate">ngAnimate</a> for transitions and animations, such as the accordion, carousel, etc. Include <code>ngAnimate</code> in the module dependencies for your app in order to enable animation.</p>
+<h4 id="Install-with-NPM"><a href="#Install-with-NPM" class="headerlink" title="Install with NPM"></a>Install with NPM</h4><pre><code class="sh">$ npm install angular-ui-bootstrap
+</code></pre>
+<p>This will install AngularJS and Bootstrap NPM packages.</p>
+<h4 id="Install-with-Bower"><a href="#Install-with-Bower" class="headerlink" title="Install with Bower"></a>Install with Bower</h4><pre><code class="sh">$ bower install angular-bootstrap
+</code></pre>
+<p>Note: do not install ‘angular-ui-bootstrap’.  A separate repository - <a href="https://github.com/angular-ui/bootstrap-bower">bootstrap-bower</a> - hosts the compiled javascript file and bower.json.</p>
+<h4 id="Install-with-NuGet"><a href="#Install-with-NuGet" class="headerlink" title="Install with NuGet"></a>Install with NuGet</h4><p>To install AngularJS UI Bootstrap, run the following command in the Package Manager Console</p>
+<pre><code class="sh">PM&gt; Install-Package Angular.UI.Bootstrap
+</code></pre>
+<h4 id="Custom-build"><a href="#Custom-build" class="headerlink" title="Custom build"></a>Custom build</h4><p>Head over to <a href="http://angular-ui.github.io/bootstrap/">http://angular-ui.github.io/bootstrap/</a> and hit the <em>Custom build</em> button to create your own custom UI Bootstrap build, just the way you like it.</p>
+<h4 id="Manual-download"><a href="#Manual-download" class="headerlink" title="Manual download"></a>Manual download</h4><p>After downloading dependencies (or better yet, referencing them from your favorite CDN) you need to download build version of this project. All the files and their purposes are described here:<br><a href="https://github.com/angular-ui/bootstrap/tree/gh-pages#build-files">https://github.com/angular-ui/bootstrap/tree/gh-pages#build-files</a><br>Don’t worry, if you are not sure which file to take, opt for <code>ui-bootstrap-tpls-[version].min.js</code>.</p>
+<h3 id="Adding-dependency-to-your-project"><a href="#Adding-dependency-to-your-project" class="headerlink" title="Adding dependency to your project"></a>Adding dependency to your project</h3><p>When you are done downloading all the dependencies and project files the only remaining part is to add dependencies on the <code>ui.bootstrap</code> AngularJS module:</p>
+<pre><code class="js">angular.module(<span class="string">'myModule'</span>, [<span class="string">'ui.bootstrap'</span>]);
+</code></pre>
+<p>If you’re a Browserify or Webpack user, you can do:</p>
+<pre><code class="js"><span class="keyword">var</span> uibs = <span class="built_in">require</span>(<span class="string">'angular-ui-bootstrap'</span>);
+
+angular.module(<span class="string">'myModule'</span>, [uibs]);
+</code></pre>
+<h1 id="Support"><a href="#Support" class="headerlink" title="Support"></a>Support</h1><h2 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h2><p><a href="https://github.com/angular-ui/bootstrap/wiki/FAQ">https://github.com/angular-ui/bootstrap/wiki/FAQ</a></p>
+<h2 id="Supported-browsers"><a href="#Supported-browsers" class="headerlink" title="Supported browsers"></a>Supported browsers</h2><p>Directives from this repository are automatically tested with the following browsers:</p>
+<ul>
+<li>Chrome (stable and canary channel)</li>
+<li>Firefox</li>
+<li>IE 9 and 10</li>
+<li>Opera</li>
+<li>Safari</li>
+</ul>
+<p>Modern mobile browsers should work without problems.</p>
+<h2 id="Need-help"><a href="#Need-help" class="headerlink" title="Need help?"></a>Need help?</h2><p>Need help using UI Bootstrap?</p>
+<ul>
+<li>Live help in the IRC (<code>#angularjs</code> channel at the <code>freenode</code> network). Use this <a href="https://webchat.freenode.net/">webchat</a> or your own IRC client.</li>
+<li>Ask a question in <a href="http://stackoverflow.com/">StackOverflow</a> under the <a href="http://stackoverflow.com/questions/tagged/angular-ui-bootstrap">angular-ui-bootstrap</a> tag.</li>
+</ul>
+<p><strong>Please do not create new issues in this repository to ask questions about using UI Bootstrap</strong></p>
+<h2 id="Found-a-bug"><a href="#Found-a-bug" class="headerlink" title="Found a bug?"></a>Found a bug?</h2><p>Please take a look at <a href="CONTRIBUTING.md#you-think-youve-found-a-bug">CONTRIBUTING.md</a> and submit your issue <a href="https://github.com/angular-ui/bootstrap/issues/new">here</a>.</p>
+<hr>
+<h1 id="Contributing-to-the-project"><a href="#Contributing-to-the-project" class="headerlink" title="Contributing to the project"></a>Contributing to the project</h1><p>We are always looking for the quality contributions! Please check the <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for the contribution guidelines.</p>
+<h1 id="Development-meeting-minutes-roadmap-and-more"><a href="#Development-meeting-minutes-roadmap-and-more" class="headerlink" title="Development, meeting minutes, roadmap and more."></a>Development, meeting minutes, roadmap and more.</h1><p>Head over to the <a href="https://github.com/angular-ui/bootstrap/wiki">Wiki</a> for notes on development for UI Bootstrap, meeting minutes from the UI Bootstrap team, roadmap plans, project philosophy and more.</p>

@@ -1,0 +1,714 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>零起点的开源社区贡献指南 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="【开源社区贡献者】听起来是个专属于顶级开发者的头衔，但它真的有这么遥不可及吗？下面的分享旨在揭开它的神秘面纱，帮助感兴趣的同学更轻松地参与到社区项目中来。">
+<meta name="keywords" content="Summary">
+<meta property="og:type" content="article">
+<meta property="og:title" content="零起点的开源社区贡献指南">
+<meta property="og:url" content="https://ewind.us/2017/novice-open-source/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="【开源社区贡献者】听起来是个专属于顶级开发者的头衔，但它真的有这么遥不可及吗？下面的分享旨在揭开它的神秘面纱，帮助感兴趣的同学更轻松地参与到社区项目中来。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2017/11/1/543d55bf56cb46853e77d89add6d1e61">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2017/11/1/9765d87eed70c122fdefce4d870777c3">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.544Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="零起点的开源社区贡献指南">
+<meta name="twitter:description" content="【开源社区贡献者】听起来是个专属于顶级开发者的头衔，但它真的有这么遥不可及吗？下面的分享旨在揭开它的神秘面纱，帮助感兴趣的同学更轻松地参与到社区项目中来。">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2017/11/1/543d55bf56cb46853e77d89add6d1e61">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/novice-open-source/" title="零起点的开源社区贡献指南" itemprop="url">零起点的开源社区贡献指南</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-10-31T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-11-01</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#起步"><span class="toc-number">1.</span> <span class="toc-text">起步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进阶"><span class="toc-number">2.</span> <span class="toc-text">进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Issue"><span class="toc-number">2.1.</span> <span class="toc-text">Issue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PR"><span class="toc-number">2.2.</span> <span class="toc-text">PR</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧"><span class="toc-number">3.</span> <span class="toc-text">技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题导向的源码阅读"><span class="toc-number">3.1.</span> <span class="toc-text">问题导向的源码阅读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#友善的互吹评价"><span class="toc-number">3.2.</span> <span class="toc-text">友善的互吹评价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#有效的沟通"><span class="toc-number">3.3.</span> <span class="toc-text">有效的沟通</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#提问式的反驳"><span class="toc-number">3.3.1.</span> <span class="toc-text">提问式的反驳</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注意描述方式"><span class="toc-number">3.3.2.</span> <span class="toc-text">注意描述方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#模板与工具"><span class="toc-number">3.3.3.</span> <span class="toc-text">模板与工具</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>【开源社区贡献者】听起来是个专属于顶级开发者的头衔，但它真的有这么遥不可及吗？下面的分享旨在揭开它的神秘面纱，帮助感兴趣的同学更轻松地参与到社区项目中来。</p>
+<a id="more"></a>
+<p>首先需要澄清的是，本文<a href="https://github.com/doodlewind" target="_blank" rel="noopener">作者自己</a>并不是社区高大上项目的原创作者，只是在一个 5k+ Star，100+ 贡献者的项目中贡献排名前十而已（作为参考，Vue 的贡献者不到 150 人），和<a href="https://www.zhihu.com/question/36292298" target="_blank" rel="noopener">《维护一个大型开源项目是怎样的体验》</a>这个问题里闪耀的群星相比，只不过是个小透明的存在。不过因为自己也只有一年有余的经验，在很多方面上和刚刚入门的新人同学们都很相似，因此相信个人经验能有一定的参考价值，才在此做了些总结。文中如有不妥之处，请 dalao 们斧正。</p>
+<p>下文内容主要分为这两部分：</p>
+<ul>
+<li><strong>起步与进阶</strong>，介绍在对编程一无所知的时候，能够通过什么方式参与到社区中来。以及在有了贡献的条件后，如何通过 Issue 和 PR 在开源项目中协作。</li>
+<li><strong>技巧与总结</strong>，介绍一些技术性的细节，以及如何在 Github 上<del>商业互吹</del>的沟通技巧。</li>
+</ul>
+<h2 id="起步"><a href="#起步" class="headerlink" title="起步"></a>起步</h2><p>参与开源项目的主要方式，由易到难不外乎这三种：</p>
+<ul>
+<li>翻译文档</li>
+<li>报告 bug</li>
+<li>提交代码</li>
+</ul>
+<p>在起步阶段，翻译文档的难度无疑是最低的。因为这甚至<strong>不需要你编写或运行任何代码</strong>，只要在编辑页面里翻译就足够了。</p>
+<p>以 Mozilla 维护的 MDN 文档为例，也许有不少同学不知道，MDN 文档和维基百科一样，<strong>是允许所有用户编辑的</strong>。比如，一篇介绍 CSS 定位方式的 MDN 文档，页面顶部大概长这样：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2017/11/1/543d55bf56cb46853e77d89add6d1e61" alt="mdn-large"></p>
+<p>注意到 <code>Languages</code> 和 <code>Edit</code> 了吗？你可以在 <code>Languages</code> 里选择你需要的语言，或者添加新语言的翻译。如果已有翻译，可以直接点击 <code>Edit</code> 编辑！</p>
+<p>在翻译时，Mozilla 的富文本编辑器会分为左右两个部分，可以直接对照：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2017/11/1/9765d87eed70c122fdefce4d870777c3" alt="mdn-editor"></p>
+<p>现在只要点击保存，你就会出现在这个页面的贡献者里了！你的更改也会在文档历史中保存，所以在提交前不妨检查下内容吧。另外，并不是一次保存就必须搞定一整篇文档，写到一半准备保存的话，可以点击页面最下方的 <code>本地化进行中</code> 选项，这样就能够在浏览页面中添加一个【翻译正在进行中】的标识啦。</p>
+<p>这个过程里我们似乎一行代码都没有写，那么这有什么用吗？个人的观点是，翻译文档是一个很好的开始，因为它可以：</p>
+<ul>
+<li>帮助你更好地理解英文技术文档的行文结构，为后面和其他开发者的交流打好基础。后面我们也会提及，很多时候需要为一两行代码编写的文档远远不止一两行。</li>
+<li>很大地锻炼你的行文水平。在初期你可能会写出比较翻译腔、不通顺的技术文档，熟悉以后会有很大的进步。</li>
+<li>让你的贡献迅速地得到反馈。MDN 的权重在 Google 并不低，通过 Google 在第一页查到你翻译的内容，还是挺有成就感的。</li>
+<li>提高你自己对文档内容的了解。以作者本人为例，在了解富文本编辑领域时首先就是从搬运 <a href="https://developer.mozilla.org/zh-CN/docs/Rich-Text_Editing_in_Mozilla" target="_blank" rel="noopener">Mozilla 中的富文本编辑器</a>文档作为开始，完成翻译后就这个领域内的基础概念了然于心了。</li>
+</ul>
+<p>除了 MDN 文档外，中文技术社区也有不少优秀的相关项目可以参与。这方面个人的参与不多，就不班门弄斧了。</p>
+<h2 id="进阶"><a href="#进阶" class="headerlink" title="进阶"></a>进阶</h2><p>只是翻译文档的话，你可能很快就会达到【写腻了】的阶段，这时候就不妨来看看更大的世界吧。找一个 Github 上的活跃项目作为开始吧！对于在 Github 上维护的开源项目，主要的参与方式包括 Issue 和 PR 两种：</p>
+<h3 id="Issue"><a href="#Issue" class="headerlink" title="Issue"></a>Issue</h3><p>对一个中大规模的开源项目，Issue 主要用来：</p>
+<ul>
+<li>报告 Bug 与提问</li>
+<li>提出并讨论新特性</li>
+<li>设定 Todo 目标</li>
+</ul>
+<p>需要注意的是，许多项目是有自己的 Discuz 论坛或 Slack 群的，有一些类似【为什么安装失败了】的新手向问题可以先在已有 Issue 中搜索，然后再在论坛和 IM 中提出。如果随意地提出 Issue，很可能会得到 <code>Duplicate of #xxx</code> 的回复然后被关掉。对于新同学，一个非常好的参考是<a href="http://bbs.csdn.net/topics/390307835" target="_blank" rel="noopener">《提问的艺术：如何快速获得答案》</a>。</p>
+<p>只要给项目提出过 Issue，你当天的 Github 贡献图就会刷绿，并且也能够把这个项目固定在个人主页里了！看起来同样不需要写代码，并不难呀。不过，单纯地提 Issue 并不会让你出现在项目的贡献者列表里，如果想真正地【贡献】代码的话，PR 是必须的。</p>
+<h3 id="PR"><a href="#PR" class="headerlink" title="PR"></a>PR</h3><p>Pull Request 顾名思义，就是请求别人拉取你的代码的意思。这是十分符合开源工作流的：开发者们 fork 出自己的仓库，在自己的 分支里 commit 代码，然后<strong>请求维护者将自己的更改合并进来</strong>。一般而言一个 PR 只要做好一件事情就足够了，其作用不外乎以下之一：</p>
+<ul>
+<li>修复 bug</li>
+<li>实现新特性</li>
+<li>优化性能</li>
+<li>例行更新（如文档、依赖版本等）</li>
+</ul>
+<p>新同学如果想要贡献 PR，不妨先从自己擅长或关注的方面去着手，比如一些简单的文档拼写错误，或者标记为 <code>help please</code> 一类的 Issue。</p>
+<p>只要提出 PR，不论合并与否当天的 Github 贡献图都会刷绿，而 PR 合并入主干时，当天的贡献图也会刷绿。假设你发现了一个小 bug，只要一行就能够修复，那么整个流程走下来大概是这样：</p>
+<ol>
+<li>提出 Issue，贡献 +1</li>
+<li>提出 PR，贡献 +1</li>
+<li>回复维护者的 Review 评审，贡献 +1</li>
+<li>PR 通过，贡献 +1</li>
+</ol>
+<p>所以，哪怕仅仅提交一行代码，最多也足够点绿四天的贡献图了。并且，维护者们在 Review 或并入你的 PR 时，他们的贡献也会相应增加。这样想来，大型项目贡献者们一年动辄几千的贡献数量也不是只能让人仰望的了吧。</p>
+<h2 id="技巧"><a href="#技巧" class="headerlink" title="技巧"></a>技巧</h2><p>上面仅仅介绍了开源工作流中的几个基础概念。在真正参与时，还有一些可以稍加注意的技巧。下面介绍的就是一些与此相关的小细节。</p>
+<h3 id="问题导向的源码阅读"><a href="#问题导向的源码阅读" class="headerlink" title="问题导向的源码阅读"></a>问题导向的源码阅读</h3><p>在需要提出 bugfix、新 feature 或性能优化类 PR 的时候，阅读框架源码基本是绕不开的。当然，我们经常能够在技术社区看到很多【源码解析】类的文章（在近期以 Redux / Vue / Koa 为甚）。作者写这些文章的出发点肯定是好的，不过令人有些遗憾的是，许多这类文章的阅读量相对并不高，并且<strong>多数这类文章的作者并不是这些框架的贡献者</strong>。</p>
+<p>是我们太浮躁了吗？我们不妨从动机上考虑一下，我们为什么需要阅读源码呢？是为了解决实际遇到的问题，还是仅仅为了写一篇博客来展示自己的技术水平呢？如果只是贴上一个个看起来高大上的代码截图，然后把注释翻译成中文，这样的文章对读者、对社区又有什么帮助呢？【我读过这个框架的源码】和【我修过这个框架的 bug】相比起来，哪个的贡献更大呢？</p>
+<p>个人的观点是，带着问题去调试源码，收获会比简单的阅读理解大很多。在你真正需要解决一个 bug 的时候，你才会真正去思考调用的顺序、执行的流程、变量的意义，然后在一个个断点、日志和错误堆栈的帮助下，真正知道一些看起来漫不经心的判断是多么不可或缺，看似简单的地方又隐藏着怎样的预设条件。</p>
+<p>从这个角度而言，以修复 bug 的动机驱动去维护开源项目，对技术水平的锻炼，会比在单纯的源码阅读或在技术社区里逛博客点赞要来的更高。而每一个发展中的项目，都会有不少已发现或未发现的 bug 等待我们去修复。在这个参与的过程中，你的工作不仅能让社区收益，也能够更多地让自己获益。</p>
+<p>不过，【如何阅读源码】已经脱离了本文的讨论范围。在此我们点到为止就足够了。</p>
+<h3 id="友善的互吹评价"><a href="#友善的互吹评价" class="headerlink" title="友善的互吹评价"></a>友善的<del>互吹</del>评价</h3><p>参与开源项目和搬运文档相比，很重要的一点区别在于和其他人之间的互动。你的 Issue 会有人评论、代码会有人 Review，PR 也会有人点赞。这时候，和其他人的互动是少不了的。在 Github 这样的英文技术社区，合适的交流方式对促进社区发展是很有帮助的。</p>
+<p>这里我们只分享一点：<strong>如何更友善地对其他人的工作作出评价</strong>。在中文社区，除了【伸手党】以外，还经常能够看到【喷子】直接抨击项目质量或者给人盖上【抄袭】的帽子。不过，吐槽别人的代码肯定是少不了的。在社区中交流时怎么样更委婉地指出 PR 的问题或在 Issue 中回复观点呢？</p>
+<p>很有趣的一点是，在 Github 上很少看到这些词：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bad wrong dirty terrible ***...</span><br></pre></td></tr></table></figure>
+<p>更基本看不到这样的说法：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">I think this code is bad and do things wrong!</span><br></pre></td></tr></table></figure>
+<p>与直接吐槽代码 <code>bad</code> 相对地，不妨这么说：</p>
+<ul>
+<li>表达 API 笨重不好用，可以说 <code>heavy to work with</code></li>
+<li>表达模块结构不好，可以说 <code>not intuitive</code></li>
+<li>表达处理方式太粗暴，可以说 <code>overkill</code></li>
+<li>表达逻辑可能有漏洞，可以说 <code>leaky</code></li>
+<li>表达要引入的东西太多，可以说 <code>aggressive</code></li>
+<li>…</li>
+</ul>
+<p>而 <code>I think</code> 则显得非常武断，可以这样：</p>
+<ul>
+<li>万能的 <code>IMO</code> 或 <code>IMHO</code>，即 <code>In my (humble) opinion</code></li>
+<li>补充一个 <code>Not sure, maybe missing something</code></li>
+<li>用 <code>To my knowledge</code> 或者 <code>For me</code></li>
+</ul>
+<p>以及，在请求其他贡献者 Review 或合并时，记得加上 <code>Would you please</code> 和 <code>Could you please</code> 也是很不错的。哦对了别忘了 <code>Thanks</code> 啊。</p>
+<p>总之探索合适的沟通词汇是一件很有趣的事情，不过对英语的要求并不高，运用上面的介绍其实只要初中英语水平就足够了吧…相信有兴趣的同学能够总结出更多【开源黑话】😅另外，不少项目的 Code of Conduct 也值得一读。</p>
+<h3 id="有效的沟通"><a href="#有效的沟通" class="headerlink" title="有效的沟通"></a>有效的沟通</h3><p>贡献社区的过程并不是上来就把代码砸到人脸上，许多 bugfix 都是需要和上游维护者讨论方案后再做决定的。这时除了客气的言辞外，沟通的方式也很重要。在此个人总结了这么几点：</p>
+<h4 id="提问式的反驳"><a href="#提问式的反驳" class="headerlink" title="提问式的反驳"></a>提问式的反驳</h4><p>苏格拉底有种和人辩论的方式是，不停地向对方提问，直到对方答不上来为止。在社区的交流中，这种方式同样很常见。</p>
+<p>比如，在认为一个 PR 存在着未考虑到的边界情形时，作为 Reviewer，比起直接判断 <code>You are missing XXX</code>，评论 <code>How is it when XXX</code> 就巧妙地【把锅丢了回去】，能够客气地让提交者进一步说明对特殊情况的判断或修改代码，而不是直接【把天聊死】。</p>
+<p>同样地，在不认可某种 Workaround 方式时，回复 <code>I don&#39;t know what you mean at...</code> 然后等待对方的解释，效果也比直接说 <code>This is wrong</code> 要更好。</p>
+<h4 id="注意描述方式"><a href="#注意描述方式" class="headerlink" title="注意描述方式"></a>注意描述方式</h4><p>在提交 Issue 时，不同的描述方式可能会带来不同的优先级与不同的处理结果。举一个最近遇到的例子：</p>
+<p>我们参与的项目中，有一个描述【性能问题】的 Issue，内容大致是【输入内容大的时候速度特别慢】。这个 Issue 被晾了一两周没有人处理。而我在调试后找到了一个特殊的场景，这时反复的重绘会让页面崩溃。在将【页面死循环】作为标题提交 Issue 后，作者在当天就修复了这个问题，而性能问题也一并解决了。</p>
+<h4 id="模板与工具"><a href="#模板与工具" class="headerlink" title="模板与工具"></a>模板与工具</h4><p>其实上面的不少内容是有固定的套路可循的。比如，Issue 和 PR 都有相对固定的模板，帮助参与者提高沟通的效率。</p>
+<p>对 Issue 来说，常见的模板大致是这样的三段论：</p>
+<ol>
+<li>Bug or Featrure?</li>
+<li>Current Behavior?</li>
+<li>Expected Behavior?</li>
+</ol>
+<p>而对于 PR 来说倒不一定需要长篇大论，正式一些的结构大致是：</p>
+<ol>
+<li>This Closes #xxx</li>
+<li>Current Behavior / Reason</li>
+<li>Solution</li>
+</ol>
+<p>在提交 Issue 时，提供复现的例子、步骤或 GIF 是非常重要的。这时我们可以用 <a href="http://jsfiddle.net/" target="_blank" rel="noopener">JSFiddle</a> 提供简单的复现例子，在 Mac 上也有 <a href="https://giphy.com/apps/giphycapture" target="_blank" rel="noopener">Giphy Capture</a> 这样免费的 GIF 动画录制工具来提供帮助。</p>
+<p>最后，在 Git 提交时，整洁的提交记录也是很大的加分项，这方面有兴趣的同学不妨参考作者之前的文章：<a href="https://juejin.im/post/59c7b00df265da065e323acf" target="_blank" rel="noopener">使用 git rebase 提高 PR 质量</a>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>参与到开源社区中是个既有挑战也有成就感的事情。比起国内互联网公司常见的招聘 slogan【你的一行代码，能影响多少多少人】来，贡献到开源项目中，就意味着【你的代码能够被多少多少公司】使用，这无疑是更高的层次，也会有更多的挑战。如果觉得日常的增查改删逻辑已经让你感到厌烦，那么参与到社区中来或许能为你打开新世界的大门。</p>
+<p>这里顺便安利一下我们目前维护的编辑器项目 <a href="https://github.com/ianstormtaylor/slate/" target="_blank" rel="noopener">Slate</a>。这是一个优秀而迭代迅速的富文本框架，目前还处在大刀阔斧地添加新特性和新功能的 beta 时期，有非常多参与贡献的机会，源码的风格与注释也相当完备。另外有趣的一点是作者和 Evan You 一样有着设计师的背景（不妨想象一堆程序员给 UI 设计师写的代码修 bug 的场景）。我也在之前的博客里<a href="https://juejin.im/post/59e6fc9951882578d503952c" target="_blank" rel="noopener">安利过 Slate</a>，希望能有更多的同学来尝鲜！</p>
+<p>最后我们引用 Chrome V8 项目的一个原则作为本文的总结吧：</p>
+<blockquote>
+<p>In short, do the right thing for the project, not the easiest thing to get code committed, and above all: use your best judgement.</p>
+</blockquote>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Summary/">Summary</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/novice-open-source/" data-title="零起点的开源社区贡献指南 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/stop-hacky-code/" title="别再拿奇技淫巧搬砖了">
+  <strong>上一篇：</strong><br/>
+  <span>
+  别再拿奇技淫巧搬砖了</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/slate-intro/"  title="Slate.js - 革命性的富文本编辑框架">
+ <strong>下一篇：</strong><br/> 
+ <span>Slate.js - 革命性的富文本编辑框架
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#起步"><span class="toc-number">1.</span> <span class="toc-text">起步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进阶"><span class="toc-number">2.</span> <span class="toc-text">进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Issue"><span class="toc-number">2.1.</span> <span class="toc-text">Issue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PR"><span class="toc-number">2.2.</span> <span class="toc-text">PR</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧"><span class="toc-number">3.</span> <span class="toc-text">技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题导向的源码阅读"><span class="toc-number">3.1.</span> <span class="toc-text">问题导向的源码阅读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#友善的互吹评价"><span class="toc-number">3.2.</span> <span class="toc-text">友善的互吹评价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#有效的沟通"><span class="toc-number">3.3.</span> <span class="toc-text">有效的沟通</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#提问式的反驳"><span class="toc-number">3.3.1.</span> <span class="toc-text">提问式的反驳</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注意描述方式"><span class="toc-number">3.3.2.</span> <span class="toc-text">注意描述方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#模板与工具"><span class="toc-number">3.3.3.</span> <span class="toc-text">模板与工具</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

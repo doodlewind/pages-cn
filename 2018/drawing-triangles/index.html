@@ -1,0 +1,677 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>三角形的 N 种画法与浏览器的开放世界 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="最近，我完全沉迷在了任天堂 Switch 上的《塞尔达传说：荒野之息》里，以至于专栏都快要停更了（罪过罪过）。大概每个塞尔达玩家都会有这个疑问，那就是这个游戏为什么这么好玩？！非常有意思的是，这个问题的答案似乎和「前端为什么这么日新月异」有着微妙的关系，这让我有了一些全新的认识…">
+<meta name="keywords" content="Web,JS,CSS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="三角形的 N 种画法与浏览器的开放世界">
+<meta property="og:url" content="https://ewind.us/2018/drawing-triangles/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="最近，我完全沉迷在了任天堂 Switch 上的《塞尔达传说：荒野之息》里，以至于专栏都快要停更了（罪过罪过）。大概每个塞尔达玩家都会有这个疑问，那就是这个游戏为什么这么好玩？！非常有意思的是，这个问题的答案似乎和「前端为什么这么日新月异」有着微妙的关系，这让我有了一些全新的认识…">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/zelda-title.jpeg">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.518Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="三角形的 N 种画法与浏览器的开放世界">
+<meta name="twitter:description" content="最近，我完全沉迷在了任天堂 Switch 上的《塞尔达传说：荒野之息》里，以至于专栏都快要停更了（罪过罪过）。大概每个塞尔达玩家都会有这个疑问，那就是这个游戏为什么这么好玩？！非常有意思的是，这个问题的答案似乎和「前端为什么这么日新月异」有着微妙的关系，这让我有了一些全新的认识…">
+<meta name="twitter:image" content="https://ewind.us/images/zelda-title.jpeg">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/drawing-triangles/" title="三角形的 N 种画法与浏览器的开放世界" itemprop="url">三角形的 N 种画法与浏览器的开放世界</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-04-30T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-05-01</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2B-Play"><span class="toc-number">1.</span> <span class="toc-text">2B Play</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#字符"><span class="toc-number">1.1.</span> <span class="toc-text">字符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#图片"><span class="toc-number">1.2.</span> <span class="toc-text">图片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML"><span class="toc-number">1.3.</span> <span class="toc-text">HTML</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#普通-Play"><span class="toc-number">2.</span> <span class="toc-text">普通 Play</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS"><span class="toc-number">2.1.</span> <span class="toc-text">CSS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Icon-Font"><span class="toc-number">2.2.</span> <span class="toc-text">Icon Font</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SVG"><span class="toc-number">2.3.</span> <span class="toc-text">SVG</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Clip-Path"><span class="toc-number">2.4.</span> <span class="toc-text">Clip Path</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Canvas"><span class="toc-number">2.5.</span> <span class="toc-text">Canvas</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#羞耻-Play"><span class="toc-number">3.</span> <span class="toc-text">羞耻 Play</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS-Houdini"><span class="toc-number">3.1.</span> <span class="toc-text">CSS Houdini</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WebGL-多边形"><span class="toc-number">3.2.</span> <span class="toc-text">WebGL 多边形</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WebGL-造型函数"><span class="toc-number">3.3.</span> <span class="toc-text">WebGL 造型函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/images/zelda-title.jpeg" alt="zelda-title"></p>
+<p>最近，我完全沉迷在了任天堂 Switch 上的《塞尔达传说：荒野之息》里，以至于专栏都快要停更了（罪过罪过）。大概每个塞尔达玩家都会有这个疑问，那就是<strong>这个游戏为什么这么好玩？！</strong>非常有意思的是，这个问题的答案似乎和「<strong>前端为什么这么日新月异</strong>」有着微妙的关系，这让我有了一些全新的认识…</p>
+<a id="more"></a>
+<p>塞尔达的游戏体验有一点广受好评，那就是<strong>符合直觉的开放世界</strong>。换句话说，在这个游戏里<strong>想要做到一件事，只要你能想到什么方式，那么你几乎就能基于这种方式去实现</strong>。比如，你看到树上挂着一颗苹果，那么想要摘下这颗苹果，至少有以下这些办法：</p>
+<ul>
+<li>把树砍倒，捡到苹果</li>
+<li>爬树、骑在马上或者搬来箱子垫脚够到苹果</li>
+<li>用弓箭把苹果射下来</li>
+<li>扇风或者炸弹制造冲击波，把苹果吹下来</li>
+<li>从周围的高地滑翔到苹果树上</li>
+<li>放火把树点着，留下烤苹果</li>
+<li>……</li>
+</ul>
+<p>这种自由度使得游戏的冒险体验充满了惊喜。对各种棘手的机关谜题，解法常常是开放而不唯一的。巧的是，我近期的工作也和折腾前端的各种渲染机制有些关系。<strong>当用自由程度来评价浏览器的时候，能看到的几乎也是一个塞尔达级别的开放世界了。</strong></p>
+<p>我们不妨用三角形作为例子吧。三角形作为最简单的几何图形，绘制它对于任何一位前端同学都不会是一件难事。但在今天的前端领域里，到底有多少种技术方案能够画出一个三角形呢？答案可以说非常的百花齐放了。让我们循序渐进地开始吧。下面的各种套路可以按照折腾程度分为三种：</p>
+<ul>
+<li>2B Play</li>
+<li>普通 Play</li>
+<li>羞耻 Play</li>
+</ul>
+<h2 id="2B-Play"><a href="#2B-Play" class="headerlink" title="2B Play"></a>2B Play</h2><p>首先让我们从最不费劲的耍无赖方法开始吧：</p>
+<h3 id="字符"><a href="#字符" class="headerlink" title="字符"></a>字符</h3><p>还有什么比复制粘贴一个 <code>△</code> 字符更简单的绘制方式呢？这其实就是个形如 <code>&#39;\u25b3&#39;</code> 的 Unicode 特殊字符而已。</p>
+<h3 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h3><p>看起来 <code>&lt;img src=&quot;三角形.jpg&quot;/&gt;</code> 的套路很 low，但完全没毛病啊🙄</p>
+<h3 id="HTML"><a href="#HTML" class="headerlink" title="HTML"></a>HTML</h3><p>只要垂直居中一系列宽度均匀增长的矩形，我们是不是就得到了一个三角形呢😅</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"triangle"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">"width: 1px; height: 1px;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">"width: 2px; height: 1px;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">"width: 3px; height: 1px;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">"width: 4px; height: 1px;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- ...... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><a href="https://jsfiddle.net/mbvgdjv7/4/" target="_blank" rel="noopener">Demo</a></p>
+<h2 id="普通-Play"><a href="#普通-Play" class="headerlink" title="普通 Play"></a>普通 Play</h2><p>如果感觉上面的实现太过于玩世不恭，接来下我们可以用一些略微「正常」一点的操作来画出同样的三角形：</p>
+<h3 id="CSS"><a href="#CSS" class="headerlink" title="CSS"></a>CSS</h3><p>CSS 里充斥着大量的奇技淫巧，而下面这个操作可能是很多面试题的标准答案了。我们只需要简单的 HTML：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"triangle"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>配合魔改容器边框的样式：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.triangle</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">border-left</span>: <span class="number">50px</span> solid transparent;</span><br><span class="line">  <span class="attribute">border-right</span>: <span class="number">50px</span> solid transparent;</span><br><span class="line">  <span class="attribute">border-bottom</span>: <span class="number">100px</span> solid red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就能够模拟出一个三角形了。<a href="https://jsfiddle.net/dzvbv1La/" target="_blank" rel="noopener">Demo</a></p>
+<h3 id="Icon-Font"><a href="#Icon-Font" class="headerlink" title="Icon Font"></a>Icon Font</h3><p>把字体当做图标使用的做法也是老调重弹了。只需要大致这样的字体样式配置：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">@<span class="keyword">font-face</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: Triangle;</span><br><span class="line">  <span class="attribute">src</span>: <span class="built_in">url</span>(./triangle.woff) <span class="built_in">format</span>(<span class="string">"woff"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-class">.triangle</span><span class="selector-pseudo">:before</span> &#123; <span class="attribute">content</span>:<span class="string">"\t666"</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>这样一个 <code>&lt;i class=&quot;triangle&quot;&gt;&lt;/i&gt;</code> 的标签，就能通过 <code>:before</code> 插入特殊字符，进而渲染对应的图标字体了😑<a href="https://jsfiddle.net/a5L8fuz9/1/" target="_blank" rel="noopener">Demo</a></p>
+<h3 id="SVG"><a href="#SVG" class="headerlink" title="SVG"></a>SVG</h3><p>很多时候我们习惯把 SVG 当做图片一样的静态资源直接引入使用，但其实只要稍微了解一下它的语法后，就会发现直接手写 SVG 来绘制简单图形也并不复杂：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">width</span>=<span class="string">"100"</span> <span class="attr">height</span>=<span class="string">"100"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">polygon</span> <span class="attr">points</span>=<span class="string">"50,0 100,100 0,100"</span> <span class="attr">style</span>=<span class="string">"fill: red;"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><a href="https://jsfiddle.net/pnetx4vw/" target="_blank" rel="noopener">Demo</a></p>
+<h3 id="Clip-Path"><a href="#Clip-Path" class="headerlink" title="Clip Path"></a>Clip Path</h3><p>SVG 和 CSS 有很多相似之处，但 CSS 虽然长于样式，长久以来却一直缺乏「绘制出一个形状」的能力。好在 CSS 规范中刚加入不久的 clip path 能够名正言顺地让我们用类似 SVG 的形式绘制出更多样的形状。这只需要形如下面的样式：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.triangle</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">10px</span>; <span class="attribute">height</span>: <span class="number">10px</span>;</span><br><span class="line">  <span class="attribute">background</span>: red;</span><br><span class="line">  <span class="attribute">clip-path</span>: <span class="built_in">polygon</span>(50% 0, 0 100%, 100% 100%);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这和熟悉的 border 套路有什么区别呢？除了代码更直观简洁以外，它还能够为绘制出的形状支持背景图片属性，可惜的地方主要是 IE 兼容了。<a href="https://jsfiddle.net/7xzwbp2t/" target="_blank" rel="noopener">Demo</a></p>
+<h3 id="Canvas"><a href="#Canvas" class="headerlink" title="Canvas"></a>Canvas</h3><p>到目前为止的方法没有一个需要编写 JS 代码，这多少有些对不起工钱。还好我们有 Canvas 来名正言顺地折腾。只需要一个 <code>&lt;canvas&gt;</code> 标签配上这样的胶水代码就行：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> canvas = <span class="built_in">document</span>.getElementById(<span class="string">'canvas'</span>)</span><br><span class="line"><span class="keyword">const</span> ctx = canvas.getContext(<span class="string">'2d'</span>)</span><br><span class="line">ctx.beginPath()</span><br><span class="line">ctx.fillStyle = <span class="string">'red'</span></span><br><span class="line">ctx.moveTo(<span class="number">50</span>, <span class="number">0</span>)</span><br><span class="line">ctx.lineTo(<span class="number">0</span>, <span class="number">100</span>)</span><br><span class="line">ctx.lineTo(<span class="number">100</span>, <span class="number">100</span>)</span><br><span class="line">ctx.fill()</span><br></pre></td></tr></table></figure>
+<p><a href="https://jsfiddle.net/mbvgdjv7/1/" target="_blank" rel="noopener">Demo</a></p>
+<h2 id="羞耻-Play"><a href="#羞耻-Play" class="headerlink" title="羞耻 Play"></a>羞耻 Play</h2><p>如果你还是嫌弃上面的操作过于中规中矩，让我们用最后的几种方法来探索浏览器的自由尺度吧：</p>
+<h3 id="CSS-Houdini"><a href="#CSS-Houdini" class="headerlink" title="CSS Houdini"></a>CSS Houdini</h3><p>近期的 CSS 大会上 CSS Houdini 可以说赚足了眼球。这套大大增强 CSS 控制力的规范中，目前已经实装的主要也就是 CSS Paint 了。简而言之，通过这个 API，只要 CSS 属性需要图片的地方，你就可以编程式地通过 canvas 控制图片的渲染过程。</p>
+<p>通过 <code>CSS.paintWorklet.addModule</code> API，我们可以定义绘制 canvas 所用的 paint worklet：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript">  CSS.paintWorklet.addModule(<span class="string">'/worklet.js'</span>)</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Paint worklet 中能够拿到正常的 canvas 上下文：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TrianglePainter</span> </span>&#123;</span><br><span class="line">  paint(ctx, geom, properties) &#123;</span><br><span class="line">	 <span class="keyword">const</span> offset = geom.width</span><br><span class="line">    ctx.beginPath()</span><br><span class="line">    ctx.fillStyle = <span class="string">'red'</span></span><br><span class="line">    ctx.moveTo(offset / <span class="number">2</span>, <span class="number">0</span>)</span><br><span class="line">    ctx.lineTo(offset, offset)</span><br><span class="line">    ctx.lineTo(<span class="number">0</span>, offset)</span><br><span class="line">    ctx.fill()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">registerPaint(<span class="string">'triangle'</span>, TrianglePainter)</span><br></pre></td></tr></table></figure>
+<p>只要这样，就能在 CSS 里使用 <code>paint</code> 规则了：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.demo</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line">  <span class="attribute">background-image</span>: <span class="built_in">paint</span>(triangle);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们还可以使用 CSS Variable 在 CSS 中定义形如 <code>--triangle-size</code> 或 <code>--triangle-fill</code> 的参数，来控制 canvas 的渲染，这样在参数更新时 canvas 会自动重绘。结合上 animation，它在特效领域的想象空间也很大。虽然最后使用的还是前面提及的 canvas，但 Houdini 确实给基于 CSS 的渲染带来了更大的掌控。</p>
+<h3 id="WebGL-多边形"><a href="#WebGL-多边形" class="headerlink" title="WebGL 多边形"></a>WebGL 多边形</h3><p>主流浏览器对 WebGL 的支持已经相当不错了，但目前看来它仍然不是前端领域人人必备的主流技术。这或许和它较为陡峭的学习曲线有关。可能有不少同学对 WebGL 有一种误解，即它和 canvas 一样，是一套 JS API。实际上，编写 WebGL 应用时，除了需要编写运行在 CPU 范畴内的 JS 胶水代码外，真正在 GPU 上执行的是 GLSL 语言编写的<strong>着色器</strong>。但是由于绘图库本身的复杂性，在入门示例中，JS 的胶水代码占了绝对的大头。按照计算机图形学按部就班的教程，即便只是完成一个三角形的渲染过程，也需要百行左右的代码。限于篇幅，我们只简要地将这个流程里所需要做的关键事项概括为以下三步：</p>
+<ol>
+<li>用 GLSL 语言编写顶点着色器和片元着色器。</li>
+<li>定义出一个顶点缓冲区，向其中传入三角形逐个顶点的数据。</li>
+<li>在我们自己实现的 render 函数里做一些准备。在加载完着色器程序后，调用 <code>drawArray</code> API 绘制缓冲区中数据。</li>
+</ol>
+<p>这个过程（<a href="https://jsfiddle.net/skpuk5b1/" target="_blank" rel="noopener">Demo</a>）初看之下控制的不过是一个更啰嗦而折腾的 canvas 而已，除了可以支持 3D 以外，有什么不同呢？在最后一种方法里我们就能看到区别了。</p>
+<h3 id="WebGL-造型函数"><a href="#WebGL-造型函数" class="headerlink" title="WebGL 造型函数"></a>WebGL 造型函数</h3><p>上面的流程基本是每一个 WebGL 教程都会按部就班地去做的。考虑这个问题：绘制三角形一定需要提供三个顶点吗？这可不一定。</p>
+<p>熟悉 canvas 的同学都知道，在处理图像时，像下面这样的逐像素操作很容易带来性能问题：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; width; i++) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j &lt; height; j++) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是在 WebGL 中，是不存在这样<strong>串行</strong>的循环的。你用 GLSL 语言所编写的着色器，会被编译到 GPU 上去<strong>并行</strong>执行。听起来是不是比较酷？上面已经提到，我们有两种着色器，即<strong>顶点着色器</strong>和<strong>片元着色器</strong>：</p>
+<ul>
+<li>顶点着色器的代码逐顶点执行，比如对于三角形，它就执行三次。</li>
+<li>片元着色器的代码逐片元（粗略的理解就是像素）执行，对于一个 100x100 的区域，GPU 会并行地对这 1w 个像素调用片元着色器，这个并行的过程对你是透明的。</li>
+</ul>
+<p>所以对于一个「逐像素执行」的片元着色器来说，只要它知道自己每次被调用时所在的坐标，那么就能够根据这个位置计算出最终的颜色。这样一来，我们甚至不需要顶点缓冲区，就能够基于特定的公式去计算逐像素的颜色了。这样为着色器设计的函数我们称为 shaping function，即造型函数。一个正多边形的着色器形如：</p>
+<figure class="highlight glsl"><table><tr><td class="code"><pre><span class="line"><span class="meta">#define TWO_PI 6.28318530718</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 由 JS 传入的屏幕分辨率</span></span><br><span class="line"><span class="keyword">uniform</span> <span class="type">vec2</span> u_resolution;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main() &#123;</span><br><span class="line">  <span class="type">vec2</span> st = <span class="built_in">gl_FragCoord</span>.xy/u_resolution.xy;</span><br><span class="line">  st.x *= u_resolution.x/u_resolution.y;</span><br><span class="line">  <span class="type">vec3</span> color = <span class="type">vec3</span>(<span class="number">0.0</span>);</span><br><span class="line">  <span class="type">float</span> d = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 重新映射空间坐标到 -1. 与 1. 间</span></span><br><span class="line">  st = st * <span class="number">2.</span><span class="number">-1.</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 多边形边数量</span></span><br><span class="line">  <span class="type">int</span> N = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 当前像素的角度与半径</span></span><br><span class="line">  <span class="type">float</span> a = <span class="built_in">atan</span>(st.x,st.y)+PI;</span><br><span class="line">  <span class="type">float</span> r = TWO_PI/<span class="type">float</span>(N);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 调节距离的造型函数</span></span><br><span class="line">  d = <span class="built_in">cos</span>(<span class="built_in">floor</span>(<span class="number">.5</span>+a/r)*r-a)*<span class="built_in">length</span>(st);</span><br><span class="line"></span><br><span class="line">  color = <span class="type">vec3</span>(<span class="number">1.0</span>-<span class="built_in">smoothstep</span>(<span class="number">.4</span>,<span class="number">.41</span>,d));</span><br><span class="line">  <span class="comment">// color = vec3(d);</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">gl_FragColor</span> = <span class="type">vec4</span>(color,<span class="number">1.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这就是一个船新的领域了，由于 shader 编程要求对众多的像素编写出同一份简洁而并行执行的代码，彼此之间还完全透明且无法随意 log 调试，这使得面向着色器编程的门槛实际上很高。这里的示例在非常好的入门书 <a href="https://thebookofshaders.com/07/" target="_blank" rel="noopener">The Book of Shaders</a> 中有相应的章节，有兴趣的同学或许会打开新世界的大门哦🤔</p>
+<p>P.S. 在这里我们为什么要舍近求远呢？这个途径其实和字体渲染的原理有些接近，近期我也在学习一些相关的知识，希望届时能有更多的内容可以分享~</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>不可否认，常规的业务开发很容易进入枯燥的重复劳动阶段，但再看开一点，我们可以发现实际上我们已经有了非常多可用的技术手段来优化前端这个领域里的交互了。一个简单的三角形都能用 HTML / CSS / JS / GLSL 四种语言的十几种方案来画了，更复杂的场景下就更是百花齐放了。浏览器的渲染能力之强应该也算得上是个开放世界了吧：别管你想画什么，总有适合你的方法去实现。</p>
+<p>不过和塞尔达里越高级的操作看起来越风骚简洁不同，越是掌控力强的技术方案，在实现上就会更加复杂。但总之不管是游戏还是代码还是生活，相信快乐的方式都不止一种~希望大家都能够享受过程，找到属于自己的那份乐趣~</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a><a href="/tags/CSS/">CSS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/drawing-triangles/" data-title="三角形的 N 种画法与浏览器的开放世界 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/eslint-customize/" title="如何为团队潜规则明码标价">
+  <strong>上一篇：</strong><br/>
+  <span>
+  如何为团队潜规则明码标价</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/mac-privoxy/"  title="Mac 上为移动设备配置代理的懒方法">
+ <strong>下一篇：</strong><br/> 
+ <span>Mac 上为移动设备配置代理的懒方法
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#2B-Play"><span class="toc-number">1.</span> <span class="toc-text">2B Play</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#字符"><span class="toc-number">1.1.</span> <span class="toc-text">字符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#图片"><span class="toc-number">1.2.</span> <span class="toc-text">图片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML"><span class="toc-number">1.3.</span> <span class="toc-text">HTML</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#普通-Play"><span class="toc-number">2.</span> <span class="toc-text">普通 Play</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS"><span class="toc-number">2.1.</span> <span class="toc-text">CSS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Icon-Font"><span class="toc-number">2.2.</span> <span class="toc-text">Icon Font</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SVG"><span class="toc-number">2.3.</span> <span class="toc-text">SVG</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Clip-Path"><span class="toc-number">2.4.</span> <span class="toc-text">Clip Path</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Canvas"><span class="toc-number">2.5.</span> <span class="toc-text">Canvas</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#羞耻-Play"><span class="toc-number">3.</span> <span class="toc-text">羞耻 Play</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS-Houdini"><span class="toc-number">3.1.</span> <span class="toc-text">CSS Houdini</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WebGL-多边形"><span class="toc-number">3.2.</span> <span class="toc-text">WebGL 多边形</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WebGL-造型函数"><span class="toc-number">3.3.</span> <span class="toc-text">WebGL 造型函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -1,0 +1,637 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>自制前端框架之 30 行的依赖追踪器 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="依赖追踪机制是 Vue 的核心之一，那么依赖追踪算法如何工作呢？在 30 行内我们就能实现它🤓">
+<meta name="keywords" content="JS,Pattern,Vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自制前端框架之 30 行的依赖追踪器">
+<meta property="og:url" content="https://ewind.us/2017/nano-dep-tracker/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="依赖追踪机制是 Vue 的核心之一，那么依赖追踪算法如何工作呢？在 30 行内我们就能实现它🤓">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.539Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自制前端框架之 30 行的依赖追踪器">
+<meta name="twitter:description" content="依赖追踪机制是 Vue 的核心之一，那么依赖追踪算法如何工作呢？在 30 行内我们就能实现它🤓">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/nano-dep-tracker/" title="自制前端框架之 30 行的依赖追踪器" itemprop="url">自制前端框架之 30 行的依赖追踪器</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-08-02T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-08-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Reactive-基础"><span class="toc-number">1.</span> <span class="toc-text">Reactive 基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#依赖追踪原理"><span class="toc-number">2.</span> <span class="toc-text">依赖追踪原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现-Computed"><span class="toc-number">3.</span> <span class="toc-text">实现 Computed</span></a></li></ol>
+		
+		</div>
+		
+		<p>依赖追踪机制是 Vue 的核心之一，那么依赖追踪算法如何工作呢？在 30 行内我们就能实现它🤓</p>
+<a id="more"></a>
+<h2 id="Reactive-基础"><a href="#Reactive-基础" class="headerlink" title="Reactive 基础"></a>Reactive 基础</h2><p>说起依赖追踪，就不能不提数据绑定的概念。前端最常见的重复劳动之一就是把数据绑定到 HTML 模板上，这时数据绑定能够实现数据更新时模板的自动更新。简单的三行伪代码就能描述出这个流程的实际使用场景：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> data = &#123; <span class="attr">foo</span>: <span class="number">123</span> &#125;</span><br><span class="line">magic(data, dom) <span class="comment">// 定义 Reactive 并绑定数据到 dom</span></span><br><span class="line">data.foo = <span class="number">456</span> <span class="comment">// 数据更新时 dom 自动更新</span></span><br></pre></td></tr></table></figure>
+<p>这里的 <code>magic</code> 能够把普通的 JS 对象转换为支持数据绑定的 Reactive 对象，在 Reactive 对象数据更新时，被绑定的模板也会进行更新。作为依赖追踪的基础，我们还是先用几行实现一个最简单的 Reactive 示例吧：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">defineReactive</span> (<span class="params">obj, key, val</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">Object</span>.defineProperty(obj, key, &#123;</span><br><span class="line">    <span class="keyword">get</span> () &#123;</span><br><span class="line">      <span class="keyword">return</span> val</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">set</span> (newValue) &#123;</span><br><span class="line">      <span class="comment">// 在此添加更新绑定数据相关代码</span></span><br><span class="line">      val = newValue</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，Reactive 本身其实就是通过 <code>Object.defineProperperty</code> 添加了自定义 getter / setter 后的对象。这类对象能够在读写其属性值时，执行用户自定的代码，从而在此实现被绑定数据的更新。有了这个能力后，我们就可以开始编写依赖追踪器了。</p>
+<h2 id="依赖追踪原理"><a href="#依赖追踪原理" class="headerlink" title="依赖追踪原理"></a>依赖追踪原理</h2><p>我们可以用 Excel 来理解依赖追踪：Reactive 就是普通单元格中的原始数据，而 Computed 就是插入了公式的单元格。Reactive 的格子更新时，Computed 的格子会根据为它设定的求和公式（即依赖）来自动更新出相应的值。</p>
+<p>所以，对 Computed 最朴素的定义，就是一个简单的函数，形如这样：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 这里的 data 是一个 Reactive</span></span><br><span class="line"><span class="keyword">const</span> isEmpty = <span class="function"><span class="params">()</span> =&gt;</span> data.values.length === <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>这初看之下没有任何 Magic，不过这里关键的细节区别在于：在指定 Excel 的公式时，我们需要<strong>手动选择公式所依赖的单元格</strong>，但在一个 Computed 函数中，我们<strong>没有传入 Computed 的依赖</strong>！既然没有传入依赖，那么这个 Computed 函数是怎么在它所使用的 Reactive 更新时去更新自身的呢？这就是依赖追踪算法所需要解决的问题了。</p>
+<p>我们知道，Reactive 的数据绑定，本质上是在 <strong>set</strong> Reactive 时去执行更新。而依赖追踪则相反，需要在 Computed 中 <strong>get</strong> Reactive 时，去标记 Computed 对 Reactive 的依赖。</p>
+<p>为了理解这个算法，我们不妨先假设一个简单的执行场景：假设 Computed 函数 C 依赖了 Reactive 对象 R1 和 R2，这时我们添加一个全局的辅助对象 D 来为当前 Computed 函数收集依赖。从而，我们可以用文字描述出这个算法的执行流程：</p>
+<ol>
+<li>Computed 函数 C 初次求值时，标记 D 指向 C</li>
+<li>对 C 求值过程中，获取了 R1 和 R2 这两个 Reactive 的值，使得各 Reactive 的 getter 被触发</li>
+<li><strong>为每个 Reactive 维护一个自己的依赖者 deps 数组，将 D 添加至数组内。</strong>从而，在 C 求值完成后，R1 和 R2 均完成对 C 的依赖收集</li>
+<li>求值完成后，C 将 D 标记为空，返回求值结果</li>
+<li>经过标记后的 <strong>R1 和 R2 更新时，所有添加至各自 deps 数组中的 Computed 均在 reactive 的 setter 中触发</strong>，一并更新</li>
+</ol>
+<p>这个算法的核心，就是为 Reactive 添加【依赖者】数组，从而在 Computed 触发 Reactive 时，添加该 Computed 至 Reactive 的依赖者中。这样，在 Reactive 下次更新时，就能够主动地触发 Computed 的更新了。下面我们使用代码来实现这个文字流程。</p>
+<h2 id="实现-Computed"><a href="#实现-Computed" class="headerlink" title="实现 Computed"></a>实现 Computed</h2><p>动手实现 Computed 前，我们不妨设计出实际使用场景下一个简单的 API，然后从 API 接口出发来进行编码实现。假设我们有一个 <code>elder</code> 对象，他具有 <code>now</code> 这个 Reactive 来标记当前年份，那么我们可以定义出一个 Computed 来计算出他的年龄：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> elder = &#123;&#125;</span><br><span class="line">defineReactive(elder, <span class="string">'now'</span>, <span class="literal">null</span>)</span><br><span class="line">defineComputed(elder, <span class="string">'age'</span>, () =&gt; elder.now - <span class="number">1926</span>,</span><br><span class="line">  () =&gt; <span class="built_in">console</span>.log(<span class="string">'Now his age is'</span>, elder.age)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">elder.now = <span class="number">2016</span></span><br><span class="line"><span class="built_in">console</span>.log(elder.age)</span><br><span class="line"></span><br><span class="line">elder.now = <span class="number">2017</span></span><br><span class="line"><span class="built_in">console</span>.log(elder.age)</span><br></pre></td></tr></table></figure>
+<p>在使用方式上，可以发现我们先是定义 Reactive，再定义从 Reactive 衍生出的 Computed 函数。</p>
+<p>接下来就是代码实现了。我们在前文的 defineReactive 函数基础上，拓展出新的 defineComputed 函数。去除掉啰嗦的注释后，是可以控制在 30 行内的😅</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 标记当前正在求值的 computed 函数</span></span><br><span class="line"><span class="keyword">let</span> Dep = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义 computed，需传入求值函数与 computed 更新时触发的回调</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">defineComputed</span> (<span class="params">obj, key, computeFn, updateCallback</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 封装供 reactive 收集的更新回调，以触发 computed 的更新事件</span></span><br><span class="line">  <span class="keyword">const</span> onDependencyUpdated = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 在此调用 computeFn 计算出的值用于触发 computed 的更新事件</span></span><br><span class="line">    <span class="comment">// 供后续可能的 watch 等模块使用</span></span><br><span class="line">    <span class="keyword">const</span> value = computeFn()</span><br><span class="line">    updateCallback(value)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">Object</span>.defineProperty(obj, key, &#123;</span><br><span class="line">    <span class="keyword">get</span> () &#123;</span><br><span class="line">      <span class="comment">// 标记当前依赖，供 reactive 收集</span></span><br><span class="line">      Dep = onDependencyUpdated</span><br><span class="line">      <span class="comment">// 调用求值函数，中途收集依赖</span></span><br><span class="line">      <span class="keyword">const</span> value = computeFn()</span><br><span class="line">      <span class="comment">// 完成求值后，清空标记</span></span><br><span class="line">      Dep = <span class="literal">null</span></span><br><span class="line">      <span class="comment">// 最终返回的 getter 结果</span></span><br><span class="line">      <span class="keyword">return</span> value</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 计算属性无法 set</span></span><br><span class="line">    <span class="keyword">set</span> () &#123;&#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过 getter 与 setter 定义出一个 reactive</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">defineReactive</span> (<span class="params">obj, key, val</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 在此标记哪些 computed 依赖了该 reactive</span></span><br><span class="line">  <span class="keyword">const</span> deps = []</span><br><span class="line"></span><br><span class="line">  <span class="built_in">Object</span>.defineProperty(obj, key, &#123;</span><br><span class="line">    <span class="comment">// 为 reactive 求值时，收集其依赖</span></span><br><span class="line">    <span class="keyword">get</span> () &#123;</span><br><span class="line">      <span class="keyword">if</span> (Dep) deps.push(Dep)</span><br><span class="line">      <span class="comment">// 返回 val 值作为 getter 求值结果</span></span><br><span class="line">      <span class="keyword">return</span> val</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 为 reactive 赋值时，更新所有依赖它的计算属性</span></span><br><span class="line">    <span class="keyword">set</span> (newValue) &#123;</span><br><span class="line">      <span class="comment">// 在 setter 中更新值</span></span><br><span class="line">      val = newValue</span><br><span class="line">      <span class="comment">// 更新值后触发所有 computed 依赖更新</span></span><br><span class="line">      deps.forEach(<span class="function"><span class="params">changeFn</span> =&gt;</span> changeFn())</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上例中的代码实现中，我们除了实现了一个新的 defineComputed 函数外，还在 defineReactive 函数中进行了一定的修改。这主要体现在，我们在 Reactive 中：</p>
+<ol>
+<li>添加了 deps 数组</li>
+<li>在 getter 中进行了依赖收集</li>
+<li>在 setter 中计算出了所有依赖该 Reactive 的 Computed</li>
+</ol>
+<p>这个在 getter 中收集依赖，而后在 setter 中触发的模式，实际就是本系列中第一篇 MVC 框架介绍中，所涉及的 PubSub 发布订阅模式了。不同之处在于，在依赖收集器中，我们通过 Object.defineProperty 这一高级特性将 PubSub 模式进行了封装，PubSub 中需要用户显式操作的【订阅】过程被平滑地优化为了【通过 getter 自动化进行的依赖收集】。依赖收集完成后，就能在 Reactive 更新时实现依赖追踪了。</p>
+<p>OK，这就是依赖追踪器的基础实现了，本文的源码亦托管在 <a href="https://github.com/doodlewind/nano-computed/blob/master/src/index.js" target="_blank" rel="noopener">Github</a> 上，可以拉取或直接复制到 Node 中运行🙃希望对感兴趣的同学有所帮助。</p>
+<p>本系列后续会继续专注用简单的代码解释前端框架各类 Magic 的实现机制，安利往期文章：</p>
+<p><a href="http://ewind.us/2017/nano-vdom/">自制前端框架之 50 行的虚拟 DOM</a><br><a href="http://ewind.us/2017/nano-mvc/">自制前端框架之 MVC</a><br><a href="https://github.com/doodlewind" target="_blank" rel="noopener">Github</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JS/">JS</a><a href="/tags/Pattern/">Pattern</a><a href="/tags/Vue/">Vue</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/nano-dep-tracker/" data-title="自制前端框架之 30 行的依赖追踪器 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/nlp-framework-analysis/" title="基于文本相似度算法，分析 Vue 是抄出来的框架吗？">
+  <strong>上一篇：</strong><br/>
+  <span>
+  基于文本相似度算法，分析 Vue 是抄出来的框架吗？</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/nano-vdom/"  title="自制前端框架之 50 行的虚拟 DOM">
+ <strong>下一篇：</strong><br/> 
+ <span>自制前端框架之 50 行的虚拟 DOM
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Reactive-基础"><span class="toc-number">1.</span> <span class="toc-text">Reactive 基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#依赖追踪原理"><span class="toc-number">2.</span> <span class="toc-text">依赖追踪原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现-Computed"><span class="toc-number">3.</span> <span class="toc-text">实现 Computed</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

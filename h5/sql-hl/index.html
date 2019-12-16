@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)http://home.ustc.edu.cn/~ewind/sql-hl/index.html -->
+<html><head lang="en"><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>SQL-Highlight</title>
+    <script type="text/javascript" src="js/sql-hl.js"></script>
+    <script>
+        window.onload = function() {
+            var input = document.getElementById("input");
+            input.addEventListener("input", render, false);
+
+            function render() {
+                var text = document.getElementById("input").value;
+                var output = document.getElementById("output");
+                output.innerHTML = "";
+                output.innerHTML = LEXER.read(text);
+            }
+        }
+    </script>
+    <style>
+        html {
+            background-color: lightgray;
+            padding-top: 40px;
+        }
+        #main {
+            background-color: white;
+            box-shadow: 4px 4px 13px rgba(90, 90, 90, 0.5);
+            padding: 50px;
+            margin: auto;
+            max-width: 550px;
+        }
+        #output {
+            margin-bottom: 10px;
+            font-family: monospace;
+            font-size: 1.5em;
+        }
+        textarea {
+            padding: 15px;
+            position: relative;
+            box-sizing: border-box;
+            /*background-color: #fef991;*/
+            border: 2px lightgray solid;
+            /*box-shadow: 4px 4px 13px rgba(96, 92, 94, 0.5);*/
+            width: 100%;
+            height: 300px;
+            font-family: "Courier New", monospace;
+            font-size: 1em;
+            color: gray;
+        }
+
+        button {
+            margin-top: 10px;
+            min-width: 50px;
+            background-color: white;
+            border: 3px #ef6f66 solid;
+            color: #ef6f66;
+            height: 40px;
+            font-family: "Consolas", monospace;
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+    <div id="output"><span style="color:lightgray;">SELECT * FROM...</span></div>
+    <textarea id="input" placeholder="Input SQL"></textarea>
+</div>
+
+</body></html>

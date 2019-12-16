@@ -1,0 +1,647 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>使用 git rebase 提高 PR 质量 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="在 Github 上以提交 PR 的方式参与开源项目是十分简单的。不过由于 Git 本身自由度较高，有些随意提出的 PR 实际上是会影响项目历史记录的【脏】PR。下文介绍何时会发生这种情况，以及如何通过 rebase 工作流改进它。">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 git rebase 提高 PR 质量">
+<meta property="og:url" content="https://ewind.us/2017/git-rebased-better-pr/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="在 Github 上以提交 PR 的方式参与开源项目是十分简单的。不过由于 Git 本身自由度较高，有些随意提出的 PR 实际上是会影响项目历史记录的【脏】PR。下文介绍何时会发生这种情况，以及如何通过 rebase 工作流改进它。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.524Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用 git rebase 提高 PR 质量">
+<meta name="twitter:description" content="在 Github 上以提交 PR 的方式参与开源项目是十分简单的。不过由于 Git 本身自由度较高，有些随意提出的 PR 实际上是会影响项目历史记录的【脏】PR。下文介绍何时会发生这种情况，以及如何通过 rebase 工作流改进它。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/git-rebased-better-pr/" title="使用 git rebase 提高 PR 质量" itemprop="url">使用 git rebase 提高 PR 质量</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-09-23T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-09-24</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<p>在 Github 上以提交 PR 的方式参与开源项目是十分简单的。不过由于 Git 本身自由度较高，有些随意提出的 PR 实际上是会影响项目历史记录的【脏】PR。下文介绍何时会发生这种情况，以及如何通过 rebase 工作流改进它。</p>
+<a id="more"></a>
+<h2 id="什么是脏-PR"><a href="#什么是脏-PR" class="headerlink" title="什么是脏 PR"></a>什么是脏 PR</h2><p>我们知道，如果你想为某个开源项目贡献代码，通用的流程是：</p>
+<ol>
+<li>fork 项目到自己的仓库。</li>
+<li>在新开的分支上提交。</li>
+<li>提出 PR 请求维护者将你的新分支合并至原项目。</li>
+</ol>
+<p>在最后一步中，你所提交的 PR 会包括新分支上全部的历史记录。这时候，如果出现下面的几种情况之一，在这里我们就认为这个 PR 属于【脏】PR：</p>
+<ol>
+<li>PR 分支和原仓库的目标分支<strong>存在冲突</strong>。</li>
+<li>PR 包含了许多<strong>琐碎的 commit 记录</strong>，如 <code>fix bug</code> / <code>add dev</code> 等缺乏实际意义的提交信息。</li>
+<li>PR 包含了多个<strong>不必要的 Merge 记录</strong>。一般来说，fork 出的仓库和原仓库保持同步的最简单方式，是 <code>fetch</code> 原仓库后将 HEAD <code>merge</code> 到当前分支。这个操作每执行一次，就会在当前分支留下一个类似 <code>Merge xxx</code> 的 commit 记录。</li>
+<li>PR 包含了<strong>与主题不符的改动</strong>，如留下冗余的日志文件、在其它模块中添加了额外的调试用代码等。</li>
+</ol>
+<h2 id="如何处理脏-PR"><a href="#如何处理脏-PR" class="headerlink" title="如何处理脏 PR"></a>如何处理脏 PR</h2><h3 id="内部项目"><a href="#内部项目" class="headerlink" title="内部项目"></a>内部项目</h3><p>上述的几种情况，在开发托管在 Stash 或 Gitlab 上的内部项目时，其实都不是问题，都有着非常简单的解决方案：</p>
+<ol>
+<li>冲突了？直接拉主分支拉下来改啊，反正大家都是管理员✌️</li>
+<li>commit 怎么写有问题吗？本来不就是每天下班准时 commit 一次吗？</li>
+<li>看看我们的 <code>git log --graph</code>，多么壮观！大家都很努力的好吗！</li>
+<li>能按时提测就行，不要在意这些细节🙄。</li>
+</ol>
+<p>并不是说这么处理有什么问题，尤其在中国特色天天赶进度的业务项目中，这么做也基本上是最佳实践了。下面，我们重点讨论的是在较为正式地向外提交 PR 时，提升 PR 质量的方法。</p>
+<h3 id="merge-–squash"><a href="#merge-–squash" class="headerlink" title="merge –squash"></a>merge –squash</h3><p>Github 在很早之前就支持了强制 squash 功能。通过这种方式，原仓库的维护者可以在将 PR 提交的分支所更改的内容，squash 到主仓库的一次提交中。这样，不管提出 PR 的分支有多【脏】，都可以在并入时得到净化了。这大致相当于命令行下这样的操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git merge forked_lib/new_branch --squash</span><br><span class="line">git commmit -m &apos;something from new_branch&apos;</span><br></pre></td></tr></table></figure>
+<p>这是得到 Github 官方支持的实践，但这么处理有什么局限性呢？主要是这两点：</p>
+<ol>
+<li>需要原仓库维护者解决冲突并整理历史，而不是 PR 提出者。</li>
+<li>只能将多个 commit 整理为一个，而不是若干个。</li>
+</ol>
+<p>这个方式最棘手的问题实际上在于：它把编辑提交历史的责任丢给了原仓库的维护者，PR 提交者并不能在提交 PR 前清理历史记录。是否有更好的方案呢？</p>
+<h3 id="rebase"><a href="#rebase" class="headerlink" title="rebase"></a>rebase</h3><p>通过 git rebase 命令，我们能够获得对 git 提交历史更大的掌控。不过，这也是一个存在风险的命令，因此在实际使用前建议稍加了解其原理。</p>
+<p>首先假设项目主干分支是 master，你在 fork 而来的仓库下新增了 dev 分支。你从 master 的 m1 提交开始，在 dev 提交了 d1、d2 和 d3 三次提交。这时，master 也更新了 m2 和 m3 两次提交。这时候版本树大致长这样：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">m0 -- m1 -- m2 -- m3</span><br><span class="line">      |</span><br><span class="line">      d1 -- d2 -- d3</span><br></pre></td></tr></table></figure>
+<p>这时你的目标是将三次 dev 上的 commit 合并为一个新的 <code>d</code>，让 dev 的历史变成这样：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">m0 -- m1 -- m2 -- m3 -- d</span><br></pre></td></tr></table></figure>
+<p>为了实现这一点，你可以在 dev 上 rebase 到 master：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout dev</span><br><span class="line">git rebase -i master</span><br></pre></td></tr></table></figure>
+<p>rebase 的原理是：</p>
+<ol>
+<li>首先找到两个分支（dev 和 master）的最近共同祖先 m1。</li>
+<li>对比当前 dev 分支相比 m1 的历次提交，提取修改，保存为临时文件。</li>
+<li>将分支指向 master 最新的 m3。</li>
+<li>依次应用修改。</li>
+</ol>
+<p>在【依次应用修改】的这一步中，你可以进一步选择如何对待 d1、d2 和 d3 的 commit message。在以 <code>-i</code> 参数启动了交互式的 rebase 后，会进入 vim 界面，由你选择如何操作 dev 上的提交记录，形如这样：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pick 91398f93 d1</span><br><span class="line">pick 65efc762 d2</span><br><span class="line">pick b82e050d d3</span><br><span class="line"></span><br><span class="line"># Rebase 4652f96d..b82e050d onto 4652f96d (3 commands)</span><br><span class="line">#</span><br><span class="line"># Commands:</span><br><span class="line"># p, pick = use commit</span><br><span class="line"># r, reword = use commit, but edit the commit message</span><br><span class="line"># e, edit = use commit, but stop for amending</span><br><span class="line"># s, squash = use commit, but meld into previous commit</span><br><span class="line"># f, fixup = like &quot;squash&quot;, but discard this commit&apos;s log message</span><br><span class="line"># x, exec = run command (the rest of the line) using shell</span><br><span class="line"># d, drop = remove commit</span><br><span class="line">#</span><br><span class="line"># These lines can be re-ordered; they are executed from top to bottom.</span><br><span class="line">#</span><br><span class="line"># If you remove a line here THAT COMMIT WILL BE LOST.</span><br><span class="line">#</span><br><span class="line"># However, if you remove everything, the rebase will be aborted.</span><br><span class="line">#</span><br><span class="line"># Note that empty commits are commented out</span><br></pre></td></tr></table></figure>
+<p>你可以编辑对 dev 上这几个 commit 的处理，如输入 pick 为保留，输入 squash 则将该 commit 内容并入上一个 commit 等。在完成操作选择后（这里我们可以选择 fixup d1 和 d2，并 reword d3），输入 <code>:wq</code> 保存退出，会进入一个新的 vim 窗口，在此你可以进一步编辑新的 commit message，保存后 rebase 即可生效。<em>注意，你至少需要选择一个需要 use 的 commit，否则会报错。</em></p>
+<p>rebase 生效后再查阅分支历史记录，是不是清净多了呢？在这个状态下提交更清爽的 PR 吧😉</p>
+<p>在此额外提醒一点，对于已经被 fork 出多份的仓库，rebase 原仓库的主干是危险操作。除此之外，使用 rebase 修改私有分支的历史记录是很安全的。</p>
+<p>回头看看脏 PR 的几个问题，如何通过 rebase 解决呢？</p>
+<ol>
+<li>遇到和远程主库的冲突时，可以先将远程仓库 fetch 下来，而后将自己的 dev 分支 rebase 到新的 HEAD 上。</li>
+<li>冗余的 commit 记录可以直接 rebase 合并。</li>
+<li>和 1 类似地，通过将自己的 dev 分支 rebase 到新的远程库 HEAD 的方式，不会留下冗余的 Merge 记录。</li>
+<li>提交一个新 commit 修复问题，而后 rebase 即可。</li>
+</ol>
+<p>到此，对 rebase 的介绍大体上就结束了。希望对大家更好地参与开源项目有所帮助。</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://git-scm.com/docs/git-rebase" target="_blank" rel="noopener">git-rebase</a></li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Linux/">Linux</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/git-rebased-better-pr/" data-title="使用 git rebase 提高 PR 质量 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/refactor-if-else/" title="如何无痛降低 if else 面条代码复杂度">
+  <strong>上一篇：</strong><br/>
+  <span>
+  如何无痛降低 if else 面条代码复杂度</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/rx-elevator-demo/"  title="响应式编程入门：实现电梯调度模拟器">
+ <strong>下一篇：</strong><br/> 
+ <span>响应式编程入门：实现电梯调度模拟器
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

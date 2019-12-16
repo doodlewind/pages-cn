@@ -1,0 +1,772 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>LR 分析表构造实例 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="要高效地执行 LR(1) 语法分析，就需要根据语法产生式，构建一个 LR 分析表。下面就是通过基本的语法，构建 LR(1) 分析表的一个例子，操作思路做到了尽可能细致。希望读了之后，妈妈就不用操心我不会造表啦。">
+<meta name="keywords" content="Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LR 分析表构造实例">
+<meta property="og:url" content="https://ewind.us/2015/lr-table-step-by-step/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="要高效地执行 LR(1) 语法分析，就需要根据语法产生式，构建一个 LR 分析表。下面就是通过基本的语法，构建 LR(1) 分析表的一个例子，操作思路做到了尽可能细致。希望读了之后，妈妈就不用操心我不会造表啦。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.534Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LR 分析表构造实例">
+<meta name="twitter:description" content="要高效地执行 LR(1) 语法分析，就需要根据语法产生式，构建一个 LR 分析表。下面就是通过基本的语法，构建 LR(1) 分析表的一个例子，操作思路做到了尽可能细致。希望读了之后，妈妈就不用操心我不会造表啦。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/lr-table-step-by-step/" title="LR 分析表构造实例" itemprop="url">LR 分析表构造实例</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2015-03-25T16:00:00.000Z" itemprop="datePublished"> 发表于 2015-03-26</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#造表"><span class="toc-number">1.</span> <span class="toc-text">造表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#State-0"><span class="toc-number">1.1.</span> <span class="toc-text">State 0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-1"><span class="toc-number">1.2.</span> <span class="toc-text">State 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-2"><span class="toc-number">1.3.</span> <span class="toc-text">State 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-3"><span class="toc-number">1.4.</span> <span class="toc-text">State 3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-4"><span class="toc-number">1.5.</span> <span class="toc-text">State 4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-5"><span class="toc-number">1.6.</span> <span class="toc-text">State 5</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结果"><span class="toc-number">2.</span> <span class="toc-text">结果</span></a></li></ol>
+		
+		</div>
+		
+		<p>要高效地执行 LR(1) 语法分析，就需要根据语法产生式，构建一个 LR 分析表。下面就是通过基本的语法，构建 LR(1) 分析表的一个例子，操作思路做到了尽可能细致。希望读了之后，妈妈就不用操心我不会造表啦。</p>
+<a id="more"></a>
+<p>以这个文法为例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">A → A + B</span><br><span class="line">A → a</span><br><span class="line">B → b</span><br></pre></td></tr></table></figure>
+<p>这个文法可以推导出 <code>a</code>，<code>a + b</code>，<code>a + b + b</code> 之类的字符串。不过，它也是左递归的（LL 分析中，A → A + B 会使得语法生成树向左下无限生长）。这使得这个语法不适用于 LL 文法分析，只能使用 LR 分析。要构造 LR 表，我们需要先添加一个额外的产生式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">S → A</span><br></pre></td></tr></table></figure>
+<p>现在就可以逐步构造 DFA 了。</p>
+<h2 id="造表"><a href="#造表" class="headerlink" title="造表"></a>造表</h2><p>第一个状态由 <code>S → A</code> 生成。而我们知道，一个 LR(1) 项看起来长这样：<code>[A → α·β, t]</code>。其中 <code>t</code> 是一个终止符（所谓的 lookahead），而黑点则标志着我们现在的位置（已经看见了 <code>α</code>，正在找 <code>β</code>）。<br>对后面的每一个状态，只要依次考虑以下几点：</p>
+<ul>
+<li>它从哪里来？</li>
+<li>它的闭包是什么？</li>
+<li>它需要归约吗？</li>
+<li>它需要转移吗？</li>
+</ul>
+<p>就能得到正确的结果。这样看起来还是有些抽象，希望下面的演示能帮助理解吧。</p>
+<h3 id="State-0"><a href="#State-0" class="headerlink" title="State 0"></a>State 0</h3><p>我们从 <code>[S → ·A, $]</code> 开始，构造这个状态的闭包，也就是加上所有能从这个产生式推出的表项。首先，我们寻找非终止符前是否有个 <code>·</code>。嗯对了，这个 <code>·</code> 在 A 前面。所以我们就要接着找所有由 <code>A →</code> 推出的产生式，并将它们添加进闭包里。这加上了 <code>[A → ·A + B, $]</code> 和 <code>[A → ·a, $]</code>。够了吗？我们导入了另一个在非终止符前有 <code>·</code> 的项。所以下面我们需要再求一次闭包。这次加入的产生式包括 <code>[A → ·A + B, +]</code> 和 <code>[A → ·a, +]</code>。这次，产生式形如 <code>·A +</code>，理论上我们要用另一个项来表达它所引入的产生式，不过实际上这个项就是 <code>[A → ·A + B, +]</code>，所以不用导入新的项了。</p>
+<p>现在 S0 包含的项有：</p>
+<ul>
+<li><code>[S → ·A, $]</code></li>
+<li><code>[A → ·A + B, $]</code></li>
+<li><code>[A → ·a, $]</code></li>
+<li><code>[A → ·A + B, +]</code></li>
+<li><code>[A → ·a, +]</code></li>
+</ul>
+<p>下一步，就是为这个状态添加转移了。对每个符号 <code>X</code> 后有个 <code>·</code> 的项，都可以从 <code>State 0</code> 过渡到其它状态。看一下这五个，满足条件的是 <code>·A</code> 和 <code>·a</code> 吧？把前者转移的状态定义为 <strong>State 1</strong>，后者定义为 <strong>State 2</strong> 吧。</p>
+<h3 id="State-1"><a href="#State-1" class="headerlink" title="State 1"></a>State 1</h3><p>先要看看 <strong>State 1</strong> 中出现了哪些项吧。我们从 <strong>State 0</strong> 通过 <code>A</code> 转移到这里，所以我们找出所有 <strong>State 0</strong> 中在 <code>A</code> 前有 <code>·</code> 的项，这包括：</p>
+<ul>
+<li><code>[S → ·A, $]</code></li>
+<li><code>[A → ·A + B, $]</code></li>
+<li><code>[A → ·A + B, +]</code></li>
+</ul>
+<p>因此，将 <code>·</code> 向后推一格，就得到了 <strong>State 1</strong> 的项了：</p>
+<ul>
+<li><code>[S → A·, $]</code></li>
+<li><code>[A → A· + B, $]</code></li>
+<li><code>[A → A· + B, +]</code></li>
+</ul>
+<p>现在再来求闭包，由于没有在非终止符前有 <code>·</code> 的项了，所以这就是全部了（耶！）</p>
+<p>最后，从 <strong>State 1</strong> 出发，可以去哪里呢？由于在这个状态的 <code>[S → A·, $]</code> 项中，<code>·</code> 已经移动到了产生式尾部，因此我们需要应用 <code>S → A</code> 规则来进行归约。除此之外，对每个前面有 <code>·</code> 的状态，都有对应转移出去的状态。这里满足要求的就是 <code>[A → A· + B, +]</code> 这个了。这里我们约定 <code>+</code> 对应转移到 <strong>State 3</strong>。</p>
+<h3 id="State-2"><a href="#State-2" class="headerlink" title="State 2"></a>State 2</h3><p>我们是从哪里过来的呢？<strong>State 0</strong> 中的 <code>a</code>。所以我们从所有 <strong>State 0</strong> 项中 <code>a</code> 前带有 <code>·</code> 的开始吧。</p>
+<p><strong>State 0</strong> 的项：</p>
+<ul>
+<li><code>[A → ·a, $]</code></li>
+<li><code>[A → ·a, +]</code></li>
+</ul>
+<p>将 <code>·</code> 后移得到：</p>
+<ul>
+<li><code>[A → a·, $]</code></li>
+<li><code>[A → a·, +]</code></li>
+</ul>
+<p>再看看有没有在<em>非终止符前</em>有 <code>·</code> 的项吧。嗯好，没有了，这下不用再求闭包了。下面就是归约了。约定从 <code>+</code> 或 <code>$</code>，归约 <code>A → a</code>。现在没有前面具有 <code>·</code> 的其它符号，因此也不需要再继续了。</p>
+<h3 id="State-3"><a href="#State-3" class="headerlink" title="State 3"></a>State 3</h3><p>如果我们在 <strong>State 1</strong> 中遇到 <code>+</code>，那么就会转移到这个 <strong>State 3</strong> 上来。我们先找出所有符合要求的 <strong>State 1</strong> 项吧。</p>
+<p><strong>State 1</strong> 的项：</p>
+<ul>
+<li><code>[A → A· + B, $]</code></li>
+<li><code>[A → A· + B, +]</code></li>
+</ul>
+<p>把 <code>·</code> 后推得到：</p>
+<ul>
+<li><code>[A → A + ·B, $]</code></li>
+<li><code>[A → A + ·B, +]</code></li>
+</ul>
+<p>好的，看到了非终结符前的 <code>·</code> 了吗？我们得求闭包了。先从 <code>[A → A + ·B, $]</code> 开始，找出所有 <code>B → xxx</code> 的产生式（注意 lookahead 是 <code>$</code>）。这会加入 <code>[B → ·b, $]</code>。再对 <code>[A → A + ·B, +]</code> 做同样的操作，加入 <code>[B → ·b, +]</code>。现在由于没有前面有 <code>·</code> 的非终结符，因此闭包就完成了。</p>
+<p>闭包构造完成后，<strong>State 3</strong> 的项有这些：</p>
+<ul>
+<li><code>[A → A + ·B, $]</code></li>
+<li><code>[A → A + ·B, +]</code></li>
+<li><code>[B → ·b, $]</code></li>
+<li><code>[B → ·b, +]</code></li>
+</ul>
+<p>最后看看从 <strong>State 3</strong> 能去哪里吧。没有以 <code>·</code> 结束的产生式，也就是不需要归约了。不过 <code>B</code> 和 <code>b</code> 前都有 <code>·</code>，这也就意味着有两个转移状态。约定 <code>B</code> 转移到 <strong>State 4</strong>，<code>b</code> 转移到 <strong>State 5</strong>。</p>
+<h3 id="State-4"><a href="#State-4" class="headerlink" title="State 4"></a>State 4</h3><p>我们在 <strong>State 3</strong> 中遇上 <code>B</code> 时来到这里。列出 <strong>State 3</strong> 中对应的项：</p>
+<ul>
+<li><code>[A → A + ·B, $]</code></li>
+<li><code>[A → A + ·B, +]</code></li>
+</ul>
+<p>那么对应的 <strong>State 4</strong> 项就是：</p>
+<ul>
+<li><code>[A → A + B·, $]</code></li>
+<li><code>[A → A + B·, +]</code></li>
+</ul>
+<p>嗯，<code>·</code> 前没有非终结符了，这么说也就不用再求闭包了。不过，别忘了归约啊。可以看到我们需要应用的归约规则就只有 <code>A → A + B</code> 这一条。由于 <code>·</code> 前没有非终结符，所以这个状态不需要转移。</p>
+<h3 id="State-5"><a href="#State-5" class="headerlink" title="State 5"></a>State 5</h3><p>我们在 <strong>State 3</strong> 中遇上 <code>b</code> 时来到这里。列出 <strong>State 3</strong> 中对应的项：</p>
+<ul>
+<li><code>[B → ·b, $]</code></li>
+<li><code>[B → ·b, +]</code></li>
+</ul>
+<p>于是得到对应的 <strong>State 5</strong> 项：</p>
+<ul>
+<li><code>[B → b·, $]</code></li>
+<li><code>[B → b·, +]</code></li>
+</ul>
+<p>嗯，这个状态需要归约吗？需要。应用 <code>B → b</code> 规则即可。最后，它有对应的转移状态吗？<code>·</code> 前没有非终结符，所以也不需要转移。</p>
+<p>好了。现在该生成的状态都生成了，DFA 就构造完成了。根据我们的结果，填一下最后的 LR 转移表。</p>
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><p><strong>sN</strong> 代表移入，实际上就是移入新符号并进入状态 N。<br><strong>rN</strong> 代表归约。这里把 N 与产生式的关系约定如下：</p>
+<ol>
+<li><code>S → A</code></li>
+<li><code>A → A + B</code></li>
+<li><code>A → a</code></li>
+<li><code>B → b</code></li>
+</ol>
+<p><strong>goto N</strong> 代表转移，也就是转移到状态 N。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>a</th>
+<th>b</th>
+<th>+</th>
+<th>$</th>
+<th>A</th>
+<th>B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>s2</td>
+<td></td>
+<td></td>
+<td></td>
+<td>goto 1</td>
+<td></td>
+</tr>
+<tr>
+<td>1</td>
+<td></td>
+<td></td>
+<td>s3</td>
+<td>r1</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td></td>
+<td>r3</td>
+<td>r3</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td>s5</td>
+<td></td>
+<td></td>
+<td></td>
+<td>goto 4</td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td>r2</td>
+<td></td>
+<td>r2</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td>r4</td>
+<td></td>
+<td>r4</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>然后就可以用上面这张表，执行 LR(1) 语法分析啦。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Algorithms/">Algorithms</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2015/lr-table-step-by-step/" data-title="LR 分析表构造实例 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/delete-homepage-ustc/" title="清理学生主页的顽固空目录">
+  <strong>上一篇：</strong><br/>
+  <span>
+  清理学生主页的顽固空目录</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/js-gomoku-2/"  title="自制五子棋（2）AI 入门">
+ <strong>下一篇：</strong><br/> 
+ <span>自制五子棋（2）AI 入门
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#造表"><span class="toc-number">1.</span> <span class="toc-text">造表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#State-0"><span class="toc-number">1.1.</span> <span class="toc-text">State 0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-1"><span class="toc-number">1.2.</span> <span class="toc-text">State 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-2"><span class="toc-number">1.3.</span> <span class="toc-text">State 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-3"><span class="toc-number">1.4.</span> <span class="toc-text">State 3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-4"><span class="toc-number">1.5.</span> <span class="toc-text">State 4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#State-5"><span class="toc-number">1.6.</span> <span class="toc-text">State 5</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结果"><span class="toc-number">2.</span> <span class="toc-text">结果</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

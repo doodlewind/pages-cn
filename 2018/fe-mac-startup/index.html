@@ -1,0 +1,653 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>新年新起点：从零配置 Mac 前端环境速查 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="如果新年你准备换台 Mac、重装 Mac 系统或者升级老 Mac 硬盘，这篇文章或许能成为一份不错的 Checklist 哦。">
+<meta name="keywords" content="Web,macOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="新年新起点：从零配置 Mac 前端环境速查">
+<meta property="og:url" content="https://ewind.us/2018/fe-mac-startup/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="如果新年你准备换台 Mac、重装 Mac 系统或者升级老 Mac 硬盘，这篇文章或许能成为一份不错的 Checklist 哦。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.522Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="新年新起点：从零配置 Mac 前端环境速查">
+<meta name="twitter:description" content="如果新年你准备换台 Mac、重装 Mac 系统或者升级老 Mac 硬盘，这篇文章或许能成为一份不错的 Checklist 哦。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/fe-mac-startup/" title="新年新起点：从零配置 Mac 前端环境速查" itemprop="url">新年新起点：从零配置 Mac 前端环境速查</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-12-31T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-01-01</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#命令行工具"><span class="toc-number">1.</span> <span class="toc-text">命令行工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#oh-my-zsh"><span class="toc-number">1.1.</span> <span class="toc-text">oh-my-zsh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XCode-开发者工具"><span class="toc-number">1.2.</span> <span class="toc-text">XCode 开发者工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Homebrew"><span class="toc-number">1.3.</span> <span class="toc-text">Homebrew</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NVM"><span class="toc-number">1.4.</span> <span class="toc-text">NVM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Node"><span class="toc-number">1.5.</span> <span class="toc-text">Node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CNPM"><span class="toc-number">1.6.</span> <span class="toc-text">CNPM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-插件"><span class="toc-number">2.</span> <span class="toc-text">GUI 插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Go2Shell"><span class="toc-number">2.1.</span> <span class="toc-text">Go2Shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Better-Touch-Tool"><span class="toc-number">2.2.</span> <span class="toc-text">Better Touch Tool</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-开发者应用"><span class="toc-number">3.</span> <span class="toc-text">GUI 开发者应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-日常应用"><span class="toc-number">4.</span> <span class="toc-text">GUI 日常应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#系统配置定制"><span class="toc-number">5.</span> <span class="toc-text">系统配置定制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Wrap-up"><span class="toc-number">6.</span> <span class="toc-text">Wrap up</span></a></li></ol>
+		
+		</div>
+		
+		<p>如果新年你准备换台 Mac、重装 Mac 系统或者升级老 Mac 硬盘，这篇文章或许能成为一份不错的 Checklist 哦。</p>
+<a id="more"></a>
+<p>编写这篇指南的契机是笔者的 Mac 刚刚换了 SSD，又需要重装系统了……上一次换工作的时候也重装过一次，而 Mac 相关工具链的配置每次都比之前显得更加繁琐。因此这里整理出把它配置到面向前端开发者趁手状态的通用性工具的<strong>最小集合</strong>，仅供参考哦。</p>
+<blockquote>
+<p>点击下文子项标题可直接定位到相应工具官网。</p>
+</blockquote>
+<h2 id="命令行工具"><a href="#命令行工具" class="headerlink" title="命令行工具"></a>命令行工具</h2><p>下面几项是必备的命令行工具，甚至可以建议团队强制统一使用。</p>
+<h3 id="oh-my-zsh"><a href="#oh-my-zsh" class="headerlink" title="oh-my-zsh"></a><a href="https://github.com/robbyrussell/oh-my-zsh" target="_blank" rel="noopener">oh-my-zsh</a></h3><p>省心的终端，命令行安装即可：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh -c &quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="XCode-开发者工具"><a href="#XCode-开发者工具" class="headerlink" title="XCode 开发者工具"></a><a href="http://railsapps.github.io/xcode-command-line-tools.html" target="_blank" rel="noopener">XCode 开发者工具</a></h3><p>在安装 Oh My Zsh 时会自动提示安装，否则无法使用 <code>git</code> / <code>gcc</code> 等命令。手动安装方式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">xcode-select -p</span><br></pre></td></tr></table></figure>
+<p>Git 能用以后，记得在 <code>~/.ssh</code> 里配置好公钥，并用 <code>git config --global --edit</code> 配置好你的名字哦。</p>
+<h3 id="Homebrew"><a href="#Homebrew" class="headerlink" title="Homebrew"></a><a href="https://brew.sh" target="_blank" rel="noopener">Homebrew</a></h3><p>Mac 上流行的包管理器，同样终端安装。安装后终端查看 <code>brew</code> 命令即可确认状态。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/usr/bin/ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="NVM"><a href="#NVM" class="headerlink" title="NVM"></a><a href="https://github.com/creationix/nvm" target="_blank" rel="noopener">NVM</a></h3><p>非常建议使用 nvm 管理 node 版本，而非直接安装 node.js 官网的 <code>pkg</code> 安装包。安装方式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash</span><br></pre></td></tr></table></figure>
+<h3 id="Node"><a href="#Node" class="headerlink" title="Node"></a><a href="https://nodejs.org" target="_blank" rel="noopener">Node</a></h3><p>安装 NVM 后，<code>nvm ls-remote</code> 查看版本，<code>nvm install xxx</code> 安装你想要的版本即可。</p>
+<h3 id="CNPM"><a href="#CNPM" class="headerlink" title="CNPM"></a><a href="https://github.com/cnpm/cnpm" target="_blank" rel="noopener">CNPM</a></h3><p>稳定的国内镜像，安装完成 Node 后，<code>npm install -g cnpm</code> 即可。</p>
+<p>还有个人常用的一些全局 Node 依赖：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm i -g standard eslint lerna parcel-bundler</span><br></pre></td></tr></table></figure>
+<h2 id="GUI-插件"><a href="#GUI-插件" class="headerlink" title="GUI 插件"></a>GUI 插件</h2><p>这类插件的共同特点是非常影响 GUI 行为，且平时根本不需要打开。虽然这类插件有很多，但<strong>过多使用此类插件会使得你在使用同事的 Mac 时都非常不习惯</strong>。因此仅列出两个个人评价最高的。下面几个</p>
+<h3 id="Go2Shell"><a href="#Go2Shell" class="headerlink" title="Go2Shell"></a><a href="zipzapmac.com/Go2Shell">Go2Shell</a></h3><p>支持从 Finder 一键打开终端，和 <code>open .</code> 命令互补起来非常方便。</p>
+<p>这个软件安装时很容易抽风，不妨尝试在 Finder 工具栏上右键选择 <code>图标和文本</code> 并来回切换来增加安装成功率……</p>
+<h3 id="Better-Touch-Tool"><a href="#Better-Touch-Tool" class="headerlink" title="Better Touch Tool"></a><a href="https://www.boastr.net/" target="_blank" rel="noopener">Better Touch Tool</a></h3><p>它自带了类似 Win7 的窗口左右分屏功能，还可以配置在按下 <code>ctrl</code> 时移动鼠标直接缩放当前窗口，<strong>非常非常</strong>适合前端同学调试响应式布局……配置方式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-&gt; Advanced</span><br><span class="line">-&gt; Advanced Settings</span><br><span class="line">-&gt; Window Moving &amp; Resizing</span><br><span class="line">-&gt; 勾选某个快捷键，如 ctrl</span><br><span class="line">-&gt; 关掉其它无用配置，如自动更新、Menubar 图标等</span><br></pre></td></tr></table></figure>
+<h2 id="GUI-开发者应用"><a href="#GUI-开发者应用" class="headerlink" title="GUI 开发者应用"></a>GUI 开发者应用</h2><p>前端要干活的<strong>最小依赖</strong>只有这么两个：</p>
+<ul>
+<li>Chrome 等浏览器及相关插件（这部分可以单独开一篇文章梳理）。</li>
+<li>VSCode 等编辑器及相关插件（同样足够单独开文章梳理）。</li>
+</ul>
+<h2 id="GUI-日常应用"><a href="#GUI-日常应用" class="headerlink" title="GUI 日常应用"></a>GUI 日常应用</h2><p>这类应用非常多，在此只列出笔者个人最常用的若干，以免感觉<strong>装漏了什么</strong>……</p>
+<ul>
+<li>输入法</li>
+<li>QQ / Wechat / Thunder</li>
+<li>PhotoShop</li>
+<li>Office</li>
+<li>Markdown 编辑器（如 MacDown 或 Typora）</li>
+<li><del>SS 客户端</del></li>
+</ul>
+<h2 id="系统配置定制"><a href="#系统配置定制" class="headerlink" title="系统配置定制"></a>系统配置定制</h2><p>这部分内容非常因人而异，笔者个人偏好包括这么几项：</p>
+<ul>
+<li>启用 Finder 暗色主题</li>
+<li>开启触摸板的三指拖拽和轻触点击</li>
+<li>清理 Dock 无用图标，归类 Launchpad 到一页内</li>
+<li>清理通知中心</li>
+<li>F1 ~ F12 由功能键换成 Fn 键</li>
+<li>配置 Finder 左侧的快捷入口，并把默认目录改为 <code>下载</code></li>
+<li>配置终端主题</li>
+</ul>
+<p>以下是一些常用的命令行配置路径及文件：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># nginx 配置文件路径</span></span><br><span class="line">/usr/<span class="built_in">local</span>/etc/nginx/servers</span><br><span class="line"></span><br><span class="line"><span class="comment"># nginx 默认配置</span></span><br><span class="line">/usr/<span class="built_in">local</span>/etc/nginx/nginx.conf</span><br></pre></td></tr></table></figure>
+<h2 id="Wrap-up"><a href="#Wrap-up" class="headerlink" title="Wrap up"></a>Wrap up</h2><p>还不够多吗？折腾一个全新安装的桌面系统确实需要不少时间精力，并且也没有类似 Docker 这样的高效工具。因此这里只列出尽可能少而直接的内容，希望对大家有所帮助~若有遗漏或补充，欢迎指出哦 😀</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/macOS/">macOS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/fe-mac-startup/" data-title="新年新起点：从零配置 Mac 前端环境速查 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/bumpover-debut/" title="Bumpover.js - 牢固而趁手的数据校验转换库">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Bumpover.js - 牢固而趁手的数据校验转换库</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/time-travel-myth/"  title="从时间旅行的乌托邦，看状态管理的设计误区">
+ <strong>下一篇：</strong><br/> 
+ <span>从时间旅行的乌托邦，看状态管理的设计误区
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#命令行工具"><span class="toc-number">1.</span> <span class="toc-text">命令行工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#oh-my-zsh"><span class="toc-number">1.1.</span> <span class="toc-text">oh-my-zsh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XCode-开发者工具"><span class="toc-number">1.2.</span> <span class="toc-text">XCode 开发者工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Homebrew"><span class="toc-number">1.3.</span> <span class="toc-text">Homebrew</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NVM"><span class="toc-number">1.4.</span> <span class="toc-text">NVM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Node"><span class="toc-number">1.5.</span> <span class="toc-text">Node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CNPM"><span class="toc-number">1.6.</span> <span class="toc-text">CNPM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-插件"><span class="toc-number">2.</span> <span class="toc-text">GUI 插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Go2Shell"><span class="toc-number">2.1.</span> <span class="toc-text">Go2Shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Better-Touch-Tool"><span class="toc-number">2.2.</span> <span class="toc-text">Better Touch Tool</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-开发者应用"><span class="toc-number">3.</span> <span class="toc-text">GUI 开发者应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GUI-日常应用"><span class="toc-number">4.</span> <span class="toc-text">GUI 日常应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#系统配置定制"><span class="toc-number">5.</span> <span class="toc-text">系统配置定制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Wrap-up"><span class="toc-number">6.</span> <span class="toc-text">Wrap up</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

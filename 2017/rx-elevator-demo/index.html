@@ -1,0 +1,688 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>响应式编程入门：实现电梯调度模拟器 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="据说每个程序员等电梯的时候都思考过电梯的调度算法…所以怎么动手实现一个呢？虽然这个场景貌似有些复杂，但却非常适合使用响应式编程的范式来处理。下面我们会在 RxJS 和 Vue 的基础上，一步步实现出一个最小可用的电梯调度模拟 Demo。">
+<meta name="keywords" content="Algorithms,Reactive">
+<meta property="og:type" content="article">
+<meta property="og:title" content="响应式编程入门：实现电梯调度模拟器">
+<meta property="og:url" content="https://ewind.us/2017/rx-elevator-demo/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="据说每个程序员等电梯的时候都思考过电梯的调度算法…所以怎么动手实现一个呢？虽然这个场景貌似有些复杂，但却非常适合使用响应式编程的范式来处理。下面我们会在 RxJS 和 Vue 的基础上，一步步实现出一个最小可用的电梯调度模拟 Demo。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.551Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="响应式编程入门：实现电梯调度模拟器">
+<meta name="twitter:description" content="据说每个程序员等电梯的时候都思考过电梯的调度算法…所以怎么动手实现一个呢？虽然这个场景貌似有些复杂，但却非常适合使用响应式编程的范式来处理。下面我们会在 RxJS 和 Vue 的基础上，一步步实现出一个最小可用的电梯调度模拟 Demo。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/rx-elevator-demo/" title="响应式编程入门：实现电梯调度模拟器" itemprop="url">响应式编程入门：实现电梯调度模拟器</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-08-26T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-08-27</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Demo"><span class="toc-number">1.</span> <span class="toc-text">Demo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Get-Started"><span class="toc-number">2.</span> <span class="toc-text">Get Started</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-1"><span class="toc-number">3.</span> <span class="toc-text">Step 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-2"><span class="toc-number">4.</span> <span class="toc-text">Step 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-3"><span class="toc-number">5.</span> <span class="toc-text">Step 3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-4"><span class="toc-number">6.</span> <span class="toc-text">Step 4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Final-Step"><span class="toc-number">7.</span> <span class="toc-text">Final Step</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Wrap-Up"><span class="toc-number">8.</span> <span class="toc-text">Wrap Up</span></a></li></ol>
+		
+		</div>
+		
+		<p>据说每个程序员等电梯的时候都思考过电梯的调度算法…所以怎么动手实现一个呢？虽然这个场景貌似有些复杂，但却非常适合使用响应式编程的范式来处理。下面我们会在 RxJS 和 Vue 的基础上，一步步实现出一个最小可用的电梯调度模拟 Demo。</p>
+<a id="more"></a>
+<h2 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h2><p>为了避免读者【脱了裤子就给我看这个？】的吐槽，在此我们先展示 50 行代码最终所能实现的效果：一台 10 层楼的电梯，你可以在每层楼按 <code>↓</code> 召唤电梯把你送到一楼。在多个楼层根据不同时序召唤出电梯的时候，这个模拟器的升降状态应当是和日常的体验一致的。先别急着吐槽它为什么这么简陋，把它实现成这样的理由会在下文中慢慢介绍😅</p>
+<iframe src="/h5/rx/final.html" width="100%" height="300"></iframe>
+
+<h2 id="Get-Started"><a href="#Get-Started" class="headerlink" title="Get Started"></a>Get Started</h2><p>在介绍实际的编码细节前，我们不妨先考虑清楚最基础的思路，即<strong>如何表达电梯的调度？</strong>或者换一种表述方式，这其实是个更为有趣的话题：<strong>如何使用代码抽象出一台电梯呢？</strong></p>
+<p>也许高中物理学得好的同学首先会这么想：电梯可以抽象成由一条绳子挂着的盒子，我们可以传入它的重量 m、离地高度 h、当前速度 v、当前加速度 a，然后用一系列精妙的公式来描述它的运动轨迹……恭喜你，理科思维把你引入歧途了🙄请放心，最后的 50 行代码里<strong>不涉及任何高中物理知识</strong>。</p>
+<p>倒是有个关于电梯的老段子更符合我们的抽象：【一个老屌丝看到一个老太婆进了电梯间，一会出来的居然是个白富美，于是就想着要是带了自己的老婆来该多好啊……】这里对电梯的抽象，<strong>只不过是一扇数字会跳动的门而已</strong>。我们不需要关心它的机械到底怎样运作，对于它的<strong>状态</strong>，只要知道电梯口液晶屏上的<strong>方向</strong>和<strong>楼层号</strong>就足够了。嗯，这就是 Duck Typing 的工科思维！</p>
+<p>这两种思维有什么区别呢？让我们来考虑最简单的情形：在十楼按一个键，把电梯从一楼叫上来。这时，两种抽象方法所描述的内容会有很大的不同：</p>
+<ul>
+<li><strong>法一</strong>：盒子开始以速度 v 向上运动，在十楼的高度 h 停下来。</li>
+<li><strong>法二</strong>：楼层数字从 1 开始，按固定时间间隔加一，到 10 停止。</li>
+</ul>
+<p>嗯，看起来后者实现起来很简单啊：只要每隔一秒 <code>setTimeout</code> 改一下楼层数，这个电梯就模拟出来啦😎恭喜你，你跳进了异步事件流的大坑里，考虑这些需求：</p>
+<ul>
+<li>你在二楼想下楼，发现电梯正从三楼下来。这时候电梯会捎上你😆</li>
+<li>你在十楼想下楼，发现电梯正在九楼往下走。这时候电梯并不会回头来接你😜</li>
+<li>你在十楼想下楼，发现电梯正从二楼上来。你以为它会停在你这，结果其实是二十楼的混蛋叫的电梯😡</li>
+<li>……</li>
+</ul>
+<p>好的，这时候 <code>setTimeout</code> 恐怕不够用啦，至于什么 Redux Flux MobX……写这种需求也要掉层皮。嗯，到此我们的前戏终于差不多了，是时候介绍本文的主角 Reactive Programming 响应式编程了😀</p>
+<p>在 Reactive 范式中，Stream 事件流的概念非常强大。我们都知道计算机处理的数据本质上都是离散的，即便是小姐姐的视频，也要拆成一秒 24 帧。对于我们的电梯模拟器，它的<strong>输入其实就是用户在各个楼层上随时间变化的一系列离散操作，输出则是一个当前时间楼层和方向的状态</strong>。这样，我们就能够使用 Stream 来表达模拟器的输入了。</p>
+<p>Stream 和朴素的事件监听器有什么区别呢？Stream 是可以<strong>在时间维度上进行组合、筛选等变换的</strong>。如果觉得这个说法很抽象，不妨考虑这个例子：在十楼按一次电梯按钮，楼层数字会从 1 逐个走到 10。这时，我们就把<strong>一个事件流中的一个事件，映射为了一个依次触发十次事件的新流</strong>。再比如，我们只要把<strong>从一楼到十楼</strong>的事件流和<strong>从十楼到一楼</strong>的事件流简单地<strong>连接</strong>起来，就实现了<strong>上楼接人再返回</strong>的电梯基本功能！</p>
+<p>话都说到这份上了，也差不多是时候 Show Me the Code 了🤓下面让我们来一步步使用 Reactive 实现 Demo 吧。</p>
+<h2 id="Step-1"><a href="#Step-1" class="headerlink" title="Step 1"></a>Step 1</h2><p>首先简要介绍一下这个 Demo 的技术背景：为简单起见，我们选择了 Vue 来充当简单的视图层，选择了 <a href="http://reactivex.io/rxjs/" target="_blank" rel="noopener">RxJS</a> 这个 Reactive 库来实现核心的功能。受限于篇幅，我们不会覆盖 Vue 的使用细节，只介绍 Reactive 相关的重要特性🙃另一方面，从 0 到 1 总是最难的，因此 Step 1 的内容也会是最多的😅</p>
+<p>上文中，我们已经提到了 Rx 中流的强大。那么，我们首先考虑这个最最基本的需求吧：<strong>在十楼按一下 <code>↓</code>，电梯数字从 1 开始逐次递增</strong>。这时候，我们就从点击事件流中的一个事件，映射出了一个新流：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Observable &#125; <span class="keyword">from</span> <span class="string">'rxjs'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> stream = Observable</span><br><span class="line">  <span class="comment">// 将 DOM 的楼层点击事件转化为 Observable 事件流</span></span><br><span class="line">  .fromEvent(emitter, <span class="string">'click'</span>)</span><br><span class="line">  <span class="comment">// 输入事件流，输出间隔 1s 触发新事件的新流</span></span><br><span class="line">  .interval(<span class="number">1000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 流的一系列异步输出可以被订阅</span></span><br><span class="line">stream.subscribe(<span class="function"><span class="params">x</span> =&gt;</span> <span class="built_in">console</span>.log(x))</span><br></pre></td></tr></table></figure>
+<p>执行上面的代码，点击按钮时，就会每秒触发一个从 0 开始自增的事件流了，每秒也都能在控制台看到稳定的输出。但这并不符合要求：<strong>怎样让楼层只增加十次呢？</strong>我们引入 <code>take</code> 方法：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> up = Observable</span><br><span class="line">  .fromEvent(emitter, <span class="string">'click'</span>)</span><br><span class="line">  .interval(<span class="number">1000</span>)</span><br><span class="line">  <span class="comment">// 只会触发十次！</span></span><br><span class="line">  .take(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<p>嗯，接下来，我们发现还有一点不太优雅：楼层数字虽然按要求递增了，但却是从 0 到 9，而非从 1 到 10（你家有 0 层吗？）要按照特定规则映射出新流，我们直接使用熟悉的 <code>map</code> 方法就行：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> up = Observable</span><br><span class="line">  .fromEvent(emitter, <span class="string">'click'</span>)</span><br><span class="line">  .interval(<span class="number">1000</span>)</span><br><span class="line">  .take(<span class="number">10</span>)</span><br><span class="line">  <span class="comment">// +1 🐸</span></span><br><span class="line">  .map(<span class="function"><span class="params">x</span> =&gt;</span> x + <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>现在我们能够从一楼到十楼了，但是怎么下楼呢？我们先造一个从十楼到一楼的 Stream 吧😏</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> down = Observable</span><br><span class="line">  .interval(<span class="number">1000</span>)</span><br><span class="line">  .map(<span class="function"><span class="params">x</span> =&gt;</span> <span class="number">10</span> - x)</span><br><span class="line">  .take(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<p>电梯需要先 UP 上楼，再 DOWN 下楼。为此，我们直接 <code>concat</code> 两个 Stream 就行：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getStream</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 声明 Up 和 Down...</span></span><br><span class="line">  <span class="keyword">return</span> up.concat(down) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>目前我们已经使用了 <code>interval</code> / <code>take</code> / <code>map</code> / <code>concat</code> 这几个 API 了，不过离真正完成 Step 1 这一步，还有一个非常关键的地方：<strong>在不同楼层多次按下电梯按钮时，如何控制事件流？</strong></p>
+<p>从这几个 API 的使用上，有些逼格比较高的同学也许会发现，我们的编码算法，其实有些接近拉普拉斯的<strong>决定论</strong>：电梯的按钮被按下后，它在<strong>未来一段时间内的一系列状态变化在那一个时刻就已经被决定了</strong>。换句话说，给我一个足够精确的当前状态，我能计算出整个未来（被拖走）……这时候我们首先遇到的麻烦是：<strong>如果在输出的一系列事件执行时间中，又出现了新的输入事件，该如何定义后续的状态呢？</strong></p>
+<p>这里，我们引入了 <code>switchMap</code> 方法来表达逻辑：假设在十楼按下按钮，在未来的十秒会触发十个事件。那么经过 <code>switchMap</code> 的封装，<strong>一旦在十秒中的某个时刻又有新按钮被按下，原先剩余的事件就被舍弃，从这时起改为触发新按钮事件衍生出的新事件。</strong>换一种说法，就是从一楼到十楼的电梯，如果走到一半有人按了五楼，就立刻从一楼重新出发，走到五楼返回。既然我们只关心状态，不关心这么量子化的电梯到底怎么实现的，这个 Step 1 的模拟器执行结果倒也是稳定的。稍微封装出一些参数，第一个 Demo 就完成啦：</p>
+<iframe src="/h5/rx/step1.html" width="100%" height="300"></iframe>
+
+<p>在上面的 Demo 中点击任何一个按钮，电梯就会从一楼开始去接你，然后返回。中途如果再次点击新楼层，电梯就会立刻重新从一楼出发（量子化？）去新楼层接人。嗯离实用还有段距离，不过已经有个样子啦。而目前我们的 Rx 逻辑大概长这样，非常简短：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Observable &#125; <span class="keyword">from</span> <span class="string">'rxjs'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">getStream</span> (<span class="params">emitter, type</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> Observable</span><br><span class="line">    .fromEvent(emitter, type)</span><br><span class="line">    <span class="comment">// target 为 Vue 中触发按钮事件的楼层号</span></span><br><span class="line">    .switchMap(<span class="function">(<span class="params">&#123; target &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> up = Observable</span><br><span class="line">        .interval(<span class="number">1000</span>)</span><br><span class="line">        .map(<span class="function"><span class="params">x</span> =&gt;</span> x + <span class="number">1</span>)</span><br><span class="line">        .take(target)</span><br><span class="line">      <span class="keyword">const</span> down = Observable</span><br><span class="line">        .interval(<span class="number">1000</span>)</span><br><span class="line">        .map(<span class="function"><span class="params">x</span> =&gt;</span> target - x)</span><br><span class="line">        .take(target)</span><br><span class="line">      <span class="keyword">return</span> up.concat(down)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Step-2"><a href="#Step-2" class="headerlink" title="Step 2"></a>Step 2</h2><p>这一步中，我们需要解决电梯在新按钮按下时，神奇地量子化出现在一楼的问题（误）。我们不需要引入新的 API，只需要稍微修正一下逻辑：</p>
+<p>第一步中，我们输入流中的状态只有 <code>target</code> 这个唯一的目标楼层，这就意味着<strong>电梯甚至不知道按钮触发时，自己当前正在几楼</strong>。为此，我们在 Vue 中添加一个 <code>curr</code> 参数来标记这个状态，这样，电梯每当新事件触发时，就会从当前楼层去往新目标楼层，而不是直接出现在一楼：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 增加一个 curr 参数</span></span><br><span class="line">.switchMap(<span class="function">(<span class="params">&#123; target, curr &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> up = Observable</span><br><span class="line">    .interval(<span class="number">1000</span>)</span><br><span class="line">    <span class="comment">// 从当前楼层出发去往新楼层</span></span><br><span class="line">    .map(<span class="function"><span class="params">x</span> =&gt;</span> x + curr)</span><br><span class="line">    .take(target + <span class="number">1</span> - curr)</span><br><span class="line">  <span class="keyword">const</span> down = Observable</span><br><span class="line">    .interval(<span class="number">1000</span>)</span><br><span class="line">    .map(<span class="function"><span class="params">x</span> =&gt;</span> target - x)</span><br><span class="line">    .take(target)</span><br><span class="line">  <span class="keyword">return</span> up.concat(down)</span><br></pre></td></tr></table></figure>
+<p>增加这个状态后，Step 2 的效果如下所示：</p>
+<iframe src="/h5/rx/step2.html" width="100%" height="300"></iframe>
+
+<p>这个 Demo 里，你可以先点击五楼，等到电梯走到三楼时再点击七楼。这时电梯不会直接出现在一楼，而是会从三楼老老实实地爬上七楼再下来。</p>
+<p>不过这就带来了新的状态问题：先点击五楼，等电梯走到三楼时点击二楼。Boom！电梯出 bug 走不动了……</p>
+<h2 id="Step-3"><a href="#Step-3" class="headerlink" title="Step 3"></a>Step 3</h2><p>上一步的 bug 出现原因，是你 <code>take</code> 了一个负数（本来从五楼到六楼需要 <code>take</code> 一次，但从五楼到四楼则是 <code>take</code> -1 次）。普通的数组下标越界倒还好，面向时间序列的 Observable 下标越界的话，那可就是真正的 <code>-1s</code> 了……我们来补一点逻辑修复它吧！</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">.switchMap(<span class="function">(<span class="params">&#123; target, curr &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 目标楼层高于当前楼层，我们先上楼再下楼</span></span><br><span class="line">  <span class="keyword">if</span> (target &gt;= curr) &#123;</span><br><span class="line">    <span class="keyword">const</span> up = Observable</span><br><span class="line">      .interval(<span class="number">1000</span>)</span><br><span class="line">      .map(<span class="function"><span class="params">x</span> =&gt;</span> x + curr)</span><br><span class="line">      .take(target + <span class="number">1</span> - curr)</span><br><span class="line">    <span class="keyword">const</span> down = Observable</span><br><span class="line">      .interval(<span class="number">1000</span>)</span><br><span class="line">      .map(<span class="function"><span class="params">x</span> =&gt;</span> target - x)</span><br><span class="line">      .take(target)</span><br><span class="line">    <span class="keyword">return</span> up.concat(down)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 目标楼层低于当前楼层，我们直接下楼</span></span><br><span class="line">    <span class="keyword">return</span> Observable</span><br><span class="line">      .interval(<span class="number">1000</span>)</span><br><span class="line">      .map(<span class="function"><span class="params">x</span> =&gt;</span> curr - x)</span><br><span class="line">      .take(curr)</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>好了，bug 修复了：</p>
+<iframe src="/h5/rx/step3.html" width="100%" height="300"></iframe>
+
+<p>上面的例子中，不管怎么按按钮，电梯终于都不会量子化，也都不会被玩坏啦！但是新的风暴又出现了：来回点十楼和五楼，会发现为什么这个电梯来来去去却总是到不了一楼呢……</p>
+<h2 id="Step-4"><a href="#Step-4" class="headerlink" title="Step 4"></a>Step 4</h2><p>在上面的例子中，我们传入 Stream 的状态其实始终不足以支撑电梯调度算法的正常工作。比如，我们并没有标志出一个楼层有没有被按钮点亮。在这一步中，我们在 Vue 的视图层增加一个这样的状态：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line">data () &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    floors: [</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">up</span>: <span class="literal">false</span>, <span class="attr">down</span>: <span class="literal">false</span> &#125;</span><br><span class="line">    ],</span><br><span class="line">    currFloor: <span class="number">1</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>嗯不要在意我们没有 <code>↑</code> 按钮为什么有 <code>up</code> 状态这些细节了。而 Rx 中我们添加一些简单的处理，让事件流传出的状态不仅仅包括当前楼层，也包括当前方向：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (targetFloor &gt;= baseFloor) &#123;</span><br><span class="line">  <span class="keyword">const</span> up = Observable</span><br><span class="line">    .interval(<span class="number">1000</span>)</span><br><span class="line">    .map(<span class="function"><span class="params">count</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> newFloor = count + baseFloor</span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        floor: newFloor,</span><br><span class="line">        <span class="comment">// 传出当前方向</span></span><br><span class="line">        direction: newFloor === targetFloor ? <span class="string">'stop'</span> : <span class="string">'up'</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    .take(targetFloor + <span class="number">1</span> - baseFloor)</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总之现在模拟器看起来长这样：</p>
+<iframe src="/h5/rx/step4.html" width="100%" height="300"></iframe>
+
+<p>点击时会在 Rx 中弹出一个醒目的 <code>alert</code> 来告诉你：我这个事件流是知道这些状态的！不过目前仍然没解决到不了一楼的问题……</p>
+<h2 id="Final-Step"><a href="#Final-Step" class="headerlink" title="Final Step"></a>Final Step</h2><p>在最后一步里，我们需要使用 Rx 处理之前到不了一楼的问题。我们知道，根据【决定论】的思想，Rx 其实在每个按钮事件触发时，就已经规划好了未来的电梯运动了。那么，我们能不能做做减法，把影响状态的事件过滤掉呢？这里我们可以使用 <code>filter</code> 来操作事件流：</p>
+<p>简化的模型中，我们不妨认为电梯只会执行【先 up 再 down】的操作。这时，对于电梯运动过程中触发的新事件，可以这样分类：</p>
+<ul>
+<li>如果电梯正在下降，那么不管在哪个楼层触发的新事件都不能再次让电梯再次 up and down，保证电梯总能下降到一楼</li>
+<li>如果电梯正在上升，但是新的下降事件所在楼层低于当前楼层，那么电梯在这一轮下降过程中就可以经过这个新楼层，从而不需要再次 up and down</li>
+<li>如果电梯正在上升，而且新的下降时间所在楼层高于当前楼层，那么我们重新进行一次目标为新楼层的 up and down 即可。</li>
+</ul>
+<p>三种情形中，我们会判断出是否需要 up and down。既然每次 up and down 都是输入 <code>switchMap</code> 的一个事件，那么我们就可以直接在 <code>switchMap</code> 前放置一个 <code>filter</code> 来过滤掉无关的按钮事件：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> Observable</span><br><span class="line">  .fromEvent(emitter, type)</span><br><span class="line">  .filter(<span class="function">(<span class="params">&#123; floors, targetFloor, currFloor, currDirection &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 参考上文逻辑判断</span></span><br><span class="line">    <span class="keyword">if</span> (currDirection === <span class="string">'down'</span>) <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (currDirection === <span class="string">'up'</span> &amp;&amp; targetFloor &lt;= currFloor) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+<p>在放置这个逻辑后，我们把 up and down 的目标楼层由事件所在楼层，改为从 floors 中找出的最高楼层（maxTargetFloor），就能够保证电梯正常抵达目标楼层并正常返回了。不过这时还有最后的一点小问题：如果电梯下降中你按下了十楼，那么电梯到达一楼后不会再次来接你…解决方法很简单，在电梯下降到达一层时，尝试让电梯再 up and down 一次即可。</p>
+<p>在我们实现完了最后的这一点异步逻辑后，就是本文开始时的 Demo 了：</p>
+<iframe src="/h5/rx/final.html" width="100%" height="300"></iframe>
+
+<p>到这时，Rx 中的代码仍然仅有 40 余行。而 Vue 中的代码也没有涉及任何的异步逻辑，仅仅需要对 Observable 做简单的订阅并渲染数据即可。</p>
+<h2 id="Wrap-Up"><a href="#Wrap-Up" class="headerlink" title="Wrap Up"></a>Wrap Up</h2><p>目前为止，我们的模拟器功能其实还只是真正电梯的一个子集，它还缺少这样的功能：</p>
+<ul>
+<li>一个让用户在电梯里选择状态的面板</li>
+<li>每层的 <code>↑</code> 按钮</li>
+</ul>
+<p>不过在 Rx 的基本思路基础上，模拟出这些特性并不会显著地增加复杂度：在电梯里选择状态所触发的事件，其实在优先级上完全等效于在电梯门外的楼层选择（在向上运行的电梯内按一楼，电梯不会理你，就能够证明这一点）；而引入 <code>↑</code> 按钮同样只是引入了新的【决定论】状态而已……虽然这么说有些不负责任，不过从我们已有的实现来看 Rx 事件流确实是具备优雅解决这些问题的能力的。</p>
+<p>如果你还在纠结需不需要在已有项目中引入 Rx，也许本文的实践能够为你提供一些小参考：Rx 在处理异步事件流时非常强大，类似Redux / MobX 等状态管理器所关注的与 Rx 其实并非同个层面的问题，一旦将它们与 Rx 结合，是能够处理很高的业务复杂度的。<br>不过如果你的需求仅仅是【数据加载时显示 Loading 状态】，那么引入 Rx 多少就有些杀鸡用牛刀了。</p>
+<p>最后，这其实作者第一次尝试 Rx 的项目。真正编写的代码并不多，不过要适应它并使用它真正解决问题，所需要的思考时间其实比敲键盘写几行代码的时间要多得多……这也算是一种乐趣吧🙃本文中每一个 Step 都是从开发过程中的真实 commit 抽取出来的，希望本文对大家有所帮助🙃</p>
+<p><a href="https://github.com/doodlewind/rx-elevator-demo" target="_blank" rel="noopener">Github 传送门</a><br><a href="http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html" target="_blank" rel="noopener">Observable 文档</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Algorithms/">Algorithms</a><a href="/tags/Reactive/">Reactive</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/rx-elevator-demo/" data-title="响应式编程入门：实现电梯调度模拟器 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/git-rebased-better-pr/" title="使用 git rebase 提高 PR 质量">
+  <strong>上一篇：</strong><br/>
+  <span>
+  使用 git rebase 提高 PR 质量</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/nlp-framework-analysis/"  title="基于文本相似度算法，分析 Vue 是抄出来的框架吗？">
+ <strong>下一篇：</strong><br/> 
+ <span>基于文本相似度算法，分析 Vue 是抄出来的框架吗？
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Demo"><span class="toc-number">1.</span> <span class="toc-text">Demo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Get-Started"><span class="toc-number">2.</span> <span class="toc-text">Get Started</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-1"><span class="toc-number">3.</span> <span class="toc-text">Step 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-2"><span class="toc-number">4.</span> <span class="toc-text">Step 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-3"><span class="toc-number">5.</span> <span class="toc-text">Step 3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-4"><span class="toc-number">6.</span> <span class="toc-text">Step 4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Final-Step"><span class="toc-number">7.</span> <span class="toc-text">Final Step</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Wrap-Up"><span class="toc-number">8.</span> <span class="toc-text">Wrap Up</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

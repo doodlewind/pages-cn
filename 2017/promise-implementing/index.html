@@ -1,0 +1,676 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>从源码看 Promise 概念与实现 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="Promise 是 JS 异步编程中的重要概念，它较好地解决了异步任务中回调嵌套的问题。在没有引入新的语言机制的前提下，这是如何实现的呢？上手 Promise 时常见若干晦涩的 API 与概念，它们又为什么存在呢？源码里隐藏着这些问题的答案。">
+<meta name="keywords" content="JS,Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从源码看 Promise 概念与实现">
+<meta property="og:url" content="https://ewind.us/2017/promise-implementing/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="Promise 是 JS 异步编程中的重要概念，它较好地解决了异步任务中回调嵌套的问题。在没有引入新的语言机制的前提下，这是如何实现的呢？上手 Promise 时常见若干晦涩的 API 与概念，它们又为什么存在呢？源码里隐藏着这些问题的答案。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.547Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从源码看 Promise 概念与实现">
+<meta name="twitter:description" content="Promise 是 JS 异步编程中的重要概念，它较好地解决了异步任务中回调嵌套的问题。在没有引入新的语言机制的前提下，这是如何实现的呢？上手 Promise 时常见若干晦涩的 API 与概念，它们又为什么存在呢？源码里隐藏着这些问题的答案。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/promise-implementing/" title="从源码看 Promise 概念与实现" itemprop="url">从源码看 Promise 概念与实现</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-04-14T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-04-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Promise"><span class="toc-number">1.</span> <span class="toc-text">Why Promise</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础概念"><span class="toc-number">2.</span> <span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#状态机"><span class="toc-number">3.</span> <span class="toc-text">状态机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#状态迁移"><span class="toc-number">4.</span> <span class="toc-text">状态迁移</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#resolve-接口"><span class="toc-number">5.</span> <span class="toc-text">resolve 接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#观察者-done-接口"><span class="toc-number">6.</span> <span class="toc-text">观察者 done 接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#观察者-then-方法"><span class="toc-number">7.</span> <span class="toc-text">观察者 then 方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">8.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>Promise 是 JS 异步编程中的重要概念，它较好地解决了异步任务中回调嵌套的问题。在没有引入新的语言机制的前提下，这是如何实现的呢？上手 Promise 时常见若干晦涩的 API 与概念，它们又为什么存在呢？源码里隐藏着这些问题的答案。</p>
+<a id="more"></a>
+<p>下文会在介绍 Promise 概念的基础上，以一步步代码实现 Promise 的方式，解析 Promise 的实现机制。相应代码参考来自 <a href="https://www.promisejs.org/implementing/" target="_blank" rel="noopener">PromiseJS 博客</a> 及 You don’t know JS 的若干章节。</p>
+<h2 id="Why-Promise"><a href="#Why-Promise" class="headerlink" title="Why Promise"></a>Why Promise</h2><p>（有使用 Promise 经验的读者可忽略本段）</p>
+<p>基于 JS 函数一等公民的优良特性，JS 中最基础的异步逻辑一般是以向异步 API 传入一个函数的方式实现的，这个函数里包含了异步完成后的后续业务逻辑。与普通的函数参数不同的是，这类函数需在异步操作完成时才被调用，故而称之为回调函数。以异步 Ajax 查询为例，基于回调的代码实现可能是这样的：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">ajax.get(<span class="string">'xxx'</span>, data =&gt; &#123;</span><br><span class="line">  <span class="comment">// 在回调函数里获取到数据，执行后续逻辑</span></span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>从而，在需要多个异步操作依次执行时，就需要以回调嵌套的方式来实现，例如这样：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">ajax.get(<span class="string">'xxx'</span>, dataA =&gt; &#123;</span><br><span class="line">  <span class="comment">// 第一个请求完成后，依赖其获取到的数据发送第二个请求</span></span><br><span class="line">  <span class="comment">// 产生回调嵌套</span></span><br><span class="line">  ajax.get(<span class="string">'yyy'</span> + dataA, dataB =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(dataB)</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这样一来，在处理越多的异步逻辑时，就需要越深的回调嵌套，这种编码模式的问题主要有以下几个：</p>
+<ul>
+<li>代码逻辑书写顺序与执行顺序不一致，不利于阅读与维护。</li>
+<li>异步操作的顺序变更时，需要大规模的代码重构。</li>
+<li>回调函数基本都是匿名函数，bug 追踪困难。</li>
+<li>回调函数是被第三方库代码（如上例中的 <code>ajax</code>）而非自己的业务代码所调用的，造成了 IoC 控制反转。</li>
+</ul>
+<p>其中看似最无关紧要的控制反转，实际上是纯回调编码模式的最大问题。<strong>由于回调函数是被第三方库调用的，因此回调中的代码无法预期自己被执行时的环境</strong>，这可能导致：</p>
+<ul>
+<li>回调被执行了多次</li>
+<li>回调一次都没有被执行</li>
+<li>回调不是异步执行而是被同步执行</li>
+<li>回调被过早或过晚执行</li>
+<li>回调中的报错被第三方库吞掉</li>
+<li>……</li>
+</ul>
+<p>通过【防御性编程】的概念，上述问题其实都可以通过在回调函数内部进行各种检查来逐一避免，但这毫无疑问地会严重影响代码的可读性与开发效率。这种异步编码模式存在的诸多问题，也就是臭名昭著的【回调地狱】了。</p>
+<p>Promise 较好地解决了这个问题。以上例中的异步 <code>ajax</code> 逻辑为例，基于 Promise 的模式是这样的：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 将 ajax 请求封装为一个返回 Promise 的函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    ajax.get(<span class="string">'xxx'</span>, data =&gt; &#123;</span><br><span class="line">      resolve(data)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用该函数并在 Promise 的 then 接口中获取数据</span></span><br><span class="line">getData().then(<span class="function"><span class="params">data</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>看起来变得啰嗦了？但在上例中需要嵌套回调的情况，可以改写成下面的形式：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getDataA</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    ajax.get(<span class="string">'xxx'</span>, dataA =&gt; &#123;</span><br><span class="line">      resolve(dataA)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getDataB</span> (<span class="params">dataA</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    ajax.get(<span class="string">'yyy'</span> + dataA, dataB =&gt; &#123;</span><br><span class="line">      resolve(dataB)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用链式调用解开回调嵌套</span></span><br><span class="line">getDataA()</span><br><span class="line">  .then(<span class="function"><span class="params">dataA</span> =&gt;</span> getDataB(dataA))</span><br><span class="line">  .then(<span class="function"><span class="params">dataB</span> =&gt;</span> <span class="built_in">console</span>.log(dataB))</span><br></pre></td></tr></table></figure>
+<p>这就解决了异步逻辑的回调嵌套问题。那么问题来了，这样优雅的 API 是如何实现的呢？</p>
+<h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><p>非常笼统地说，Promise 其实应验了 CS 的名言【所有问题都可以通过加一层中间层来解决】。在上面回调嵌套的问题中，Promise 就充当了一个中间层，用来【把回调造成的控制反转再反转回去】。在使用 Promise 的例子中，控制流分为了两个部分：触发异步前的逻辑通过 <code>new</code> 传入 Promise，而异步操作完成后的逻辑则传入 Promise 的 <code>then</code> 接口中。通过这种方式，第一方业务和第三方库的相应逻辑都由 Promise 来调用，进而在 Promise 中解决异步编程中可能出现的各种问题。</p>
+<p>这种模式其实和观察者模式是接近的。下面的代码将 <code>resolve</code> / <code>then</code> 换成了 <code>publish</code> / <code>subscribe</code>，将通过 <code>new Promise</code> 生成的 Promise 换成了通过 <code>observe</code> 生成的 <code>observable</code> 实例。可以发现，这种调用同样做到了回调嵌套的解耦。这就是 Promise 魔法的关键之一。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// observe 相当于 new Promise</span></span><br><span class="line"><span class="comment">// publish 相当于 resolve</span></span><br><span class="line"><span class="keyword">let</span> observable = observe(<span class="function"><span class="params">publish</span> =&gt;</span> &#123;</span><br><span class="line">  ajax.get(<span class="string">'xxx'</span>, data =&gt; &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    publish(data)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// subscribe 相当于 then</span></span><br><span class="line">observable.subscribe(<span class="function"><span class="params">data</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>到这个例子为止，都还没有涉及 Promise 的源码实现。在进一步深入前，有必要列出在 Promise 中常见的相关概念：</p>
+<ul>
+<li><code>resolve</code> / <code>reject</code>: 作为 Promise 暴露给第三方库的 API 接口，在异步操作完成时由第三方库调用，从而改变 Promise 的状态。</li>
+<li><code>fulfilled</code> / <code>rejected</code> / <code>pending</code>: 标识了一个 Promise 当前的状态。</li>
+<li><code>then</code> / <code>done</code>: 作为 Promise 暴露给第一方代码的接口，在此传入【原本直接传给第三方库】的回调函数。</li>
+</ul>
+<p>这些概念中有趣的地方在于，标识状态的变量（如 <code>fulfilled</code> / <code>rejected</code> / <code>pending</code>）都是形容词，用于传入数据的接口（如 <code>resolve</code> 与 <code>reject</code>）都是动词，而用于传入回调函数的接口（如 <code>then</code> 及 <code>done</code>）则在语义上用于修饰动词的副词。在阅读源码的时候，除了变量的类型外，其名称所对应的词性也能对理解代码逻辑起到帮助，例如：</p>
+<ul>
+<li>标识数据的变量与 OO 对象常用名词（<code>result</code> / <code>data</code> / <code>Promise</code>）</li>
+<li>标识状态的变量常用形容词（<code>fulfilled</code> / <code>pending</code>）</li>
+<li>被调用的函数接口常用动词（<code>resolve</code> / <code>reject</code>）</li>
+<li>用于传入函数的参数接口常用副词（如 <code>then</code> / <code>onFulfilled</code> 等，毕竟函数常用动词，而副词本来就是用来修饰动词的）</li>
+</ul>
+<p>预热了 Promise 相关的变量名后，就可以开始实现 Promise 了。下文的行文方式既不是按行号逐行介绍，也不是按代码执行顺序来回跳跃，而是按照实际编码时的步骤一步步地搭建出相应的功能。相信这种方式比直接在源码里堆注释能更为友好一些。</p>
+<h2 id="状态机"><a href="#状态机" class="headerlink" title="状态机"></a>状态机</h2><p>一个 Promise 可以理解为一个状态机，相应的 API 接口要么用于改变状态机的状态，要么在到达某个状态时被触发。因此首先需要实现的，是 Promise 的状态信息：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> PENDING = <span class="number">0</span></span><br><span class="line"><span class="keyword">const</span> FULFILLED = <span class="number">1</span></span><br><span class="line"><span class="keyword">const</span> REJECTED = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 存储该 Promise 的状态信息</span></span><br><span class="line">  <span class="keyword">let</span> state = PENDING</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 FULFILLED 或 REJECTED 时带来的数据</span></span><br><span class="line">  <span class="keyword">let</span> value = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 then 或 done 时调用的成功或失败回调</span></span><br><span class="line">  <span class="keyword">var</span> handlers = []</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="状态迁移"><a href="#状态迁移" class="headerlink" title="状态迁移"></a>状态迁移</h2><p>指定状态机的状态后，可以实现基本的状态迁移功能，即 <code>fulfill</code> 与 <code>reject</code> 这两个用于改变状态的函数，相应实现也十分简单：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> PENDING = <span class="number">0</span></span><br><span class="line"><span class="keyword">const</span> FULFILLED = <span class="number">1</span></span><br><span class="line"><span class="keyword">const</span> REJECTED = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 存储该 Promise 的状态信息</span></span><br><span class="line">  <span class="keyword">let</span> state = PENDING</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 FULFILLED 或 REJECTED 时带来的数据</span></span><br><span class="line">  <span class="keyword">let</span> value = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 then 或 done 时调用的成功或失败回调</span></span><br><span class="line">  <span class="keyword">let</span> handlers = []</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">fulfill</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">    state = FULFILLED</span><br><span class="line">    value = result</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">reject</span> (<span class="params">error</span>) </span>&#123;</span><br><span class="line">    state = REJECTED</span><br><span class="line">    value = error</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这两种底层的状态迁移基础上，我们需要实现一种更高级的状态迁移方式，这就是 <code>resolve</code> 了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> PENDING = <span class="number">0</span></span><br><span class="line"><span class="keyword">const</span> FULFILLED = <span class="number">1</span></span><br><span class="line"><span class="keyword">const</span> REJECTED = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 存储该 Promise 的状态信息</span></span><br><span class="line">  <span class="keyword">let</span> state = PENDING</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 FULFILLED 或 REJECTED 时带来的数据</span></span><br><span class="line">  <span class="keyword">let</span> value = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 then 或 done 时调用的成功或失败回调</span></span><br><span class="line">  <span class="keyword">let</span> handlers = []</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">fulfill</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">    state = FULFILLED</span><br><span class="line">    value = result</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">reject</span> (<span class="params">error</span>) </span>&#123;</span><br><span class="line">    state = REJECTED</span><br><span class="line">    value = error</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> then = getThen(result)</span><br><span class="line">      <span class="keyword">if</span> (then) &#123;</span><br><span class="line">        <span class="comment">// 递归 resolve 待解析的 Promise</span></span><br><span class="line">        doResolve(then.bind(result), resolve, reject)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">      fulfill(result)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      reject(e)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>resolve</code> 既可以接受一个 Promise，也可以接受一个基本类型。当 <code>resolve</code> 一个 Promise 时，就使用 <code>doResolve</code> 辅助函数来执行这个 Promise 并等待其完成。通过暴露 <code>resolve</code> 而隐藏底层的 <code>fulfill</code> 接口，从而保证了一个 Promise 一定不会被另一个 Promise 所 <code>fulfill</code>。在这个过程中所用到的辅助函数如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 检查一个值是否为 Promise</span></span><br><span class="line"><span class="comment"> * 若为 Promise 则返回该 Promise 的 then 方法</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @param &#123;Promise|Any&#125; value</span></span><br><span class="line"><span class="comment"> * @return &#123;Function|Null&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getThen</span> (<span class="params">value</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> t = <span class="keyword">typeof</span> value</span><br><span class="line">  <span class="keyword">if</span> (value &amp;&amp; (t === <span class="string">'object'</span> || t === <span class="string">'function'</span>)) &#123;</span><br><span class="line">    <span class="keyword">const</span> then = value.then</span><br><span class="line">    <span class="comment">// 可能需要更复杂的 thenable 判断</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> then === <span class="string">'function'</span>) <span class="keyword">return</span> then</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 传入一个需被 resolve 的函数，该函数可能存在不确定行为</span></span><br><span class="line"><span class="comment"> * 确保 onFulfilled 与 onRejected 只会被调用一次</span></span><br><span class="line"><span class="comment"> * 在此不保证该函数一定会被异步执行</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @param &#123;Function&#125; fn 不能信任的回调函数</span></span><br><span class="line"><span class="comment"> * @param &#123;Function&#125; onFulfilled</span></span><br><span class="line"><span class="comment"> * @param &#123;Function&#125; onRejected</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">doResolve</span> (<span class="params">fn, onFulfilled, onRejected</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> done = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    fn(<span class="function"><span class="keyword">function</span> (<span class="params">value</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (done) <span class="keyword">return</span></span><br><span class="line">      done = <span class="literal">true</span></span><br><span class="line">      <span class="comment">// 执行由 resolve 传入的 resolve 回调</span></span><br><span class="line">      onFulfilled(value)</span><br><span class="line">    &#125;, <span class="function"><span class="keyword">function</span> (<span class="params">reason</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (done) <span class="keyword">return</span></span><br><span class="line">      done = <span class="literal">true</span></span><br><span class="line">      onRejected(reason)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (ex) &#123;</span><br><span class="line">    <span class="keyword">if</span> (done) <span class="keyword">return</span></span><br><span class="line">    done = <span class="literal">true</span></span><br><span class="line">    onRejected(ex)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="resolve-接口"><a href="#resolve-接口" class="headerlink" title="resolve 接口"></a>resolve 接口</h2><p>在完整完成了内部状态机的基础上，还需要向用户暴露用于传入第一方代码的 <code>new Promise</code> 接口，及传入异步操作回调的 <code>done</code> / <code>then</code> 接口。下面从 resolve 一个 Promise 开始：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> PENDING = <span class="number">0</span></span><br><span class="line"><span class="keyword">const</span> FULFILLED = <span class="number">1</span></span><br><span class="line"><span class="keyword">const</span> REJECTED = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span> (<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 存储该 Promise 的状态信息</span></span><br><span class="line">  <span class="keyword">let</span> state = PENDING</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 FULFILLED 或 REJECTED 时带来的数据</span></span><br><span class="line">  <span class="keyword">let</span> value = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 then 或 done 时调用的成功或失败回调</span></span><br><span class="line">  <span class="keyword">let</span> handlers = []</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">fulfill</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">    state = FULFILLED</span><br><span class="line">    value = result</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">reject</span> (<span class="params">error</span>) </span>&#123;</span><br><span class="line">    state = REJECTED</span><br><span class="line">    value = error</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> then = getThen(result)</span><br><span class="line">      <span class="keyword">if</span> (then) &#123;</span><br><span class="line">        <span class="comment">// 递归 resolve 待解析的 Promise</span></span><br><span class="line">        doResolve(then.bind(result), resolve, reject)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">      fulfill(result)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      reject(e)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  doResolve(fn, resolve, reject)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现这里重用了 <code>doResolve</code> 以执行不被信任的 <code>fn</code> 函数。这个 <code>fn</code> 函数可以多次调用 <code>resolve</code> 和 <code>reject</code> 接口，甚至抛出异常，但 Promise 中对其进行了限制，保证每个 Promise 只能被 <code>resolve</code> 一次，且在 <code>resolve</code> 后不再发生状态转移。</p>
+<h2 id="观察者-done-接口"><a href="#观察者-done-接口" class="headerlink" title="观察者 done 接口"></a>观察者 done 接口</h2><p>到此为止已经完成了一个完整的状态机，但仍然没有暴露出一个合适的方法来观察其状态的变更。我们的最终目标是实现 <code>then</code> 接口，但由于实现 <code>done</code> 接口的语义要容易得多，因此可首先实现 <code>done</code>。</p>
+<p>下面的例子中要实现的是 <code>promise.done(onFulfilled, onRejected)</code> 接口，使得：</p>
+<ul>
+<li><code>onFulfilled</code> 与 <code>onRejected</code> 二者只有一个被调用。</li>
+<li>该接口只会被调用一次。</li>
+<li>该接口总是被异步执行。</li>
+<li>调用 <code>done</code> 的执行时机与调用时 Promise 是否已 <code>resolved</code> 无关。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> PENDING = <span class="number">0</span></span><br><span class="line"><span class="keyword">const</span> FULFILLED = <span class="number">1</span></span><br><span class="line"><span class="keyword">const</span> REJECTED = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Promise</span> (<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 存储该 Promise 的状态信息</span></span><br><span class="line">  <span class="keyword">let</span> state = PENDING</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 FULFILLED 或 REJECTED 时带来的数据</span></span><br><span class="line">  <span class="keyword">let</span> value = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储 then 或 done 时调用的成功或失败回调</span></span><br><span class="line">  <span class="keyword">let</span> handlers = []</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">fulfill</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">    state = FULFILLED</span><br><span class="line">    handlers.forEach(handle)</span><br><span class="line">    handlers = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">reject</span> (<span class="params">error</span>) </span>&#123;</span><br><span class="line">    state = REJECTED</span><br><span class="line">    value = error</span><br><span class="line">    handlers.forEach(handle)</span><br><span class="line">    handlers = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> then = getThen(result)</span><br><span class="line">      <span class="keyword">if</span> (then) &#123;</span><br><span class="line">        <span class="comment">// 递归 resolve 待解析的 Promise</span></span><br><span class="line">        doResolve(then.bind(result), resolve, reject)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">      fulfill(result)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      reject(e)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 保证 done 中回调的执行</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handle</span> (<span class="params">handler</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state === PENDING) &#123;</span><br><span class="line">      handlers.push(handler)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (state === FULFILLED &amp;&amp;</span><br><span class="line">        <span class="keyword">typeof</span> handler.onFulfilled === <span class="string">'function'</span>) &#123;</span><br><span class="line">        handler.onFulfilled(value)</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (state === REJECTED &amp;&amp;</span><br><span class="line">        <span class="keyword">typeof</span> handler.onRejected === <span class="string">'function'</span>) &#123;</span><br><span class="line">        handler.onRejected(value)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">this</span>.done = <span class="function"><span class="keyword">function</span> (<span class="params">onFulfilled, onRejected</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 保证 done 总是异步执行</span></span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      handle(&#123;</span><br><span class="line">        onFulfilled: onFulfilled,</span><br><span class="line">        onRejected: onRejected</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;, <span class="number">0</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  doResolve(fn, resolve, reject)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从而在 Promise 的状态迁移至 resolved 或 rejected 时，所有通过 <code>done</code> 注册的观察者 handler 都能被执行。并且这个操作总是在下一个 tick 异步执行的。</p>
+<h2 id="观察者-then-方法"><a href="#观察者-then-方法" class="headerlink" title="观察者 then 方法"></a>观察者 then 方法</h2><p>在实现了 <code>done</code> 方法的基础上，就可以实现 <code>then</code> 方法了。它们没有本质的区别，但 <code>then</code> 能够返回一个新的 Promise：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span> (<span class="params">onFulfilled, onRejected</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> _this = <span class="keyword">this</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span> (<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> _this.done(<span class="function"><span class="keyword">function</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> onFulfilled === <span class="string">'function'</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> resolve(onFulfilled(result))</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ex) &#123;</span><br><span class="line">          <span class="keyword">return</span> reject(ex)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">return</span> resolve(result)</span><br><span class="line">    &#125;, <span class="function"><span class="keyword">function</span> (<span class="params">error</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> onRejected === <span class="string">'function'</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> resolve(onRejected(error))</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ex) &#123;</span><br><span class="line">          <span class="keyword">return</span> reject(ex)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">return</span> reject(error)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后梳理一下典型场景下 Promise 的执行流程。以一个 ajax 请求的异步场景为例，整个异步逻辑分为两部分：调用 ajax 库的代码及异步操作完成时的代码。前者被放入 Promise 的构造函数中，由 <code>doResolve</code> 方法执行，在这部分业务逻辑通过调用 <code>resolve</code> 与 <code>reject</code> 接口，在异步操作完成时改变 Promise 的状态，从而调用后者，即调用 Promise 中通过 <code>then</code> 接口传入的 <code>onFulfilled</code> 与 <code>onRejected</code> 后续业务逻辑代码。这个过程中，<code>doResolve</code> 对第三方 ajax 库的各种异常行为（多次调用回调或抛出异常）做了限制，而 <code>then</code> 下隐藏的 <code>done</code> 则封装了 <code>handle</code> 接口，保证了多个通过 <code>then</code> 传入的 handler 总是异步执行，并能得到合适的返回结果。由于 <code>then</code> 中的代码总是异步执行并返回了一个新的 Promise，因此可以通过链式调用的方式来串联多个 <code>then</code> 方法，从而实现异步操作的链式调用。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>阅读了 Promise 的代码实现后可以发现，它的魔法来自于将【函数一等公民】和【递归】的结合。一个 <code>resolve</code> 如果获得的结果还是一个 Promise，那么就将递归地继续 <code>resolve</code> 这个 Promise。同时，Promise 的辅助函数中解决了诸多异步编程时的常见问题，如回调的多次调用及异常处理等。</p>
+<p>介绍 Promise 时不少较为晦涩的 API 其实也来自于对 Promise 编码实现时的涉及的若干底层功能。例如，<code>fulfilled</code> 这个概念就被封装在了 <code>resolve</code> 下，而 <code>done</code> 方法则是 <code>then</code> 方法的依赖等。这些概念在 Promise 的演化中被封装在了通用的 API 下，只有在阅读源码时才会用到。Promise 的 API 设计也是简洁的，其接口命名和英语的词性也有相当大的联系，这也有利于理解代码实现的相应功能。</p>
+<p>除了上文中从状态机的角度理解 Promise 以外，其实还可以从函数式编程的角度来理解这个模式。可以将 Promise 看做一个封装了异步数据的 Monad，其 <code>then</code> 接口就相当于这个 Monad 的 <code>map</code> 方法。这样一来，Promise 也可以理解为一个特殊的对象，这个对象【通过一个函数获取数据，并通过另一个函数来操作数据】，用户并不需要关心其中潜在的异步风险，只需要提供相应的函数给 Promise API 即可（这展开又是一篇长文了）。</p>
+<p>希望本文对 Promise 的分析对理解异步编程有所帮助。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JS/">JS</a><a href="/tags/Algorithms/">Algorithms</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/promise-implementing/" data-title="从源码看 Promise 概念与实现 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/farewell-iflytek/" title="小记在讯飞的 300 天">
+  <strong>上一篇：</strong><br/>
+  <span>
+  小记在讯飞的 300 天</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/webpack-hmr/"  title="Webpack HMR 的配置与回退策略">
+ <strong>下一篇：</strong><br/> 
+ <span>Webpack HMR 的配置与回退策略
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Why-Promise"><span class="toc-number">1.</span> <span class="toc-text">Why Promise</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础概念"><span class="toc-number">2.</span> <span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#状态机"><span class="toc-number">3.</span> <span class="toc-text">状态机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#状态迁移"><span class="toc-number">4.</span> <span class="toc-text">状态迁移</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#resolve-接口"><span class="toc-number">5.</span> <span class="toc-text">resolve 接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#观察者-done-接口"><span class="toc-number">6.</span> <span class="toc-text">观察者 done 接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#观察者-then-方法"><span class="toc-number">7.</span> <span class="toc-text">观察者 then 方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">8.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

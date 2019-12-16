@@ -1,0 +1,651 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>如何自动化重构前 ES6 老代码 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="在今天，JavaScript 的语言标准迭代非常迅速，这固然是好事，但也加速了许多前端老项目中代码的腐化。相信接手过有一段历史的老项目的同学对此都多少有所感触。那么我们是否能自动化、无痛地将老代码迁移到新标准下呢？答案是肯定的。">
+<meta name="keywords" content="JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何自动化重构前 ES6 老代码">
+<meta property="og:url" content="https://ewind.us/2018/refactor-pre-es6/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="在今天，JavaScript 的语言标准迭代非常迅速，这固然是好事，但也加速了许多前端老项目中代码的腐化。相信接手过有一段历史的老项目的同学对此都多少有所感触。那么我们是否能自动化、无痛地将老代码迁移到新标准下呢？答案是肯定的。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.550Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何自动化重构前 ES6 老代码">
+<meta name="twitter:description" content="在今天，JavaScript 的语言标准迭代非常迅速，这固然是好事，但也加速了许多前端老项目中代码的腐化。相信接手过有一段历史的老项目的同学对此都多少有所感触。那么我们是否能自动化、无痛地将老代码迁移到新标准下呢？答案是肯定的。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/refactor-pre-es6/" title="如何自动化重构前 ES6 老代码" itemprop="url">如何自动化重构前 ES6 老代码</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-06-28T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-06-29</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#朴素处理"><span class="toc-number">1.</span> <span class="toc-text">朴素处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ESLint"><span class="toc-number">2.</span> <span class="toc-text">ESLint</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正则匹配"><span class="toc-number">3.</span> <span class="toc-text">正则匹配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Codemod"><span class="toc-number">4.</span> <span class="toc-text">Codemod</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>在今天，JavaScript 的语言标准迭代非常迅速，这固然是好事，但也加速了许多前端老项目中代码的腐化。相信接手过有一段历史的老项目的同学对此都多少有所感触。那么我们是否能自动化、无痛地将老代码迁移到新标准下呢？答案是肯定的。</p>
+<a id="more"></a>
+<p>下面我们会循序渐进地介绍三种自动化重构老代码的套路：</p>
+<ul>
+<li>朴素处理</li>
+<li>ESLint</li>
+<li>正则匹配</li>
+<li>Codemod</li>
+</ul>
+<h2 id="朴素处理"><a href="#朴素处理" class="headerlink" title="朴素处理"></a>朴素处理</h2><p>对于历史代码最基本和朴素的处理方式，大致可以归为这两类：</p>
+<ul>
+<li>按照历史代码的套路继续填坑。</li>
+<li>要写哪里的需求，就把那里的代码改成新的。</li>
+</ul>
+<p>这两个套路当然都可行，但也都会有自己的问题：如果完全基于老代码的那一套继续填坑，那么可维护性会随着规范的发展逐渐下降；如果随遇随改，那么多半会遇到这样的问题：</p>
+<ul>
+<li>整个代码仓库中有些地方使用新语法，有些地方使用老语法，这样的不一致会带来一些困惑。</li>
+<li>提交历史中，更改老代码的改动和真正的功能性改动相夹杂，从而增加代码 review 的成本。</li>
+</ul>
+<p>因此在中大规模的项目中，一边开发新特性一边修代码风格的实践很难说是最佳的。我们需要一些更批量、自动化的方式来更新我们的代码库。让我们从现成的 ESLint 开始吧：</p>
+<h2 id="ESLint"><a href="#ESLint" class="headerlink" title="ESLint"></a>ESLint</h2><p>对于全新的前端工程，ESLint 几乎是基本的质量保证标配了。故而这里不再赘述如何安装、使用这一工具，而是简要分享一下它在老项目代码风格升级中的作用。</p>
+<p>只要在老项目中安装了 ESLint，你就可以很方便地通用 <code>npx</code> 命令来使用它。这使得我们有机会自动化地将风格不统一的老代码调整为一致的风格：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npx eslint --fix</span><br></pre></td></tr></table></figure>
+<p>这并不是一个复杂的操作，但 ESLint 对代码风格的约束，可以帮助我们保证在后面的更改中保持代码库的稳定。因此在进行下面提及的批量改动时，非常建议将 ESLint 作为基础的辅助。</p>
+<h2 id="正则匹配"><a href="#正则匹配" class="headerlink" title="正则匹配"></a>正则匹配</h2><p>熟悉 ESLint 的同学应该知道，一般的 preset 规则中并不会限制我们使用 ES5 或 ES6 风格。故而在将代码库从 ES5 向 ES6 迁移时，现成的 <code>eslint --fix</code> 并不能直接派上用场，而是需要一些其它的手段。这里我们先从正则匹配开始吧。</p>
+<p>最简单的正则匹配，实际上就是字符串替换了。不要小看字符串替换，对于某些情形它是最简单易用的。比如在 Vue 中从 ES5 迁移到 ES6 时，就存在如下这种常见的写法可以迁移：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// old</span></span><br><span class="line">methods: &#123;</span><br><span class="line">  foo: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// new</span></span><br><span class="line">methods: &#123;</span><br><span class="line">  foo() &#123; <span class="comment">/* ....*/</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时候我们就可以在 VSCode 之类的编辑器中通过将 <code>: function (</code> 全量替换为 <code>(</code> 来自动化地升级代码风格。但对于稍微复杂一些的规则，单纯的字符串匹配显然是不够用的。这时，我们可以编写批量处理代码文件的 Node 脚本来更改实现优化。例如我们近期就实现了一个这样的优化，用来实现 lodash 的按需加载：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// old</span></span><br><span class="line"><span class="keyword">import</span> lodash <span class="keyword">from</span> <span class="string">'lodash'</span></span><br><span class="line">lodash.merge(<span class="comment">/* ... */</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// new</span></span><br><span class="line"><span class="keyword">import</span> &#123; merge &#125; <span class="keyword">from</span> <span class="string">'lodash'</span></span><br><span class="line">merge(<span class="comment">/* ... */</span>)</span><br></pre></td></tr></table></figure>
+<p>初看之下，这样的更新需要更改语法树中 <code>import</code> 和函数调用语句的语法，似乎是一个较难自动化实现的优化。但实际上，只要注意到我们所需要匹配的函数调用都满足 <code>lodash.xxx</code> 的形式，我们不难基于正则实现这样的算法：</p>
+<ol>
+<li>使用将代码中所有的 <code>lodash.xxx</code> 声明匹配出来。</li>
+<li>利用匹配到的 <code>merge</code> / <code>clone</code> 等方法名，替换掉 <code>import</code> 语句。</li>
+<li>将原有的 <code>lodash.xxx</code> 替换掉。</li>
+</ol>
+<p>这样我们就能实现自动化的代码风格升级了。作为示例，实现了上面步骤的 Node 脚本实际上并不长：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> glob = <span class="built_in">require</span>(<span class="string">'glob'</span>)</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs-extra'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> filePath = process.argv[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">// Usage</span></span><br><span class="line"><span class="comment">// node index.js ../foo/\*.js</span></span><br><span class="line">glob(filePath, (err, files) =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (err) <span class="keyword">throw</span> err</span><br><span class="line"></span><br><span class="line">  files.forEach(<span class="function"><span class="params">file</span> =&gt;</span> &#123;</span><br><span class="line">    fs.readFile(file, <span class="string">'utf8'</span>).then(<span class="function"><span class="params">code</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> re = <span class="regexp">/lodash\.(.)+?\(/g</span></span><br><span class="line">      <span class="keyword">const</span> matchResults = code.match(re)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!matchResults) <span class="keyword">return</span></span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'mod'</span>, file)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> methodNames = matchResults.map(</span><br><span class="line">        result =&gt; result.replace(<span class="string">'lodash.'</span>, <span class="string">''</span>).replace(<span class="string">'('</span>, <span class="string">''</span>)</span><br><span class="line">      )</span><br><span class="line">      <span class="keyword">const</span> filteredNames = <span class="built_in">Array</span>.from(<span class="keyword">new</span> <span class="built_in">Set</span>(methodNames))</span><br><span class="line">      <span class="keyword">let</span> modCode = code.replace(</span><br><span class="line">        <span class="string">`import lodash from 'lodash'`</span>,</span><br><span class="line">        <span class="string">`import &#123; <span class="subst">$&#123;filteredNames.join(<span class="string">', '</span>)&#125;</span> &#125; from 'lodash'`</span></span><br><span class="line">      )</span><br><span class="line">      matchResults.forEach(<span class="function">(<span class="params">result, i</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// eslint-disable-next-line</span></span><br><span class="line">        <span class="keyword">const</span> re = result.replace(<span class="string">'.'</span>, <span class="string">'\\.'</span>).replace(<span class="string">'('</span>, <span class="string">'\\('</span>)</span><br><span class="line">        modCode = modCode.replace(<span class="keyword">new</span> <span class="built_in">RegExp</span>(re, <span class="string">'g'</span>), methodNames[i] + <span class="string">'('</span>)</span><br><span class="line">      &#125;)</span><br><span class="line">      fs.writeFile(file, modCode, <span class="string">'utf8'</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>只靠一行关键的 <code>/lodash\.(.)+?\(/g</code> 正则，我们就能利用熟悉的工具批量地更改代码风格，听起来是不是高大上了一些呢？也许你会质疑这样在不太重要的代码风格上折腾有什么实际的效果。在性能优化方面，上面的脚本在应用到我们的编辑器代码仓库中后，它自动化地重构了 200 个以上对 lodash 的调用语句。重构后配合上 <code>babel-plugin-import</code> 的模块加载语句优化，lodash 在未压缩代码中所占体积由 526K 降低到了 162K（作为对比，Vue runtime 的未压缩体积是 204K）。这几乎相当于我们未压缩的体积的 1/4 了。也就是说，不需要对业务逻辑做出什么复杂的重构，我们就能够减少 25% 的包大小。这个效果还是让我们满意的。</p>
+<p>当然了，纯粹基于正则的重构显然存在着破坏代码结构的风险。比如，如果在你的作用域已经声明了 <code>merge</code> 函数的前提下，将 <code>lodash.merge</code> 替换为 <code>merge</code> 的操作就是有问题的。好在如果你配置了 ESLint，那么这种行为就可以被 ESLint 及时发现而纠正，从而无需反复的冒烟测试就能够保证代码行为的一致性。这也是前文中强调 Lint 优先的理由。</p>
+<h2 id="Codemod"><a href="#Codemod" class="headerlink" title="Codemod"></a>Codemod</h2><p>实际上，从 ES5 到 ES6，显然有许多语法的风格迁移并不是正则表达式的表达力所能覆盖的。比如 <code>var</code> 到 <code>let</code> 和 <code>const</code> 的升级，需要考虑变量所在作用域是否存在 Re-assign 的行为；再比如如果要想批量地将 <code>function</code> 迁移到更简洁的箭头函数，那么我们需要考虑函数体内是否存在可能被破坏的 <code>this</code> 引用……对于这些类型的代码风格升级，我们可以引入 Codemod 作为更精确的工具。</p>
+<p>目前，JS 社区的 <code>jscodeshift</code> 工具能够帮助我们自动化地处理上面提到的风格迁移。这个工具可以执行基于它开发的 Codemod 脚本，来自动化迁移代码风格。我们可以通过这个方式使用它：</p>
+<ol>
+<li>全局安装 jscodeshift</li>
+<li>在所需更改的代码仓库外部 clone js-codemod 仓库</li>
+<li>执行 Codemod</li>
+</ol>
+<p>完成工具安装后，如果我们想使用将 <code>var</code> 自动化替换为 <code>let</code> 和 <code>const</code> 的迁移，只需按如下方式使用它：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">jscodeshift -t js-codemod/transforms/no-vars.js your-old-repo</span><br></pre></td></tr></table></figure>
+<p>社区还提供了很多现成的 Codemod 脚本，我们可以按需自取 :-)</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>自动化改造代码风格除了让项目代码更加一致而工整外，还能够收获额外的性能提升。上文中虽然我们已经介绍了多种施行此类改造的方式，但由于越复杂、越有表达力的手段往往就意味着更多的开发和调试成本，故而我们在实际的工程实践中还是更推荐按实际需求分析，以现成的工具或最小的代价解决实际、可量化的工程问题。不要纠结于空格、缩进、换行了，让你的工具帮你自动化这些东西吧~</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/refactor-pre-es6/" data-title="如何自动化重构前 ES6 老代码 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/share-undefined/" title="于是，我们给前端分享会定义了一个未定义的名字">
+  <strong>上一篇：</strong><br/>
+  <span>
+  于是，我们给前端分享会定义了一个未定义的名字</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/gmtc-2018/"  title="小前端眼里的大前端：GMTC 2018 参会小结">
+ <strong>下一篇：</strong><br/> 
+ <span>小前端眼里的大前端：GMTC 2018 参会小结
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#朴素处理"><span class="toc-number">1.</span> <span class="toc-text">朴素处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ESLint"><span class="toc-number">2.</span> <span class="toc-text">ESLint</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正则匹配"><span class="toc-number">3.</span> <span class="toc-text">正则匹配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Codemod"><span class="toc-number">4.</span> <span class="toc-text">Codemod</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

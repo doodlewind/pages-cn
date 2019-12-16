@@ -1,0 +1,673 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>从回调地狱到自函子上的幺半群：解密熟悉又陌生的 Monad | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="前端领域中许多老生常谈的话题背后，其实都蕴含着经典的计算机科学基础知识。在今天，只要你使用 JS 发起过网络请求，那其实你基本就使用过了函数式编程中的 Monad。这是怎么一回事呢？让我们从回调地狱说起吧……">
+<meta name="keywords" content="JavaScript,Pattern">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从回调地狱到自函子上的幺半群：解密熟悉又陌生的 Monad">
+<meta property="og:url" content="https://ewind.us/2018/monad-callback-hell/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="前端领域中许多老生常谈的话题背后，其实都蕴含着经典的计算机科学基础知识。在今天，只要你使用 JS 发起过网络请求，那其实你基本就使用过了函数式编程中的 Monad。这是怎么一回事呢？让我们从回调地狱说起吧……">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.537Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从回调地狱到自函子上的幺半群：解密熟悉又陌生的 Monad">
+<meta name="twitter:description" content="前端领域中许多老生常谈的话题背后，其实都蕴含着经典的计算机科学基础知识。在今天，只要你使用 JS 发起过网络请求，那其实你基本就使用过了函数式编程中的 Monad。这是怎么一回事呢？让我们从回调地狱说起吧……">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/monad-callback-hell/" title="从回调地狱到自函子上的幺半群：解密熟悉又陌生的 Monad" itemprop="url">从回调地狱到自函子上的幺半群：解密熟悉又陌生的 Monad</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-01-06T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-01-07</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#回调地狱与-Promise"><span class="toc-number">1.</span> <span class="toc-text">回调地狱与 Promise</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#冬三雪碧与-Monad"><span class="toc-number">2.</span> <span class="toc-text">冬三雪碧与 Monad</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#何谓自函子上的幺半群"><span class="toc-number">3.</span> <span class="toc-text">何谓自函子上的幺半群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#自函子"><span class="toc-number">3.1.</span> <span class="toc-text">自函子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#幺半群"><span class="toc-number">3.2.</span> <span class="toc-text">幺半群</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>前端领域中许多老生常谈的话题背后，其实都蕴含着经典的计算机科学基础知识。在今天，只要你使用 JS 发起过网络请求，那其实你基本就使用过了函数式编程中的 Monad。这是怎么一回事呢？让我们从回调地狱说起吧……</p>
+<a id="more"></a>
+<h2 id="回调地狱与-Promise"><a href="#回调地狱与-Promise" class="headerlink" title="回调地狱与 Promise"></a>回调地狱与 Promise</h2><p>熟悉 JS 的同学对于回调函数一定不会陌生，这是这门语言中处理异步事件最常用的手法。然而正如我们所熟知的那样，<strong>顺序处理多个异步任务</strong>的工作流很容易造成回调的嵌套，使得代码难以维护：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$.<span class="keyword">get</span>(a, (b) =&gt; &#123;</span><br><span class="line">  $.<span class="keyword">get</span>(b, (c) =&gt; &#123;</span><br><span class="line">    $.<span class="keyword">get</span>(c, (d) =&gt; &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(d)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>长久以来这个问题一直困扰着广大 JSer，社区的解决方案也是百花齐放。其中一种已经成为标准的方案叫做 <strong>Promise</strong>，你可以将异步回调<strong>包在 Promise 里</strong>，由 <code>Promise.then</code> 方法链式组合异步工作：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> getB = <span class="function"><span class="params">a</span> =&gt;</span></span><br><span class="line">  <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> $.<span class="keyword">get</span>(a, resolve))</span><br><span class="line"></span><br><span class="line">const getC = b =&gt;</span><br><span class="line">  new Promise((resolve, reject) =&gt; $.<span class="keyword">get</span>(b, resolve))</span><br><span class="line"></span><br><span class="line">const getD = c =&gt;</span><br><span class="line">  new Promise((resolve, reject) =&gt; $.<span class="keyword">get</span>(c, resolve))</span><br><span class="line"></span><br><span class="line">getB(a)</span><br><span class="line">  .then(getC)</span><br><span class="line">  .then(getD)</span><br><span class="line">  .then(console.log)</span><br></pre></td></tr></table></figure>
+<p>虽然 ES7 里已经有了更简练的 async/await 语法，但 Promise 已经有了非常广泛的应用。比如，网络请求的新标准 fetch 会将返回内容封装为 Promise，目前最流行的 Ajax 库 axios 也是这么做的。至于一度占领 70% 网页的元老基础库 jQuery，早在 1.5 版本中就支持了 Promise。这就意味着，只要你在前端发起过网络请求，你基本上就和 Promise 打过交道。<strong>而 Promise 本身，就是一种 Monad。</strong></p>
+<p>不过，各类对 Promise 的介绍多半集中在它的各种状态迁移和 API 使用上，这和 Monad 听起来似乎完全八竿子打不着，这两个概念之间有什么联系呢？要讲清楚这个问题，我们至少得搞懂 <strong>Monad 是什么</strong>。</p>
+<h2 id="冬三雪碧与-Monad"><a href="#冬三雪碧与-Monad" class="headerlink" title="冬三雪碧与 Monad"></a>冬三雪碧与 Monad</h2><p>很多本来有兴趣学习 Haskell 等函数式语言的同学，都可能被一句名言震慑到打退堂鼓——【Monad 不就是自函子上的幺半群吗，有什么难以理解的】。其实这句话和白学家说的【<a href="https://zh.moegirl.org/%E5%86%AC%E4%B8%89%E9%9B%AA%E7%A2%A7" target="_blank" rel="noopener">冬马小三，雪菜碧池</a>】没有什么差别，不过是一句正确的废话而已，听完懂的人还是懂，不懂的人还是不懂。所以如果再有人和你这么介绍 Monad，请放心地打死他吧——喂等等，谁说冬三雪碧是正确的了！</p>
+<p>回归正题，Monad 到底是什么呢？我们大可不必拿出 PLT 或 Haskell 那一套，而是在 JS 的语境里好好考虑一下这个问题：既然 Promise 在 JS 里是一个对象，类似地，你也可以把 Monad 当做一个<strong>特殊的对象</strong>。</p>
+<p>既然是对象，那么它的黑魔法也不外乎存在于属性和方法两个地方里了。下面我们要回答一个至关重要的问题：<strong>Monad 有什么特殊的属性和方法，来帮助我们逃离回调地狱呢？</strong></p>
+<p>我们可以用<strong>非常简单</strong>的伪代码来澄清这个问题。假如我们有 A B C D 四件事要做，那么基于回调嵌套，你可以写出最简单的函数表达式形如：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">A(B(C(D)))</span><br></pre></td></tr></table></figure>
+<p>看到嵌套回调的噩梦了吧？不过，我们可以抽丝剥茧地简化这个场景。首先，我们把问题简化到最普通的回调嵌套：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">A(B)</span><br></pre></td></tr></table></figure>
+<p>基于<strong>添加中间层</strong>和<strong>控制反转</strong>的理念，我们只需十几行代码，就能够实现一个简单的中间对象 P，把 A 和 B 分开传给这个对象，从而把回调拆分开：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">P(A).then(B)</span><br></pre></td></tr></table></figure>
+<p>现在，A 被我们包装了一层，P 这个<strong>容器</strong>就是 Promise 的雏形了！在笔者的博文 <a href="http://ewind.us/2017/promise-implementing/">从源码看 Promise 概念与实现</a> 中，已经解释了这样将回调嵌套解除的基本机制了，相应的代码实现在此不再赘述。</p>
+<p>但是，这个解决方案只适用于 A B 两个函数之间发生嵌套的场景。只要你尝试去实现过这个版本的 P，你一定会发现，我们现在没有这种能力：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">P(A).then(B).then(C).then(D)</span><br></pre></td></tr></table></figure>
+<p>也没有这种能力：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">P(P(P(A))).then(B)</span><br></pre></td></tr></table></figure>
+<p>这就是 Monad 大展身手的时候了！我们首先给出答案：<strong>Monad 对象是这个简陋版 <code>P</code> 的强化，它的 <code>then</code> 能支持这种嵌套和链式调用的场景。</strong>当然，正统的 Monad 里这个 API 不是这个名字，但作为参照，我们可以先看看 Promise/A+ 规范中的一个<a href="https://promisesaplus.com/#the-promise-resolution-procedure" target="_blank" rel="noopener">关键细节</a>：</p>
+<p>在每次 Resolve 一个 Promise 时，我们需要判断两种情况：</p>
+<ol>
+<li>如果被 Resolve 的内容仍然是 Promise（即所谓的 <code>thenable</code>），那么<strong>递归 Resolve</strong> 这个 Promise。</li>
+<li>如果被 Resolve 的内容不是 Promise，那么根据内容的具体情况（如对象、函数、基本类型等），去 <code>fulfill</code> 或 <code>reject</code> 当前 Promise。</li>
+</ol>
+<p>直观地说，这个细节能够保证下面两种调用方式完全等效：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="built_in">Promise</span>.resolve(<span class="number">1</span>).then(<span class="built_in">console</span>.log)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="built_in">Promise</span>.resolve(</span><br><span class="line">  <span class="built_in">Promise</span>.resolve(</span><br><span class="line">    <span class="built_in">Promise</span>.resolve(</span><br><span class="line">      <span class="built_in">Promise</span>.resolve(<span class="number">1</span>)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">).then(<span class="built_in">console</span>.log)</span><br></pre></td></tr></table></figure>
+<p>这里的嵌套是否似曾相识？这实际上就是披着 Promise 外衣的 Monad 核心能力：对于一个 P 这样装着<strong>某种内容</strong>的容器，我们能够<strong>递归地把容器一层层拆开，直接取出最里面装着的值</strong>。只要实现了这个能力，通过一些技巧，我们就能够实现下面这个优雅的<strong>链式调用</strong> API：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Promise</span>(A).then(B).then(C).then(D)</span><br></pre></td></tr></table></figure>
+<p>这更带来了额外的好处：不管这里面的 B C D 函数返回的是同步执行的值还是异步解析的 Promise，我们都能<strong>完全一致地</strong>处理。比如这个同步的加法：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> add = <span class="function"><span class="params">x</span> =&gt;</span> x + <span class="number">1</span></span><br><span class="line"><span class="built_in">Promise</span></span><br><span class="line">  .resolve(<span class="number">0</span>)</span><br><span class="line">  .then(add)</span><br><span class="line">  .then(add)</span><br><span class="line">  .then(<span class="built_in">console</span>.log)</span><br><span class="line"><span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>和这个略显拧巴的异步加法：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> add = <span class="function"><span class="params">x</span> =&gt;</span></span><br><span class="line">  <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> resolve(x + <span class="number">1</span>), <span class="number">1000</span>))</span><br><span class="line"></span><br><span class="line"><span class="built_in">Promise</span></span><br><span class="line">  .resolve(<span class="number">0</span>)</span><br><span class="line">  .then(add)</span><br><span class="line">  .then(add)</span><br><span class="line">  .then(<span class="built_in">console</span>.log)</span><br><span class="line"><span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>不分同步与异步，它们的调用方式与最终结果完全一致！</p>
+<p>作为一个总结，让我们看看从回调地狱到 Promise 的过程中，背后运用了哪些函数式编程中的概念呢？</p>
+<ul>
+<li>最简单的 <code>P(A).then(B)</code> 实现里，它的 <code>P(A)</code> 相当于 Monad 中的 <code>unit</code> 接口，能够<strong>把任意值包装到 Monad 容器里</strong>。</li>
+<li>支持嵌套的 Promise 实现中，它的 <code>then</code> 背后其实是 FP 中的 <code>join</code> 概念，<strong>在容器里还装着容器的时候，递归地把内层容器拆开，返回最底层装着的值。</strong></li>
+<li>Promise 的链式调用背后，其实是 Monad 中的 <code>bind</code> 概念。你可以扁平地串联一堆 <code>.then()</code>，往里传入各种函数，Promise 能够帮你抹平同步和异步的差异，把这些函数<strong>逐个应用到容器里的值上</strong>。</li>
+</ul>
+<p>回归这节中最原始的问题，<strong>Monad 是什么呢</strong>？只要一个对象具备了下面两个方法，我们就可以认为它是 Monad 了：</p>
+<ol>
+<li><strong>能够把一个值包装为容器</strong> - 在 FP 里面这叫做 <code>unit</code>。</li>
+<li><strong>对容器里装着的值，能够把一个函数应用到值上</strong> - 这里的难点在于，容器里可能嵌套着容器，因此应用函数到值上的时候需要递归。在 FP 里面这叫做 <code>bind</code>（这和 JS 里的 <code>bind</code> 完全是两个概念，请不要混淆了）。</li>
+</ol>
+<p>正如我们已经看到的，<code>Promise.resolve()</code> 能够把任意值包装到 Promise 里，而 Promise/A+ 规范里的 Resolve 算法则实际上实现了 <code>bind</code>。因此，我们可以认为：Promise 就是一个 Monad。其实这并不是一个新奇的结论，在 Github 上早有人从代码角度给出了证明，有兴趣的同学可以去<a href="https://gist.github.com/briancavalier/3296186" target="_blank" rel="noopener">感受一下</a> :-)</p>
+<p>作为总结，最后考虑这个问题：我们是怎么把 Promise 和 Monad 联系起来呢？Promise 消除回调地狱的关键在于：</p>
+<ol>
+<li>拆分 <code>A(B)</code> 为 <code>P(A).then(B)</code> 的形式。这其实就是 Monad 用来构建容器的 <code>unit</code>。</li>
+<li>不分同步异步，都能写 <code>P(A).then(B).then(C)...</code>，这其实是 Monad 里的 <code>bind</code>。</li>
+</ol>
+<p>到这里，我们就能够从 Promise 的功能来理解 Monad 的作用，并用 Monad 的概念来解释 Promise 的设计啦 😉</p>
+<h2 id="何谓自函子上的幺半群"><a href="#何谓自函子上的幺半群" class="headerlink" title="何谓自函子上的幺半群"></a>何谓自函子上的幺半群</h2><p>到了这里，只要你理解了 Promise，那么你应该就已经可以理解 Monad 了。不过，Monad 传说中【自函子上的幺半群】又是怎么一回事呢？其实只要你读到了这里，你就已经见识过<strong>自函子</strong>和<strong>幺半群</strong>了（这里的理解未必准确，权当抛砖引玉之用，希望 dalao 指正）。</p>
+<h3 id="自函子"><a href="#自函子" class="headerlink" title="自函子"></a>自函子</h3><p><strong>函子</strong>即所谓的 Functor，是一个能把值装在里面，通过传入函数来变换容器内容的<strong>容器</strong>：简化的理解里，前文中的 <code>Promise.resolve</code> 就相当于这样的映射，能把任意值装进 Promise 容器里。而<strong>自函子</strong>则是【能把范畴映射到本身】的 Functor，可以对应于 <code>Promise(A).then()</code> 里仍然返回 Promise 本身。</p>
+<h3 id="幺半群"><a href="#幺半群" class="headerlink" title="幺半群"></a>幺半群</h3><p>幺半群即所谓的 Monadic，满足两个条件：单位元与结合律。</p>
+<p><strong>单位元</strong>是这样的两个条件：</p>
+<p>首先，作用到单位元 <code>unit(a)</code> 上的 <code>f</code>，结果和 <code>f(a)</code> 一致：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> value = <span class="number">6</span></span><br><span class="line"><span class="keyword">const</span> f = <span class="function"><span class="params">x</span> =&gt;</span> <span class="built_in">Promise</span>.resolve(x + <span class="number">6</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 下面两个值相等</span></span><br><span class="line"><span class="keyword">const</span> left = <span class="built_in">Promise</span>.resolve(value).then(f)</span><br><span class="line"><span class="keyword">const</span> right = f(value)</span><br></pre></td></tr></table></figure>
+<p>其次，作用到非单位元 <code>m</code> 上的 <code>unit</code>，结果还是 <code>m</code> 本身：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> value = <span class="number">6</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 下面两个值相等</span></span><br><span class="line"><span class="keyword">const</span> left = <span class="built_in">Promise</span>.resolve(value)</span><br><span class="line"><span class="keyword">const</span> right = <span class="built_in">Promise</span>.resolve(value).then(<span class="function"><span class="params">x</span> =&gt;</span> <span class="built_in">Promise</span>.resolve(x))</span><br></pre></td></tr></table></figure>
+<p>至于<strong>结合律</strong>则是这样的条件：<code>(a • b) • c</code> 等于 <code>a • (b • c)</code>：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> f = <span class="function"><span class="params">a</span> =&gt;</span> <span class="built_in">Promise</span>.resolve(a * a)</span><br><span class="line"><span class="keyword">const</span> g = <span class="function"><span class="params">a</span> =&gt;</span> <span class="built_in">Promise</span>.resolve(a - <span class="number">6</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> m = <span class="built_in">Promise</span>.resolve(<span class="number">7</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 下面两个值相等</span></span><br><span class="line"><span class="keyword">const</span> left = m.then(f).then(g)</span><br><span class="line"><span class="keyword">const</span> right = m.then(<span class="function"><span class="params">x</span> =&gt;</span> f(x).then(g))</span><br></pre></td></tr></table></figure>
+<p>上面短短的几行代码，其实就是对【Promise 是 Monad】的一个证明了。到这里，我们可以发现，日常对接接口编写 Promise 的时候，我们写的东西都可以先提升到函数式编程的 Monad 层面，然后用抽象代数和范畴论来解释，逼格是不是瞬间提高了呢 XD</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>上面所有的论证都没有牵扯到 <code>&gt;&gt;==</code> 这样的 Haskell 内容，我们可以完全用 JS 这样低门槛的语言来介绍 Monad 是什么，又有什么用。某种程度上笔者认同王垠的观点：函数式编程的门槛被人为地拔高或神话了，明明是实际开发中非常实用且易于理解的东西，却要使用更难以懂的一套概念去形式化地定义和解释，这恐怕并不利于优秀工具和理念的普及。</p>
+<p>当然了，为了体现逼格，如果下次再有同学问你 Promise 是什么，请这么回复：</p>
+<blockquote>
+<p>Promise 不就是自函子上的幺半群吗，有什么难以理解的 🙂</p>
+</blockquote>
+<p>最后插播广告：笔者写这篇文章的动机，是源自实现一个完全 Promise 化的异步数据转换轮子 <a href="https://github.com/doodlewind/bumpover" target="_blank" rel="noopener">Bumpover</a> 时对 Promise 的一些新理解。有兴趣的同学欢迎关注哦 XD</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JavaScript/">JavaScript</a><a href="/tags/Pattern/">Pattern</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/monad-callback-hell/" data-title="从回调地狱到自函子上的幺半群：解密熟悉又陌生的 Monad | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/fe-native-guide/" title="面向 Web 前端的原生语言总结手册">
+  <strong>上一篇：</strong><br/>
+  <span>
+  面向 Web 前端的原生语言总结手册</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/bumpover-debut/"  title="Bumpover.js - 牢固而趁手的数据校验转换库">
+ <strong>下一篇：</strong><br/> 
+ <span>Bumpover.js - 牢固而趁手的数据校验转换库
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#回调地狱与-Promise"><span class="toc-number">1.</span> <span class="toc-text">回调地狱与 Promise</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#冬三雪碧与-Monad"><span class="toc-number">2.</span> <span class="toc-text">冬三雪碧与 Monad</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#何谓自函子上的幺半群"><span class="toc-number">3.</span> <span class="toc-text">何谓自函子上的幺半群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#自函子"><span class="toc-number">3.1.</span> <span class="toc-text">自函子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#幺半群"><span class="toc-number">3.2.</span> <span class="toc-text">幺半群</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

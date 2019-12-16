@@ -1,0 +1,657 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>基于 Vue / Webpack / WebSocket 的前端远程调试工具 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="FlyLog 这一工具可对传统调试工具难以调试的页面进行实时远程调试。在手机打开引入 FlyLog 的页面后，PC 端后台会实时推送该页面的日志信息，支持多设备并发访问，且提供了 AOP 风格的调试 API。下面分享一下它的实现。">
+<meta name="keywords" content="Web,JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于 Vue &#x2F; Webpack &#x2F; WebSocket 的前端远程调试工具">
+<meta property="og:url" content="https://ewind.us/2016/remote-log-vue-webpack-websocket/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="FlyLog 这一工具可对传统调试工具难以调试的页面进行实时远程调试。在手机打开引入 FlyLog 的页面后，PC 端后台会实时推送该页面的日志信息，支持多设备并发访问，且提供了 AOP 风格的调试 API。下面分享一下它的实现。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/flylog-demo.png">
+<meta property="og:image" content="https://ewind.us/images/color-scheme.jpg">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.551Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于 Vue &#x2F; Webpack &#x2F; WebSocket 的前端远程调试工具">
+<meta name="twitter:description" content="FlyLog 这一工具可对传统调试工具难以调试的页面进行实时远程调试。在手机打开引入 FlyLog 的页面后，PC 端后台会实时推送该页面的日志信息，支持多设备并发访问，且提供了 AOP 风格的调试 API。下面分享一下它的实现。">
+<meta name="twitter:image" content="https://ewind.us/images/flylog-demo.png">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/remote-log-vue-webpack-websocket/" title="基于 Vue / Webpack / WebSocket 的前端远程调试工具" itemprop="url">基于 Vue / Webpack / WebSocket 的前端远程调试工具</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2016-10-07T16:00:00.000Z" itemprop="datePublished"> 发表于 2016-10-08</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Demo"><span class="toc-number">1.</span> <span class="toc-text">Demo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#架构"><span class="toc-number">2.</span> <span class="toc-text">架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hook-模块-flyEcho"><span class="toc-number">3.</span> <span class="toc-text">Hook 模块 - flyEcho</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AOP-的实现"><span class="toc-number">3.1.</span> <span class="toc-text">AOP 的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#上报-console-log-内容"><span class="toc-number">3.2.</span> <span class="toc-text">上报 console.log 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在-window-onload-结束后执行"><span class="toc-number">3.3.</span> <span class="toc-text">在 window.onload 结束后执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Performance-API"><span class="toc-number">3.4.</span> <span class="toc-text">Performance API</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WebSocket-服务模块-flyHub"><span class="toc-number">4.</span> <span class="toc-text">WebSocket 服务模块 - flyHub</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#广播"><span class="toc-number">4.1.</span> <span class="toc-text">广播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跨域"><span class="toc-number">4.2.</span> <span class="toc-text">跨域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#静态文件"><span class="toc-number">4.3.</span> <span class="toc-text">静态文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vue-展示后台-flyAdmin"><span class="toc-number">5.</span> <span class="toc-text">Vue 展示后台 - flyAdmin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Webpack"><span class="toc-number">5.1.</span> <span class="toc-text">Webpack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据传递"><span class="toc-number">5.2.</span> <span class="toc-text">数据传递</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Filter"><span class="toc-number">5.3.</span> <span class="toc-text">Filter</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#彩蛋"><span class="toc-number">6.</span> <span class="toc-text">彩蛋</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="https://github.com/doodlewind/flylog" target="_blank" rel="noopener">FlyLog</a> 这一工具可对传统调试工具难以调试的页面进行实时远程调试。在手机打开引入 FlyLog 的页面后，PC 端后台会实时推送该页面的日志信息，支持多设备并发访问，且提供了 AOP 风格的调试 API。下面分享一下它的实现。</p>
+<a id="more"></a>
+<h2 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h2><p>如下所示，只需在待调试页面引入调试脚本，即可在 FlyLog 后台显示其日志、报错和加载性能信息。</p>
+<p><img src="/images/flylog-demo.png" alt="flylog-demo"></p>
+<p>体验 Demo 效果，只需安装 FlyLog 到本地运行后，访问 <code>localhost:3000</code> 右上的 Doc 链接即可。</p>
+<p>安装：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g flylog</span><br></pre></td></tr></table></figure>
+<p>运行：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">flylog</span><br></pre></td></tr></table></figure>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p>FlyLog 由三个独立的 JS 模块组成。</p>
+<ul>
+<li><code>flyEcho.js</code> 为供待调试页面引入的 Hook 模块，在不影响原有代码的条件下注入远程上报代码。</li>
+<li><code>flyHub.js</code> 为 Node 服务端模块，收集 POST 日志记录，并广播到所有 WebSocket 的后台客户端。</li>
+<li><code>flyAdmin.js</code> 为通过 WebSocket 连接到服务端的后台模块，也是 Vue 组件的公用入口。</li>
+</ul>
+<p>模块之间的联系十分简洁：待调试页面引入位于服务端的 <code>flyEcho.js</code> 后，<code>console.log</code> 等方法的信息会被截获并 POST （待调试页面的日志信息不走 WebSocket）到服务端，服务端广播相应消息到所有 Admin 客户端，从而实现远程调试。</p>
+<h2 id="Hook-模块-flyEcho"><a href="#Hook-模块-flyEcho" class="headerlink" title="Hook 模块 - flyEcho"></a>Hook 模块 - flyEcho</h2><p><a href="https://github.com/doodlewind/flylog/blob/master/flyEcho.js" target="_blank" rel="noopener">flyEcho</a> 通过 AOP 面向切面编程的方式，实现了将上报代码切入到 <code>console.log</code> 和 <code>window.onload</code> 调用的前后执行，且提供了用于调试的 API 以便实现定制。</p>
+<h3 id="AOP-的实现"><a href="#AOP-的实现" class="headerlink" title="AOP 的实现"></a>AOP 的实现</h3><p>AOP 的实现，实际上就是在函数执行前或执行后，切入一段自有的代码，且不修改原函数代码。在 JS 中可以用下面这段经典的代码片段来实现：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Function</span>.prototype.before = <span class="function"><span class="keyword">function</span>(<span class="params">fn</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (fn.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>) === <span class="literal">false</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> _this.apply(<span class="keyword">this</span>, <span class="built_in">arguments</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>思路就是替换原有的函数为一个【先 <code>apply</code> 执行切入函数 <code>fn</code>，后 <code>apply</code> 执行原函数】的新函数。使用方法：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 原有代码</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载 before 事件</span></span><br><span class="line">foo = foo.before(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(x + <span class="number">1</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在点击等事件触发 foo 时先执行 before 再执行 foo</span></span><br><span class="line">foo(<span class="number">1</span>); <span class="comment">// 2 1</span></span><br></pre></td></tr></table></figure>
+<p>若要阻止原函数执行，在切入的匿名函数内返回 <code>false</code> 即可：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 对象方法同样可 Hook</span></span><br><span class="line"><span class="keyword">var</span> foo = &#123;</span><br><span class="line">    bar: <span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(x);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo.bar = foo.bar.before(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(x + <span class="number">1</span>);</span><br><span class="line">    <span class="comment">// 可在调试时按需阻止原函数执行</span></span><br><span class="line">    <span class="keyword">if</span> (x == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">foo.bar(<span class="number">1</span>); <span class="comment">// 2</span></span><br><span class="line">foo.bar(<span class="number">2</span>); <span class="comment">// 3 2</span></span><br></pre></td></tr></table></figure>
+<h3 id="上报-console-log-内容"><a href="#上报-console-log-内容" class="headerlink" title="上报 console.log 内容"></a>上报 console.log 内容</h3><p>运用上例中的 <code>before</code> API，在 <code>console.log</code> 执行前切入一个我们自己的数据上报函数即可:</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">console</span>.log = <span class="built_in">console</span>.log.before(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    sendAjax([].slice.call(<span class="built_in">arguments</span>));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="在-window-onload-结束后执行"><a href="#在-window-onload-结束后执行" class="headerlink" title="在 window.onload 结束后执行"></a>在 window.onload 结束后执行</h3><p>和 <code>before</code> 类似的 <code>after</code> API 可以将代码挂载到 <code>windows.onload</code> 后执行。需要注意的是，下文中调用 Performance API 时，如果直接用同步的写法在 <code>after</code> 中收集性能数据，会由于这时的 <code>window.onload</code> 还没有完全结束而造成部分关键参数缺失。解决方法如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">window</span>.onload = (<span class="built_in">window</span>.onload || <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;).after(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// run after window.onload returns to get correct timing</span></span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> timing = getPerformanceTiming();</span><br><span class="line">        sendAjax(timing);</span><br><span class="line">    &#125;, <span class="number">0</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="Performance-API"><a href="#Performance-API" class="headerlink" title="Performance API"></a>Performance API</h3><p>通过 Performance API 即可上报浏览器提供的性能数据，精确到毫秒级。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> performance = <span class="built_in">window</span>.performance;</span><br><span class="line"><span class="keyword">if</span> (!performance) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'performance API not supported'</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> t = performance.timing;</span><br><span class="line"><span class="keyword">var</span> times = &#123;&#125;;</span><br><span class="line">times.lookupDomain = t.domainLookupEnd - t.domainLookupStart;  <span class="comment">// DNS 查询时间</span></span><br><span class="line">times.redirect = t.redirectEnd - t.redirectStart;              <span class="comment">// URL 重定向时间</span></span><br><span class="line">times.ttfb = t.responseStart - t.navigationStart;              <span class="comment">// 获取首个字节时间</span></span><br><span class="line">times.request = t.responseEnd - t.requestStart;                <span class="comment">// 请求时间</span></span><br><span class="line">times.domReady = t.domComplete - t.responseEnd;                <span class="comment">// DOM 解析时间</span></span><br><span class="line">times.loadEvent = t.loadEventEnd - t.loadEventStart;           <span class="comment">// window.onload 执行时间</span></span><br><span class="line">times.loadFullPage = t.loadEventEnd - t.navigationStart;       <span class="comment">// 整页面加载时间</span></span><br></pre></td></tr></table></figure>
+<p>详细的分析参见<a href="http://www.alloyteam.com/2015/09/explore-performance/" target="_blank" rel="noopener">这里</a>，需要注意的是在绝大多数情况下，上例中除 <code>loadFullPage</code> 外的各时长之和，即为最后的 <code>loadFullPage</code> 整页面加载时间。因此可通过这个方式分析页面加载时间过长时的瓶颈位置。</p>
+<h2 id="WebSocket-服务模块-flyHub"><a href="#WebSocket-服务模块-flyHub" class="headerlink" title="WebSocket 服务模块 - flyHub"></a>WebSocket 服务模块 - flyHub</h2><p><a href="https://github.com/doodlewind/flylog/blob/master/flyHub.js" target="_blank" rel="noopener">flyHub.js</a> 是对 Node 底层服务和 Socket.IO 的简单封装。</p>
+<h3 id="广播"><a href="#广播" class="headerlink" title="广播"></a>广播</h3><p>调用 Socket.IO 的 <code>emit</code> API</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">io.emit(<span class="string">'name'</span>, data);</span><br></pre></td></tr></table></figure>
+<p>即可向所有连接的 WebSocket 客户端广播名为 <code>name</code> 的 data 数据，数据可以是 JSON 或 string 等格式。</p>
+<h3 id="跨域"><a href="#跨域" class="headerlink" title="跨域"></a>跨域</h3><p>不通过 JSONP 的方式，直接在响应中使用 <code>Access-Control</code> 全家桶首部即可响应跨域请求。简要流程是：在发送 <code>appliacation/json</code> 一类的 XHR 请求前，浏览器会首先发送一个 Preflight OPTION 请求，检查响应首部是否声明支持跨域，若支持则发送原请求。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 传入 http 模块的 handler 函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">httpHandler</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">    response.setHeader(<span class="string">'Access-Control-Allow-Origin'</span>, <span class="string">'*'</span>);</span><br><span class="line">    response.setHeader(<span class="string">'Access-Control-Request-Method'</span>, <span class="string">'*'</span>);</span><br><span class="line">    response.setHeader(<span class="string">'Access-Control-Allow-Methods'</span>, <span class="string">'*'</span>);</span><br><span class="line">    response.setHeader(<span class="string">'Access-Control-Allow-Headers'</span>, <span class="string">'*'</span>);</span><br><span class="line">    <span class="comment">// 支持 preflight OPTION 请求</span></span><br><span class="line">    <span class="keyword">if</span> (request.method === <span class="string">'OPTIONS'</span>) &#123;</span><br><span class="line">        response.writeHead(<span class="number">200</span>);</span><br><span class="line">        response.end();</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 原有的 handler 代码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="静态文件"><a href="#静态文件" class="headerlink" title="静态文件"></a>静态文件</h3><p>基于 Node.js 基础的 fs 模块即可实现一个静态文件服务器，参考 <a href="http://stackoverflow.com/questions/16333790/node-js-quick-file-server-static-files-over-http" target="_blank" rel="noopener">Stack Overflow 示例</a>即可。注意示例中 <code>fs.readFile</code> 传入的路径是简单的 <code>filePath</code>，这会造成在将 package 安装到全局后运行时的路径问题。将该参数替换为 <code>path.join(__dirname, filePath)</code> 即可。</p>
+<h2 id="Vue-展示后台-flyAdmin"><a href="#Vue-展示后台-flyAdmin" class="headerlink" title="Vue 展示后台 - flyAdmin"></a>Vue 展示后台 - flyAdmin</h2><p><a href="https://github.com/doodlewind/flylog/blob/master/flyAdmin.js" target="_blank" rel="noopener">flyAdmin.js</a> 采用了目前十分火热的 Vue + Webpack 方案实现了组件化开发。和 <code>vue-cli</code> 所提供的项目模板不同的是，FlyLog 采用了 Gulp + Webpack 的方案，来缓解 Webpack 配置文件难以阅读的问题，且支持 <code>.vue</code> 文件所需的各 loader 和构建出生产版本。这次的摸索中也解决了【如何不依赖脚手架，从头构建一个 Vue + Webpack 多入口打包方案】的问题，所需的相应的模板可以在后续的博客中介绍。</p>
+<h3 id="Webpack"><a href="#Webpack" class="headerlink" title="Webpack"></a>Webpack</h3><p><code>webpack.config.js</code> 中关键的配置如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  entry: &#123; <span class="attr">flyAdmin</span>: <span class="string">"./flyAdmin"</span> &#125;, <span class="comment">// 多入口文件在此声明即可</span></span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.join(__dirname, <span class="string">"dist"</span>), <span class="comment">// 输出目录和文件名</span></span><br><span class="line">    filename: <span class="string">"[name].bundle.js"</span>,</span><br><span class="line">    chunkFilename: <span class="string">"[id].chunk.js"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [], <span class="comment">// 可在此引入分离 Chunk 的相应 Plugin</span></span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    loaders: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.vue$/</span>,</span><br><span class="line">        loader: <span class="string">'vue'</span></span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.js$/</span>,</span><br><span class="line">        loader: <span class="string">'babel'</span>,</span><br><span class="line">        exclude: <span class="regexp">/node_modules/</span></span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.scss$/</span>,</span><br><span class="line">        loader: <span class="string">'style!css!sass'</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  vue: &#123;</span><br><span class="line">    loaders: cssLoaders(), <span class="comment">// 函数实现来自 vue-cli 脚手架，对预处理 sass 是必须的</span></span><br><span class="line">    postcss: [</span><br><span class="line">      <span class="built_in">require</span>(<span class="string">'autoprefixer'</span>)(&#123;</span><br><span class="line">        browsers: [<span class="string">'last 2 versions'</span>]</span><br><span class="line">      &#125;)</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="数据传递"><a href="#数据传递" class="headerlink" title="数据传递"></a>数据传递</h3><p>Vue 2.0 中废弃了 <code>$dispatch</code> 和 <code>$broadcast</code> 方法，而简单的数据单向传递（从 WebSocket 服务端推送至客户端）不需要引入 Vuex 这类较重的解决方案，直接在 <code>window.bus</code> 全局变量上设置事件的触发器和监听器即可：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// App.vue</span></span><br><span class="line"><span class="built_in">window</span>.bus = <span class="keyword">new</span> Vue()</span><br></pre></td></tr></table></figure>
+<p>在主入口内注册了 <code>bus</code> 后，在 socket.io-client 的 Handler 中调用 <code>$emit</code> 方法即可在 Vue 的事件系统中触发事件：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Network.vue</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  created: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> socket = <span class="built_in">require</span>(<span class="string">'socket.io-client'</span>)(<span class="built_in">window</span>.location.href)</span><br><span class="line">    <span class="comment">// 触发各类事件</span></span><br><span class="line">    socket.on(<span class="string">'log'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">      <span class="built_in">window</span>.bus.$emit(<span class="string">'log'</span>, data)</span><br><span class="line">    &#125;)</span><br><span class="line">    socket.on(<span class="string">'error'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">      <span class="built_in">window</span>.bus.$emit(<span class="string">'error'</span>, data)</span><br><span class="line">    &#125;)</span><br><span class="line">    socket.on(<span class="string">'performance'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">      <span class="built_in">window</span>.bus.$emit(<span class="string">'performance'</span>, data)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line">  render: <span class="function"><span class="params">()</span> =&gt;</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在接受数据的组件的 <code>created</code> 钩子中，注册相应的事件监听器，传入添加数据的方法即可。Vue 重写的观察者数组方法实现了数据和 DOM 的绑定，无需手工操作 DOM 元素。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// LogPanel.vue</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  data: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      logs: []</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  methods: &#123;</span><br><span class="line">    addLog: <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.logs.push(data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// 在 bus 上注册事件监听器</span></span><br><span class="line">  created: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">window</span>.bus.$on(<span class="string">'log'</span>, <span class="keyword">this</span>.addLog)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h3><p>Vue 2.0 中废弃了 Angular 风格的 <code>filterBy</code> 方法，使用计算属性取代它的方式也很直观，以实现输入文字过滤日志结果为例，先在 HTML 中使用指令声明 <code>expr</code> 模型：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">v-model</span>=<span class="string">"expr"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">v-for</span>=<span class="string">"log in filteredLogs"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span>&gt;</span>&#123;&#123; log.src &#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">span</span>&gt;</span> &#123;&#123; log.content &#125;&#125; <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后实现计算出 <code>filteredLogs</code> 数组的方法：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  data: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      expr: <span class="string">''</span>,  <span class="comment">// 用于过滤的输入文字</span></span><br><span class="line">      logs: []   <span class="comment">// 待过滤的日志项</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  methods: &#123;</span><br><span class="line">    addLog: <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">      data.content = data.content.toString()</span><br><span class="line">      <span class="keyword">this</span>.logs.push(data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  computed: &#123;</span><br><span class="line">    filteredLogs() &#123;</span><br><span class="line">      <span class="keyword">var</span> _this = <span class="keyword">this</span></span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.logs.filter(<span class="function"><span class="keyword">function</span>(<span class="params">logItem</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> logItem.content.indexOf(_this.expr) &gt; <span class="number">-1</span></span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  created: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">window</span>.bus.$on(<span class="string">'log'</span>, <span class="keyword">this</span>.addLog)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就实现了利用计算属性来替代 <code>filterBy</code> 过滤器的效果。</p>
+<h2 id="彩蛋"><a href="#彩蛋" class="headerlink" title="彩蛋"></a>彩蛋</h2><p>FlyLog 项目的配色来自这张 CG</p>
+<p><img src="/images/color-scheme.jpg" alt="why-are-you-so-good-at-it"></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2016/remote-log-vue-webpack-websocket/" data-title="基于 Vue / Webpack / WebSocket 的前端远程调试工具 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/vue-springbud-intro/" title="Vue + Webpack 多页面多公共 Chunk 实例模板">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Vue + Webpack 多页面多公共 Chunk 实例模板</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/rem-12px/"  title="解决 REM 单位的跨浏览器问题">
+ <strong>下一篇：</strong><br/> 
+ <span>解决 REM 单位的跨浏览器问题
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Demo"><span class="toc-number">1.</span> <span class="toc-text">Demo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#架构"><span class="toc-number">2.</span> <span class="toc-text">架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hook-模块-flyEcho"><span class="toc-number">3.</span> <span class="toc-text">Hook 模块 - flyEcho</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AOP-的实现"><span class="toc-number">3.1.</span> <span class="toc-text">AOP 的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#上报-console-log-内容"><span class="toc-number">3.2.</span> <span class="toc-text">上报 console.log 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在-window-onload-结束后执行"><span class="toc-number">3.3.</span> <span class="toc-text">在 window.onload 结束后执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Performance-API"><span class="toc-number">3.4.</span> <span class="toc-text">Performance API</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WebSocket-服务模块-flyHub"><span class="toc-number">4.</span> <span class="toc-text">WebSocket 服务模块 - flyHub</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#广播"><span class="toc-number">4.1.</span> <span class="toc-text">广播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跨域"><span class="toc-number">4.2.</span> <span class="toc-text">跨域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#静态文件"><span class="toc-number">4.3.</span> <span class="toc-text">静态文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vue-展示后台-flyAdmin"><span class="toc-number">5.</span> <span class="toc-text">Vue 展示后台 - flyAdmin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Webpack"><span class="toc-number">5.1.</span> <span class="toc-text">Webpack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据传递"><span class="toc-number">5.2.</span> <span class="toc-text">数据传递</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Filter"><span class="toc-number">5.3.</span> <span class="toc-text">Filter</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#彩蛋"><span class="toc-number">6.</span> <span class="toc-text">彩蛋</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

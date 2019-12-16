@@ -1,0 +1,647 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>在浏览器里跑起语法分析器 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="动手之后才发现，造一个编译器轮子的难度其实并没有很多人所想的那么大。所以还是用 Learn By Doing 的方式，一点点地构建出自己的编译器吧。而为了实现全平台通用的野心，这里就选用了活在浏览器里的 JavaScript 来造这个轮子。">
+<meta name="keywords" content="Web,Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在浏览器里跑起语法分析器">
+<meta property="og:url" content="https://ewind.us/2015/parser-in-browser/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="动手之后才发现，造一个编译器轮子的难度其实并没有很多人所想的那么大。所以还是用 Learn By Doing 的方式，一点点地构建出自己的编译器吧。而为了实现全平台通用的野心，这里就选用了活在浏览器里的 JavaScript 来造这个轮子。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.546Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="在浏览器里跑起语法分析器">
+<meta name="twitter:description" content="动手之后才发现，造一个编译器轮子的难度其实并没有很多人所想的那么大。所以还是用 Learn By Doing 的方式，一点点地构建出自己的编译器吧。而为了实现全平台通用的野心，这里就选用了活在浏览器里的 JavaScript 来造这个轮子。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/parser-in-browser/" title="在浏览器里跑起语法分析器" itemprop="url">在浏览器里跑起语法分析器</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2015-04-03T16:00:00.000Z" itemprop="datePublished"> 发表于 2015-04-04</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#关于各种「器」的废话"><span class="toc-number">1.</span> <span class="toc-text">关于各种「器」的废话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现语法分析器"><span class="toc-number">2.</span> <span class="toc-text">实现语法分析器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后续路线图"><span class="toc-number">3.</span> <span class="toc-text">后续路线图</span></a></li></ol>
+		
+		</div>
+		
+		<p>动手之后才发现，造一个编译器轮子的难度其实并没有很多人所想的那么大。所以还是用 Learn By Doing 的方式，一点点地构建出自己的编译器吧。而为了实现全平台通用的野心，这里就选用了活在浏览器里的 JavaScript 来造<a href="https://github.com/doodlewind/compilExpt" target="_blank" rel="noopener">这个轮子</a>。</p>
+<a id="more"></a>
+<h2 id="关于各种「器」的废话"><a href="#关于各种「器」的废话" class="headerlink" title="关于各种「器」的废话"></a>关于各种「器」<del>的废话</del></h2><p>编译器、翻译器、解释器、词法分析器、语法分析器……先对这些概念做一点小总结吧。</p>
+<blockquote>
+<p>A compiler is a computer program (or set of programs) that transforms source code written in a programming language (the source language) into another computer language (the target language, often having a binary form known as object code)</p>
+</blockquote>
+<p><strong>编译器</strong>就是把源代码翻译到目标代码的工具。广义上说，实现了各种编程语言代码之间转换的程序，都可以称为编译器。不过，最早编译器是把高级语言的代码转换成机器语言的，而今天显然不是所有代码都通过这种方式来执行，于是也就细分出了几种不同的「器」，比如<strong>翻译器</strong>把一种高级语言代码翻译到另一种高级语言；<strong>解释器</strong>一边读入代码，一边把代码转换成另一种语言来执行，等等。至于把低级语言翻译到高级语言，这就似乎没什么必要了……</p>
+<p>上面的这些「器」，每种实现起来都是个大工程，实现上会被分成一个个模块，每个模块负责过程的一部分。要让自己的编译器跑起来，至少需要实现的几个过程依次是<strong>词法分析</strong>（Lexial Analysis）、<strong>语法分析</strong>（Grammar Analysis）和<strong>语义分析</strong>（Semantic Analysis）。</p>
+<ul>
+<li>词法分析过程把代码流分成一个个 Token，然而程序并不明白每个 Token 的意义。它的实现就称为词法分析器。</li>
+<li>语法分析过程把顺序输入的一个个 Token 按照文法，组合成一棵语法树。</li>
+<li>语义分析过程遍历这棵树，执行每个节点相应的语义动作。简单的理解，就是在由 Token 组成的语法树上的每个节点，在 JS 里都执行一下相应的 <code>eval()</code>。</li>
+</ul>
+<p>语法分析和语义分析虽然在概念上是独立的步骤，但实现时可以在建立语法树时一起执行。所以这里建立的语法分析器在后面就可以直接加上语义分析的功能，成为一个完整的编译器。</p>
+<h2 id="实现语法分析器"><a href="#实现语法分析器" class="headerlink" title="实现语法分析器"></a>实现语法分析器</h2><p>实践中实现语法分析器的过程大体上分为两种：自底向上与自顶向下。</p>
+<ul>
+<li>自顶向下方法，相当于从根节点（顶部）向下构造语法树，有种流行的实现称为递归下降的预测分析器。看到递归了吗，这就是在偷偷告诉你直接手写构造它的难度低啊。</li>
+<li>自底向上方法，先根据文法生成一张分析表，然后一个个吃进符号，从叶子结点开始来建立语法树。这个东西的难度在于造表的流程比较复杂，而好处就是想要修改文法，不需要修改分析器的代码，只要改文法本身就行。</li>
+</ul>
+<p>说了半天，还没提到现在要实现的语法分析器本身呢。由于一点小小的野心，这个分析器的分析方式被设计为自底向上的。也就是说，只要换一套文法，就能执行对不同语言的分析任务，感觉是不是很通用呢。</p>
+<p>自底向上做语法分析的过程可以粗略地分为造表和按表跑这两步。而实现时首先需要做的是造表。这大致又可以分为下面的这几步：</p>
+<ol>
+<li>计算所有文法符号的 FIRST 集合。</li>
+<li>计算所有非终结符的 FOLLOW 集合。</li>
+<li>根据闭包运算求出每个状态所对应的项集。</li>
+<li>建 STATE 表记录下所有的状态。</li>
+<li>根据 STATE 表填 ACTION 表和 GOTO 表。</li>
+</ol>
+<p>而 ACTION 和 GOTO 是可以合并的（差别仅仅在于，ACTION 表的列名是终结符，而 GOTO 表的列名是非终结符）。这样一来，整个建表过程就可以十分过程化地像下面这样执行（代码里确实也是这么写的）：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">buildFirstTable();</span><br><span class="line"></span><br><span class="line">buildFollowTable();</span><br><span class="line"></span><br><span class="line">buildStateTable();</span><br><span class="line"></span><br><span class="line">buildActionTable();</span><br></pre></td></tr></table></figure>
+<p>这样就完成了造表的过程。后面的分析过程中，只要通过查 ACTION 和 GOTO 表来执行状态间的转移就行了。</p>
+<p>实现时，STATE 和 ACTION 对应了 JS 的数组（状态的序号对于数组的偏移），而 FIRST 和 FOLLOW 集合则很适合用字典来表示（根据读入的字符直接对应相应的集合）。</p>
+<p>最有意思的地方，是 JavaScript 可以用 JSON 的对象来表示文法。这有个好处，就是特殊符号不能作为变量名，但是可以作为 JSON 对象的键名，从而在实现上会比较统一。</p>
+<h2 id="后续路线图"><a href="#后续路线图" class="headerlink" title="后续路线图"></a>后续路线图</h2><p>现在的语法分析器已经实现了分析表的构建，下面的需要做的可以归结成这几件事：</p>
+<ul>
+<li>按表执行语法树的构建。</li>
+<li>语义动作的附加。</li>
+<li>一些实用文法的构造，现在所能想到的就是通过加入自定义的文法，在浏览器里实现这些东西：<ul>
+<li>JSON 的解析器。</li>
+<li>HTML 的解析器。</li>
+<li>SQL 的解释器，各种查表的语义动作可以最终转对 CSV 格式数据的查询。</li>
+<li>jQuery 到原生 JavaScript 的翻译器。</li>
+</ul>
+</li>
+</ul>
+<p>限于时间和我弱渣的 <del>debug driven development</del> 水平，感觉这些东西最后能实现一两个就很不错啦，毕竟就好像执行力比好 idea 重要一样，重点总是不在于开坑，而在于填坑……</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/Algorithms/">Algorithms</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2015/parser-in-browser/" data-title="在浏览器里跑起语法分析器 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/js-helper-function/" title="几个好用的 JS 助手函数">
+  <strong>上一篇：</strong><br/>
+  <span>
+  几个好用的 JS 助手函数</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/tokenizer-grammar-hl/"  title="Tokenizer 与语法高亮">
+ <strong>下一篇：</strong><br/> 
+ <span>Tokenizer 与语法高亮
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#关于各种「器」的废话"><span class="toc-number">1.</span> <span class="toc-text">关于各种「器」的废话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现语法分析器"><span class="toc-number">2.</span> <span class="toc-text">实现语法分析器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后续路线图"><span class="toc-number">3.</span> <span class="toc-text">后续路线图</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

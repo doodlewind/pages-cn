@@ -1,0 +1,681 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>别再拿奇技淫巧搬砖了 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="在技术社区中，经常会看见一些博客鼓吹编程语言的各种【高级特性】与【进阶模式】，并且给出一些使用这些特性的【优雅】代码。那么学习和使用这些东西是好是坏，有何利弊呢？本文旨在帮助你给出自己的判断。">
+<meta name="keywords" content="Summary">
+<meta property="og:type" content="article">
+<meta property="og:title" content="别再拿奇技淫巧搬砖了">
+<meta property="og:url" content="https://ewind.us/2017/stop-hacky-code/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="在技术社区中，经常会看见一些博客鼓吹编程语言的各种【高级特性】与【进阶模式】，并且给出一些使用这些特性的【优雅】代码。那么学习和使用这些东西是好是坏，有何利弊呢？本文旨在帮助你给出自己的判断。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.557Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="别再拿奇技淫巧搬砖了">
+<meta name="twitter:description" content="在技术社区中，经常会看见一些博客鼓吹编程语言的各种【高级特性】与【进阶模式】，并且给出一些使用这些特性的【优雅】代码。那么学习和使用这些东西是好是坏，有何利弊呢？本文旨在帮助你给出自己的判断。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/stop-hacky-code/" title="别再拿奇技淫巧搬砖了" itemprop="url">别再拿奇技淫巧搬砖了</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-11-13T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-11-14</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧的小聪明与大智慧"><span class="toc-number">1.</span> <span class="toc-text">技巧的小聪明与大智慧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的奇技淫巧"><span class="toc-number">2.</span> <span class="toc-text">常见的奇技淫巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用危险语义"><span class="toc-number">2.1.</span> <span class="toc-text">使用危险语义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#套用设计模式"><span class="toc-number">2.2.</span> <span class="toc-text">套用设计模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#紧缩代码行数"><span class="toc-number">2.3.</span> <span class="toc-text">紧缩代码行数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隐式改写常识"><span class="toc-number">2.4.</span> <span class="toc-text">隐式改写常识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重复发明轮子"><span class="toc-number">2.5.</span> <span class="toc-text">重复发明轮子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#追求高阶抽象"><span class="toc-number">2.6.</span> <span class="toc-text">追求高阶抽象</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>在技术社区中，经常会看见一些博客鼓吹编程语言的各种【高级特性】与【进阶模式】，并且给出一些使用这些特性的【优雅】代码。那么学习和使用这些东西是好是坏，有何利弊呢？本文旨在帮助你给出自己的判断。</p>
+<a id="more"></a>
+<h2 id="技巧的小聪明与大智慧"><a href="#技巧的小聪明与大智慧" class="headerlink" title="技巧的小聪明与大智慧"></a>技巧的小聪明与大智慧</h2><p>有不少人以使用语言、框架的冷门特性为荣，通过使用各种生僻的 API 来展示自己对框架的熟悉，进而认为自己的编程能力和技术水平比起编写朴素逻辑的同学要高。这个观点合理吗？下面，我们用几个例子来给出一个推论：</p>
+<p>首先，在招聘开发同学时，有一个很有趣的现象，即对于越高层级的应聘者，对具体编码技巧的考察越少，而对架构能力、业务理解、工程素质的考察越多。请注意，对架构、业务与工程的理解绝非通用性的沟通、管理等【软素质】，而是作为工程师实打实的专业能力。</p>
+<p>另一方面，在技术社区中最火热的内容，往往是各种框架、类库的【入门指南】。从各种爆款的【XXX 从入门到精通】到【手把手教你学 XXX】，最热门的内容的仍然是这些 API 怎么调、模式怎么套一类的技巧性知识。</p>
+<p>综合这些现象以及一些常识，我们可以得到下面这三个条件：</p>
+<ul>
+<li>越高级的程序员，技巧性知识在能力树内的比重越小。</li>
+<li>高级程序员的比重远小于初级程序员。</li>
+<li>程序员社区中的多数，最关注的恰好是技巧性知识。</li>
+</ul>
+<p>根据这几个条件，我们可以给出一个不严谨的推论：<strong>最关注并醉心于编程技巧的，很可能恰恰是广大处于初级水平的程序员。</strong>这样一来，炫耀技巧的行为也就不能表明技术水平的高超了。</p>
+<p>需要澄清的是，这里我们<strong>绝对不是认为编程技巧不重要</strong>。相反，高级程序员对技巧的熟悉显然远超初级同学，而许多技巧性的代码更能够在数量级上优化并解决问题。那么我们该怎么评价这样的代码呢？</p>
+<p>会运用各种高级特性的同学，毫无疑问是【聪明】的。但在什么场合使用、怎样使用，则需要所谓【智慧】的判断。这就好像 Facebook 和 Google 的代码规范里时常出现的这句话：</p>
+<blockquote>
+<p>Use your best judgement.</p>
+</blockquote>
+<p>虽然好听，但这其实一个非常形而上的概念。下面我们会做一些更具体化的讨论，抽离出一些常见的奇技淫巧。</p>
+<h2 id="常见的奇技淫巧"><a href="#常见的奇技淫巧" class="headerlink" title="常见的奇技淫巧"></a>常见的奇技淫巧</h2><blockquote>
+<p>幸福的家庭都是相似的，不幸的家庭各有各的不幸。</p>
+<p>——托尔斯泰</p>
+<p>好的代码都是相似的，烂的代码各有各的烂。</p>
+<p><del>——鲁迅</del></p>
+</blockquote>
+<p>如果我们用【奇技淫巧】来评价某段代码，那么这段代码的质量多半好不到哪里去。对于使用了各种技巧的代码，我们也能够找到不少【把技巧运用得很糟糕】的场景，来指明它们各自的问题所在。</p>
+<h3 id="使用危险语义"><a href="#使用危险语义" class="headerlink" title="使用危险语义"></a>使用危险语义</h3><p>不少人在读了些【XX 高级程序设计】之类的书以后，会为了炫耀自己对【高级特性】的理解，而将它们运用到实际项目中。在前端范畴内，这些行为包括但不限于：</p>
+<ul>
+<li>学会 <code>==</code> 和 <code>===</code> 的区别后，在不同场合使用不同的符号实现判断逻辑。</li>
+<li>学会 <code>变量提升</code> 的行为后，使用它来实现特殊的代码执行顺序。</li>
+<li>学会 <code>prototype</code> 和 <code>constructor</code> 后，使用它们实现各种继承关系。</li>
+<li>学会 <code>this</code> 的各种指向规则后，使用特殊的规则来绑定上下文。</li>
+<li>……</li>
+</ul>
+<p>使用这些特性的代码当然能够运行，但这里的问题在于这些语义都是危险的，或是语言的设计问题造成的糟粕。<strong>在明知它们难以使用，并且早有成熟替代方案的情况下，为什么要使用它们来显示自己的技术水平呢？</strong>偏偏在前端社区，这样的行为又是此起彼伏。比如，光是搞懂各种 <code>this</code> 的指向规则，就足够写一篇长文（在许多技术社区这早已经是日经的无聊文章了）。而 <code>==</code> 这种罄竹难书的特性，居然也有很多人在读了博客【深入掌握】后拿来【合理使用】。至于 <code>变量提升</code> 这样完全反直觉的设计缺陷，都有的是人拿来编排出各种花哨的面试题。</p>
+<p>当然，这里绝不是反对去了解这些所谓的【高级特性】如何工作，以及它们为什么会产生令人困惑的行为。对每一位希望成长的靠谱同学，学习它们都是很重要的。这里给出的建议是：</p>
+<ol>
+<li>至少学懂它们一次，达到<strong>能够指出它的问题在哪</strong>的程度。</li>
+<li>学会这些特性的替代方案，知道如何避免踩坑。</li>
+<li>除非维护底层基础库，否则坚决不在代码中使用它们。</li>
+</ol>
+<p>每一门编程语言，在自己的发展过程中都难免留下遗留的问题。对于 JS 这种一个周末诞生，前向兼容要求又非常之高的语言来说，这个问题更是严重。但随着软件工程的发展，这些设计缺陷带来的危险语义已经慢慢淡出历史，而在现在，深入学习、掌握和使用它们，和深入 IE6 兼容性问题一样已经逐渐过时了。而如果有人用这些问题来刁难你，你大可以这么怼回去：</p>
+<blockquote>
+<p>对，我知道 <code>this</code> 有四种绑定方式，我还知道回字有四种写法呢。</p>
+</blockquote>
+<h3 id="套用设计模式"><a href="#套用设计模式" class="headerlink" title="套用设计模式"></a>套用设计模式</h3><blockquote>
+<p>总的来说，如果光从字面上讲，程序里确实是有一些“模式”可以发掘的。因为你总是可以借鉴以前的经验，用来构造新的程序。你可以把这种经验叫做“模式”。可是自从《设计模式》（通常叫做 GoF，“Gang of Four”，“四人帮”）这本书在 1994 年发表以来，“设计模式”这个词有了新的，扭曲的含义。它变成了一种教条，带来了公司里程序的严重复杂化以及效率低下。</p>
+<p>——<a href="http://www.yinwang.org/blog-cn/2013/03/07/design-patterns" target="_blank" rel="noopener">《解密 “设计模式”》</a></p>
+</blockquote>
+<p>设计模式也是一个非常泛滥的技术文章主题。比如，有不少文章将《设计模式》里十几种模式都搬到了 JS 上，再用上面提到的各种【高级特性】来模拟这个、实现那个，最后升华一句说这些模式都是【优秀的程序员必须掌握】的，这样在简历上加一行【掌握各种设计模式】简直逼格满满啊！</p>
+<p>设计模式的产生初衷，是为了补充 Java 这样的静态语言的不足。许多【经典】设计模式，在编程语言的演化中，早已成为语言机制的一部分。比如，<code>export</code> 内建了对单例模式的支持、将内容用 <code>function</code> 包装一层就是工厂模式、<code>yield</code> 也实现了迭代器模式等等。再比如，JS 的动态性使得 JSON 的灵活性大大超越了反射，而函数一等公民的设计也使得 JS 的回调函数比 Java 的回调接口或 Visitor 等模式灵活得多。<strong><del>既然你已经有了更高级的飞机杯，为什么还要学习如何优雅地撸管呢？</del></strong></p>
+<p>许多鼓吹设计模式的文章，其流毒并不在于它们人为制造了不必要的复杂度，而是造成了一种【不用 XX 模式就说明你的水平不行】的错觉。至少，在个人阅读过的优秀开源项目源码中，并没有发现生搬硬套模式的地方，而是描述清楚代码要解决的问题，而后给出易读的抽象即可。你当然可以事后总结出它们实现了某些模式，但我更愿意相信作者不是按照【这里要使用 XX 模式】的思维方式来编码的。然而，对许多缺乏鉴别能力的新手同学，如果没有阅读高质量代码的经验，在公司历史项目老代码的【熏陶】下，也可能走上套模式的八股之路。私以为这是很可惜的。</p>
+<h3 id="紧缩代码行数"><a href="#紧缩代码行数" class="headerlink" title="紧缩代码行数"></a>紧缩代码行数</h3><p>我们都知道，复制粘贴得到的冗长重复代码是糟糕的。但是，复制粘贴多数发生在工期紧张，来不及优化的场景下。按照天朝同学们的工作强度，这也是可以理解的。但与之相对地，是另一种矫枉过正的行为，即为了实现代码的【最简】，用各种匪夷所思的手段去【精简】代码。</p>
+<p>比如，刚刚入门函数式编程的同学，可能会对 <code>a(b(c(d, e(f, g))))</code> 这样的代码情有独钟，认为通过深度嵌套的函数，能够大大减少中间变量，进而节约代码量；再比如，一些同学喜欢把各种判断逻辑用逻辑运算符连接起来，一鼓作气地串成 <code>a || b &amp;&amp; c &amp;&amp; d</code> 这样的判断逻辑在一行中写完；还有，对于工具函数，也很常见参数越写越多，然后【一口气一行传完所有参数】的情形。</p>
+<p>我们不妨再考虑一下，这样的代码可读性真的更高吗？深层嵌套的函数调用会带来大量形如 <code>))))))</code> 的右括号，这在 Lisp 中被诟病已久；单行的判断逻辑不利于调试；传入大量参数的函数行为往往趋于复杂而不易调试（想想高考时区区 <code>f(x, y)</code> 就能玩出多少花样，<code>f(a, b, c, d, e)</code> 的变量排列组合起来可以有多么复杂）。</p>
+<p>这些编码实践其实都很容易无痛地替换为可读性更强的形式，也并非什么大问题。不过，<strong>刻意去制造这样的代码</strong>多少就会和后面的维护者过意不去了。对于具体的换行、缩进实践，用形如 <a href="https://standardjs.com" target="_blank" rel="noopener">JavaScript Standard Style</a> 这样的工具就能够自动化地处理掉绝大多数的情形了。</p>
+<h3 id="隐式改写常识"><a href="#隐式改写常识" class="headerlink" title="隐式改写常识"></a>隐式改写常识</h3><blockquote>
+<p>Explicit is better than implicit.</p>
+<p>——<a href="http://legacy.python.org/dev/peps/pep-0020/" target="_blank" rel="noopener">《The Zen of Python》</a></p>
+</blockquote>
+<p>现代的工程框架一般都提供了许多定制用的接口，开发者可以轻松地通过这些接口改写框架的行为。比如，React 开放了 context，Redux 和 MobX 一类的库利用这个接口，大大优化了 <code>props</code> 深度传递的体验。不过，对框架有许多约定俗成的隐式【共识】，在一般的业务代码中被不合理地定制时，就会造成很大的困扰了。这类改写通常发生在不起眼的地方，但其影响范围往往反而很大。</p>
+<p>比如，在我们维护过的某个项目中，出现过一种将 <code>React.Component</code> 基础类【巧妙地】改写，替换为自己的 <code>XXX.BaseComponent</code> 的行为。定制后的组件并没有什么和业务逻辑相关的改动，而是加入了一些莫名其妙的初始化代码。这样一来，原本对 React 组件基类隐式的【通用常识】就失效了。在维护时，替换后的组件初看之下并没有什么特别之处，但一旦替换回去就会造成问题。并且，这些黑科技代码既没有注释也没有文档，更不知道加入它们的初衷是为了解决什么问题。对于这样的编码实践，恐怕除了<strong>自作聪明</strong>以外也没有什么更合理的评价了。</p>
+<p>再比如，这个项目里有另一种【巧妙的】实践，会将 <code>window.fetch</code> 根据请求的路径，替换为三四种不同的定制版本（放心吧，不会告诉你为什么要这么做的！）。这样，在维护者编写新的 <code>fetch</code> 的时候，就不能够运用任何之前对 <code>fetch</code> 隐式的已有知识，而是必须追踪到前人的定制版本里去调试了，是不是很神奇呢？</p>
+<p>还有一些隐式的实践，其问题在于【副作用】。比如，在看到一句 <code>user = getUser(id)</code> 的时候，你恐怕不会希望这个 <code>getUser</code> 函数不光帮你查询了用户，还默默地帮你弹了个提示、发了个请求、再清空了当前数据吧？当然，在前端领域内，其本身的一部分复杂度就在于对大量 UI、网络等副作用的管理。不过如果调用一个函数会造成许多【牵一发而动全身】的结果，许多维护者可能会选择弃用重写，从而造成复杂度的进一步增加。</p>
+<p>当然，相信有不少厂商还是会非常喜欢带隐式副作用的代码的。比如，<strong>隐式安装全家桶的 360</strong>。</p>
+<h3 id="重复发明轮子"><a href="#重复发明轮子" class="headerlink" title="重复发明轮子"></a>重复发明轮子</h3><p>在技术社区也经常能看到形如【最全常用前端工具函数】的合集，并且它们的点赞数量往往也很高。不过，500 合一的小霸王游戏卡，真的比超级玛丽好玩吗？</p>
+<p>作者有幸拜读过一些这样的文章，发现这些打包赠送的函数，常常甚至连固定的主题都没有：左一个 <code>getCookie</code>，右一个 <code>deepClone</code>，上一个 <code>isEmail</code>，下一个 <code>scrollTop</code>。而其中的每个实现，都只有区区几行【把英文函数名翻译成中文】级别的注释，没有测试用例、依赖配置和文档说明，美其名曰【小而美】。</p>
+<p>这样的代码值得复制到你的项目中复用吗？不客气地说，它们只是满足【我会造轮子】性冲动的产物而已。个人当然充分相信作者有能力随手写出一个优雅的深拷贝，但项目不是面试，对于一个稳定可信赖的轮子，在简单实现之外，更需要不少与代码无关的内容。按照《人月神话》的经验，软件项目中实际编码的时间只占 1/6，而剩余的时间更需要测试、文档、沟通。对于对质量要求更高的库代码，信手编写或从网上复制粘贴（哦不，说好听点叫内联）的代码真的堪用吗？</p>
+<p>在正式的项目中使用类库时，稳定的已有依赖若能满足要求，那么显然是第一选择。如果遇上了需要自己动手造轮子的地方，那就尽心把代码之外，一个靠谱项目剩下的 5/6 也做好吧，不要去重复发明质量低劣的轮子。</p>
+<h3 id="追求高阶抽象"><a href="#追求高阶抽象" class="headerlink" title="追求高阶抽象"></a>追求高阶抽象</h3><p>最后这一点恐怕比较小众，因为对不少只靠复制粘贴就能够实现需求的人而言，这显然和他们的习惯是相违背的。不过，正因为如此，它才是一种更加进阶的【奇技淫巧】。</p>
+<p>【高阶】听起来就是个纯净的圣杯。【高阶函数】和【高阶组件】看上去更是【高端程序员】的绝配。不过，如果需要维护这样的高阶函数，你会怎么想呢？</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">() =&gt; <span class="function"><span class="params">()</span> =&gt;</span> <span class="function"><span class="params">()</span> =&gt;</span> <span class="function"><span class="params">()</span> =&gt;</span> <span class="number">123</span></span><br></pre></td></tr></table></figure>
+<p>一个 <code>返回返回返回返回 123 的函数的函数的函数的函数</code>，确实很高阶，但真的不会把你绕晕吗…</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>不少同学如果一路读完（忍受）到了这里，可能会吐槽【这些技巧在复杂啊高级啊什么的场景下很重要啊 blahblah】，故而在最后澄清几点：</p>
+<ol>
+<li>对于多数影响维护性的技巧，在日常编写的业务逻辑里不仅不需出现，还应尽量避免。尤其对于【这里刚好能用上昨天学的那个 API】这类的动机，更需要三思。</li>
+<li>在正经的大型开源项目中，不可避免地存在不少技巧性 Hack。这时候你很可能会发现相应的地方会有不少注释不厌其烦地告诉你为什么这么写，这是<strong>非常</strong>值得借鉴学习的。</li>
+<li>这里并不是反对去掌握高阶的编程技巧，而是希望不要将一些【自作聪明】的代码草率地引入正式项目中，给后面的维护带来不便。</li>
+<li>如果希望抛开业务项目的沉重包袱，去学习一下如何【正确地运用奇技淫巧】，参与开源项目或许是一条捷径。对于这一点，希望本文的前作 <a href="https://juejin.im/post/59f98a196fb9a045132a03ed" target="_blank" rel="noopener">零起点的开源社区贡献指南</a> 能够有所帮助。</li>
+</ol>
+<p>最后对于可能的质疑，作者个人的 <a href="https://github.com/doodlewind" target="_blank" rel="noopener">Github</a> 里有些简单的玩具轮子，吐槽请不要客气…😅</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Summary/">Summary</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/stop-hacky-code/" data-title="别再拿奇技淫巧搬砖了 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/mobile-js-benchmark/" title="移动端逆袭！iPad 的 JavaScript 性能已超越 rMBP">
+  <strong>上一篇：</strong><br/>
+  <span>
+  移动端逆袭！iPad 的 JavaScript 性能已超越 rMBP</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/novice-open-source/"  title="零起点的开源社区贡献指南">
+ <strong>下一篇：</strong><br/> 
+ <span>零起点的开源社区贡献指南
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#技巧的小聪明与大智慧"><span class="toc-number">1.</span> <span class="toc-text">技巧的小聪明与大智慧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的奇技淫巧"><span class="toc-number">2.</span> <span class="toc-text">常见的奇技淫巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用危险语义"><span class="toc-number">2.1.</span> <span class="toc-text">使用危险语义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#套用设计模式"><span class="toc-number">2.2.</span> <span class="toc-text">套用设计模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#紧缩代码行数"><span class="toc-number">2.3.</span> <span class="toc-text">紧缩代码行数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隐式改写常识"><span class="toc-number">2.4.</span> <span class="toc-text">隐式改写常识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重复发明轮子"><span class="toc-number">2.5.</span> <span class="toc-text">重复发明轮子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#追求高阶抽象"><span class="toc-number">2.6.</span> <span class="toc-text">追求高阶抽象</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

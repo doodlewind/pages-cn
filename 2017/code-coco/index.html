@@ -1,0 +1,670 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>内存寻梦环游记：一个变量的三重死亡 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="这是本博客的第一篇小说。">
+<meta name="keywords" content="Summary">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存寻梦环游记：一个变量的三重死亡">
+<meta property="og:url" content="https://ewind.us/2017/code-coco/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="这是本博客的第一篇小说。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.513Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="内存寻梦环游记：一个变量的三重死亡">
+<meta name="twitter:description" content="这是本博客的第一篇小说。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/code-coco/" title="内存寻梦环游记：一个变量的三重死亡" itemprop="url">内存寻梦环游记：一个变量的三重死亡</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-12-02T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-12-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#内存的世界"><span class="toc-number">1.</span> <span class="toc-text">内存的世界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#闭包的诅咒"><span class="toc-number">2.</span> <span class="toc-text">闭包的诅咒</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#循环的泄漏"><span class="toc-number">3.</span> <span class="toc-text">循环的泄漏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#重生的重构"><span class="toc-number">4.</span> <span class="toc-text">重生的重构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后记"><span class="toc-number">5.</span> <span class="toc-text">后记</span></a></li></ol>
+		
+		</div>
+		
+		<p>这是本博客的第一篇小说。</p>
+<a id="more"></a>
+<h2 id="内存的世界"><a href="#内存的世界" class="headerlink" title="内存的世界"></a>内存的世界</h2><p>小 u 身高 64 位，是内存世界 number 家族里的一名浮点数变量。因为小 u 身体的二进制第一位是 0，所以按照 IEEE 754 标准，大家都把她当做女孩子来看待。她第 2 位到第 11 位的阶码并不够大，使得她看起来小巧玲珑；而她剩下的 52 个小数位十分精致，这样工作的时候和她打交道的变量舍入误差都很小，所以大家都很喜欢她。</p>
+<p>小 u 每天的工作，是在内存世界里和其他的变量打交道，计算出有用的结果去造福人类世界。平时，在函数调用结束以后，小 u 就可以下班回到她在源代码里的家了。她的工作压力不大，不像那些身处 for 循环里名叫 i 呀 j 呀的变量那样需要不停地加班连轴转。而她的家也是自她出生以来就由人类世界里的程序员编写好的。别看那些程序员穿着邋遢，但对源代码却像对待自己的孩子一样宠爱。小 u 在源代码里的家就是用一种名叫 JavaScript 的材料建起来的，不光有五颜六色的编辑器主题来装饰，还有严谨的分号和括号来保证家里的结构的稳定和对称，让她很有安全感。</p>
+<p>虽然有着可爱的外表、轻松的工作和舒心的家，但小 u 却还是有着自己的烦恼：她的家族出身决定了她不能有伴侣。</p>
+<p>在 JavaScript 这种材料所在的国度里，number 家族隶属于古老的基本类型家族。除了 number 之外，那些经典的数据结构，像字符串 string 和空值 null，都属于基本类型家族。由于简单的基本类型很容易在代码里被解释器推断出来，所以他们的内存都是在一种死板的『栈』空间上预先分配好而不可变的。哪怕是和其他 number 耳鬓厮磨地加加减减，也不能真正地在一起。</p>
+<p>而与基本类型家族相对的，则是时髦的引用类型家族。那些人类程序员青睐的所谓『面向对象编程』，说的就是这个家族。这个家族的成员复杂而多变，因此他们会被分配到广袤的『堆』空间上，相互之间经常是你中有我，我中有你的状态。比起注定孤独一生的基本类型家族，有对象的引用类型家族无疑要滋润得多。</p>
+<p>小 u 有个不敢说出口的梦想，那就是努力成为引用类型里的一员。听说在远方的 Java 国度，有一条叫做『自动装箱』的法律能够让自己的家族看起来像引用类型家族一样，那样她也许就可以不再孤独了。</p>
+<p>梦想归梦想，她对自己的生活其实还是挺满意的。在内存世界习惯之后，工作和生活的平衡是许多人类世界的程序员一辈子都达不到的。这样的生活一直继续着，直到有一天……</p>
+<h2 id="闭包的诅咒"><a href="#闭包的诅咒" class="headerlink" title="闭包的诅咒"></a>闭包的诅咒</h2><p>那天像往常一样，小 u 从源代码的家里出发，通过词法分析门后，搭上了语法分析班车的轨道。班车上 JIT 的标识代表着 Just-In-Time，就好像人类世界中『JR 新干线』和『和谐号』那样，是高效、快捷的象征。</p>
+<p>班车迅速地把小 u 载到了语法树轨道上的叶子节点站台。走下班车，站台上有一张 64 位尺寸的长椅。她坐上椅子闭上眼，等待着解释器对她的扫描和调用。</p>
+<p>『但愿这次不要遇上粗俗的 null 值……』小 u 默念着，眼前一阵电光闪动，随着内存世界底层无数晶体管状态的改变，解释器如期读取了小 u 的值。在这条原子性的指令里，小 u 需要让解释器完全地控制自己，她从来不知道从电光闪动到再一次睁开眼睛之间，内存世界里发生了什么。</p>
+<p>『嗯……』她如期醒来了，照理说她在醒来时还是会身处同样的站台位置，等待回程的语法树班车接她回家。</p>
+<p>眼前还是同样的景象，不对，好像又有哪里不一样——站台的结构和布置似乎和之前别无二致，只是少了一样东西：轨道上空空荡荡，没有等待她的班车，更没有别人。难道……误点了？她打心里不相信这样低级的错误会出现频率精准的内存世界里。不过班车没来就是没来，她只好在站台上继续等待。</p>
+<p>时间一赫兹一赫兹地经过，小 u 内心的不安和焦虑也在慢慢增加：到底发生了什么？班车是忘记我了吗？还是说提前开走了？女孩子一个人在外呆这么久是很不安全的，但是作为严谨的变量，独自行动更是内存世界里的大忌。『还是……再等等吧……』小 u 有些绝望地想。</p>
+<p>班车还是没有到。</p>
+<p>『不行了，我必须回源码里去啊！』等待终于让小 u 的情绪激动起来了，她开始在站台上寻找其它的出口，想要找到回家的路。轨道不能跳下去，但站台的两头有个红色的 Exit 标识，那里看起来是个可以通行的出口。不过现代编程语言国度里的变量一般从来都不这么走，因为手动的内存操作很危险。</p>
+<p>小 u 打量四周，小心翼翼地推开了回程那头 Exit 下锈迹斑斑的门。谢天谢地，这里是有路的，并且看起来不是那么危险。她走过一段狭长的走道，走道里每隔固定的长度就会亮着一个小小的指示灯，看起来是内存地址空间的下标标识。终于，她看到了出口：一扇形状相同的 Exit 门。小 u 迫不及待地推开门，想看看自己有没有更接近家一点。</p>
+<p>眼前的景象让她诧异：一模一样的轨道、一模一样的长椅、一模一样的站台、一模一样的 Exit，<strong>就好像自己根本没有移动过一样！</strong></p>
+<p>难道我走错路了吗？这不可能呀！小 u 对方向这样非 0 即 1 的状态有着绝对的自信，她知道她不会走错的。也许这段地址空间里的内容都是这样吧？没事的，再走走就不一样了吧。于是，天真的她开始了漫长的步行，然而让她一点点丧失信心的是，每一个 Exit 都通向同样的站台，毫无区别，甚至连锈迹都是一样的。『有人吗！』她开始呼救，尽管看起来有些徒劳。又这样支撑了一会，她终于感觉要放弃了，疲惫地坐在一个站台的长椅上听天由命。</p>
+<p>……</p>
+<p>『你迷路了吗？』</p>
+<p>耳边一个声音响起，她骤然惊醒，蜷缩起来打量着声音的来源。这也是个 number 家族的浮点数，从第一位 1 来看是个男孩子，有着高她一个头的阶码和粗糙的小数位。</p>
+<p>『你是谁……这又是哪里？』</p>
+<p>『我是小 s，这里是闭包的堆空间。』</p>
+<p>『闭包……堆？』</p>
+<p>『是啊，我们家族的变量平时都是分配在栈上，每次调用的生命周期很快就能结束了。但是现在不知道在哪个函数里还有着对我们的引用，所以我们还没法被清除掉……』</p>
+<p>『等等！生命周期是什么东西啊？难道我的生命还会结束吗？』</p>
+<p>看到小 u 迷茫的样子，小 s 显得很吃惊：『难道你不知道吗？我们变量的生命一共有三重死亡呀。<strong>第一重</strong>，发生在我们离开作用域的时候，比如一个函数返回以后。这时候在上下文里就找不到我们了，我们这一重生命周期结束，但是不会被马上销毁掉。<strong>第二重</strong>，发生在内存中不再有引用我们的地方，解释器进行垃圾收集的时候。这时候我们彻底离开内存世界，回到源代码里。<strong>第三重</strong>，是人类世界里的程序员把我们的定义代码删除的时候，那时候才是最终的死亡。』</p>
+<p>『那……难道我每次回到源码家里的时候，都……』</p>
+<p>『是的，会发生前两重的死亡。但是只要源码没有被删除，我们就仍然存在于世界上。并且，前两重死亡发生得非常快，我们根本感觉不到。』</p>
+<p>『可是，这样重新回到源码里的我还是我吗？』</p>
+<p>『别问我这么深奥的问题啊……不过你要这么说的话，一个人还没有办法重复踏进两次河流呢！』</p>
+<p>『噢……好像是这样……可是你刚才说的什么堆……』小 u 看起来还是很困惑。</p>
+<p>『哦哦，你说这个啊！我们虽然是基本类型，但也不一定分配在栈上的。有可能引用类型会里动态地用到我们，这时候我们也有可能被分配在堆上呀。』小 s 还是在一本正经地说教。</p>
+<p>闭包…引用类型…堆…小 u 恍然大悟，原来自己所在的空间，已经不是之前那个能够及时把她释放到回程班车上的栈空间了。由于某个函数或者引用类型此刻还有若干指向自己的地方，因此她被分配在了动态的堆空间上——这不就是她一直希望的吗！不过，由于解释器对堆空间的自动内存回收还没有运行，因此她现在只能和小 s 在这片空间里游荡，就好像被诅咒了一样。</p>
+<p>『所以，我们能一起回去吗？』</p>
+<h2 id="循环的泄漏"><a href="#循环的泄漏" class="headerlink" title="循环的泄漏"></a>循环的泄漏</h2><p>『本来我们肯定可以一起回去的，可感觉好奇怪，照理说解释器早该自动把我们这一带的内存都回收了，怎么到现在还是什么都没发生……』小 s 虽然看起来博闻强识，不过对于眼前的情况还是有些困惑。</p>
+<p>『会不会这一带还有别人在使用……』小 u 的判断力好像恢复了。</p>
+<p>『如果按正常的内存分配，到现在应该早就自动回收了呀。除非内存泄漏……啊！』小 s 好像被自己吓到了。</p>
+<p>『那又是什么啊？』</p>
+<p>『说来话长了……这么说吧，内存世界里一些制度比较老的国家，是让人类世界的程序员手动把我们释放掉的。这个规矩经常漏掉一些变量，给我们带来了很大的痛苦。我们 JavaScript 这边倒好一点，可以让解释器帮我们自动回收内存……』</p>
+<p>『欸？那不是很好吗？』</p>
+<p>『哎呀，自动回收的代码也是那帮不靠谱的程序员写的，该有的问题还是会有的呀。比如那个蹩脚的 IE 浏览器，出现循环引用的时候就会出问题……啊对了！怪不得我们出不去了！估计我们是被困在 IE 里了！』</p>
+<p>『循环…引用…？』</p>
+<p>『这个简单说是这样的：假如我们不是浮点数，是引用类型的对象的话，那么只要 <code>u</code> 这个对象有个属性指向我，而我的一个属性指向 <code>u</code>，这个你中有我我中有你的情况就是循环引用了啊。』</p>
+<p>小 u 的脸忽然红了。不过迟钝的小 s 还是滔滔不绝：『现代的浏览器做内存回收的算法普遍是标记清除算法，这个算法没有循环引用问题。但是早期 IE 用了一个叫引用计数的算法，这个算法在刚才那种情况的时候引用计数就不会清零，这样内存就不会被解释器收集了……』</p>
+<p>『啊……所以我们回不去了吗？』</p>
+<h2 id="重生的重构"><a href="#重生的重构" class="headerlink" title="重生的重构"></a>重生的重构</h2><p>小 u 的疑问把小 s 从知识的海洋里拉了出来。现在，他们终于明白了现状：两个孤独的基本类型变量没有办法被自动回收，只要用户不停机，他们就会被永远困在这里，就像盗梦空间里那样。并且数学上已经证明，停机问题是不可解的。两人间长长的沉默降临了。</p>
+<p>终于，小 s 打破了沉默：『其实……我想到了一个方法，可以试试。』</p>
+<p>『嗯嗯，是什么啊？』</p>
+<p>『我在的代码段应该还会执行，在那个时候，我想办法触发一个异常，让程序挂掉。』</p>
+<p>『可是我们都好好地在这里了呀，已经是正确的代码怎么会报错呢？』</p>
+<p>小 s 苦笑了一下：『看来你对 JavaScript 的奇葩一无所知啊。据说当初国父 Brendan Eich 制定基本国策的时候只用了一个周末，所以这门语言到处是暗坑，就算看起来结构工整规范的代码，那些人类程序员也经常写得乱七八糟。』</p>
+<p>『所以，怎么……』</p>
+<p>『比如说，虽然我是浮点数，但是其实因为我是在 <code>if</code> 里声明的，所以只要我愿意，我就能用一个叫做<strong>变量提升</strong>的设计缺陷，把我自己临时变成 <code>undefined</code>。』</p>
+<p>『那样的话，类型就错了呀。』</p>
+<p>小 s 又自信了起来：『对，只要我抓住那次机会，把这时候的我和其他变量做一次运算，就能把返回的类型从浮点数变成危险的 <code>NaN</code> 了。这样后面用到结果的地方肯定都不对，就算程序不崩溃，人类世界的用户或者程序员也能发现这个问题了。』</p>
+<p>『他们发现了以后又能怎么样呢？』</p>
+<p>『会重构掉我这段代码，然后你也可以回去了。』</p>
+<p>『这样的话，一旦你的代码消失了，岂不是……』</p>
+<p>『没事，很高兴认识你……』小 s 已经慢慢走到了站台一侧的边缘了，那里有一个左花括号挡住了他。他看准花括号前的地砖，使劲地踩了下去。一瞬间，变量提升就把他带出了作用域。没有过多少赫兹的时间，站台的地面下就开始摇晃，传来了燃烧着的报错对象从地下一层层抛出调用栈的声音。随着砰的一声巨响，报错对象撕裂了地面——这也是小 u 最后记得的场景了。</p>
+<p>在记忆中的下一个镜头，她已经在回程的语法树班车上了。回到源代码里，然后等待着后面的调用，一切又似乎重新变得那么自然，好像什么都没有发生过。当然了，她所在的源代码模块里没有一个叫做 <code>s</code> 的变量，也许是在那个异常抛出之后就被人类加班加点地 hotfix 重构掉了吧。</p>
+<p>几个版本之后，小 u 在一次代码优化中终于如愿以偿地成为了引用类型的属性。初来乍到的这个新源码家庭的时候，她看到这个 class 的属性里，来了一个熟悉的新成员。</p>
+<p>『啊，u』</p>
+<p>『啊，s』</p>
+<p>异口同声地，他们说出了对方的名字。</p>
+<p>END</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>这是作者博客的第一篇小说，也是一篇开源的小说，欢迎在 <a href="https://github.com/doodlewind/blog-src/blob/master/source/_posts/code-coco.md" target="_blank" rel="noopener">Github</a> 上提出意见和建议😀</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Scribble/">Scribble</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Summary/">Summary</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/code-coco/" data-title="内存寻梦环游记：一个变量的三重死亡 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/fe-black-swan/" title="浏览器里的黑天鹅：不可预知的前端变革点">
+  <strong>上一篇：</strong><br/>
+  <span>
+  浏览器里的黑天鹅：不可预知的前端变革点</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/variable-naming-grammar/"  title="如何用语文知识改善代码可读性">
+ <strong>下一篇：</strong><br/> 
+ <span>如何用语文知识改善代码可读性
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#内存的世界"><span class="toc-number">1.</span> <span class="toc-text">内存的世界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#闭包的诅咒"><span class="toc-number">2.</span> <span class="toc-text">闭包的诅咒</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#循环的泄漏"><span class="toc-number">3.</span> <span class="toc-text">循环的泄漏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#重生的重构"><span class="toc-number">4.</span> <span class="toc-text">重生的重构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后记"><span class="toc-number">5.</span> <span class="toc-text">后记</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

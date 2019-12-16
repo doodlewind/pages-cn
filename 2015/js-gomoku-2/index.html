@@ -1,0 +1,641 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>自制五子棋（2）AI 入门 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="上一篇中基本完成了基础棋盘的布局，现在让我们从前端转向（伪）后端，关注一下对弈所需的算法实现，和一些相关的优化策略吧。">
+<meta name="keywords" content="Web,JS,Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自制五子棋（2）AI 入门">
+<meta property="og:url" content="https://ewind.us/2015/js-gomoku-2/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="上一篇中基本完成了基础棋盘的布局，现在让我们从前端转向（伪）后端，关注一下对弈所需的算法实现，和一些相关的优化策略吧。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/自制五子棋（2）AI入门Plminmax.gif">
+<meta property="og:image" content="https://ewind.us/images/自制五子棋（2）AI入门Plminmax.gif">
+<meta property="og:image" content="https://ewind.us/images/自制五子棋（2）AI入门Minmaxab.gif">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.532Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自制五子棋（2）AI 入门">
+<meta name="twitter:description" content="上一篇中基本完成了基础棋盘的布局，现在让我们从前端转向（伪）后端，关注一下对弈所需的算法实现，和一些相关的优化策略吧。">
+<meta name="twitter:image" content="https://ewind.us/images/自制五子棋（2）AI入门Plminmax.gif">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/js-gomoku-2/" title="自制五子棋（2）AI 入门" itemprop="url">自制五子棋（2）AI 入门</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2015-03-15T16:00:00.000Z" itemprop="datePublished"> 发表于 2015-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#朴素的基础：打分函数"><span class="toc-number">1.</span> <span class="toc-text">朴素的基础：打分函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#暴力的搜索：Minimax-算法"><span class="toc-number">2.</span> <span class="toc-text">暴力的搜索：Minimax 算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#取巧的优化：Alpha-Beta-剪枝"><span class="toc-number">3.</span> <span class="toc-text">取巧的优化：Alpha-Beta 剪枝</span></a></li></ol>
+		
+		</div>
+		
+		<p>上一篇中基本完成了基础棋盘的布局，现在让我们从前端转向（伪）后端，关注一下对弈所需的算法实现，和一些相关的优化策略吧。</p>
+<a id="more"></a>
+<p><img src="/images/自制五子棋（2）AI入门Plminmax.gif" alt="AI"></p>
+<h2 id="朴素的基础：打分函数"><a href="#朴素的基础：打分函数" class="headerlink" title="朴素的基础：打分函数"></a>朴素的基础：打分函数</h2><p>最朴素的打分算法，是后面搜索算法的基石。它的策略是简单地遍历当前形势下所有下一步的落子选择，为每种选择打分，依据打分结果，选出最优的那个选择，作为下一步移动的依据。</p>
+<p>那么，打分函数的设定依据是什么呢？我们知道，对于五子棋这种存在着「先手必胜法」的游戏，先移动的黑方总是存在着一定的优势。现在，假设我们的算法始终扮演着白方的角色，那么我们可以假设分数越高，黑方的优势就越大。所以，在打分函数正常工作后，白方就可以将分数最小化作为决策依据了。</p>
+<p>有了思路，下面就需要解决「对场上形势打分」的问题了。最基本的几种情形可以归纳如下：</p>
+<ul>
+<li>如果场上存在连续的五个黑子，这标志着游戏的结束，于是一旦找到这种情形，就把分数加得尽量高（譬如 1000 点）。</li>
+<li>如果场上存在两头均为空的四个黑子（Open-Four），这也是死棋的标志，于是分数也可以加得尽量高（这里也是 1000 点）。</li>
+<li>如果场上同时存在了两个两头均为空且两头互不重合的三个黑子（Open-Threes），这也是死棋的标志——和小伙伴玩的时候，也一般是通过构造这种堵不过来的情况来赢棋的吧。因此，找到这种情况时，也需要把分数加上 1000 点。</li>
+<li>对于未被完全堵死的黑三子和黑四子，显然它们越多，黑方的优势就越明显。这时候，我们可以为它们的个数乘上一个固定的分值（譬如 50 分）。</li>
+</ul>
+<p>只要依次判断黑子是否以上的几种情况，就可以容易地计算出一个分值，来作为对局势判定的依据。其实，一个好的打分函数可以在并不会增加多少时间复杂度的前提下，顶得下面提到的搜索过程中，一到两层的搜索深度。实际上，有了这个打分函数，原则上就已经造出了一个「能对局势做出响应」的 AI 了。</p>
+<p>下面的示例是用 JS 的模块模式，为名为师傅（<em>Sifu</em>）的 AI 构造一个打分示例。嗯对了，为棋盘的二维数组起的变量名是 <code>goban</code>。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// use anonymous function for closure</span></span><br><span class="line"><span class="keyword">var</span> SIFU = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> EMPTY = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> BLACK = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">var</span> WHITE = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">var</span> SIZE = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">var</span> sifu = &#123;&#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// use this method to return next move</span></span><br><span class="line">    sifu.think = <span class="function"><span class="keyword">function</span>(<span class="params">goban, color</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> pos;</span><br><span class="line">        <span class="keyword">var</span> alpha = <span class="number">-9999</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; SIZE; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; SIZE; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (g[i][j] == EMPTY) &#123;</span><br><span class="line">                    g[i][j] = WHITE;</span><br><span class="line">                    <span class="keyword">var</span> score = sifu.evaluate(goban);</span><br><span class="line">                    <span class="keyword">if</span> (score &gt; alpha) &#123;</span><br><span class="line">                        alpha = score;</span><br><span class="line">                        pos = &#123;<span class="attr">x</span>: i, <span class="attr">y</span>: j&#125;;</span><br><span class="line">                    &#125;</span><br><span class="line">                    g[i][j] = EMPTY;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.evaluate(goban);</span><br><span class="line">        <span class="keyword">return</span> pos;</span><br><span class="line">    &#125;;</span><br><span class="line">    sifu.evaluate = <span class="function"><span class="keyword">function</span>(<span class="params">goban</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">hasFive</span>(<span class="params">color</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">var</span> g = copy(goban);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; SIZE; i++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; SIZE; j++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (</span><br><span class="line">                        (j + <span class="number">4</span>) <span class="keyword">in</span> g &amp;&amp;</span><br><span class="line">                        g[i][j] == color &amp;&amp;</span><br><span class="line">                        g[i][j + <span class="number">1</span>] == color &amp;&amp;</span><br><span class="line">                        g[i][j + <span class="number">2</span>] == color &amp;&amp;</span><br><span class="line">                        g[i][j + <span class="number">3</span>] == color &amp;&amp;</span><br><span class="line">                        g[i][j + <span class="number">4</span>] == color</span><br><span class="line">                    ) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                    <span class="comment">/* other judge conditions skipped */</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (hasFive(BLACK)) &#123;</span><br><span class="line">            count += <span class="number">1000</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/* other judge conditions skipped */</span></span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> sifu;</span><br><span class="line">&#125;)();</span><br><span class="line"><span class="comment">// usage example</span></span><br><span class="line"><span class="keyword">var</span> pos = SIFU.think(goban);</span><br></pre></td></tr></table></figure>
+<h2 id="暴力的搜索：Minimax-算法"><a href="#暴力的搜索：Minimax-算法" class="headerlink" title="暴力的搜索：Minimax 算法"></a>暴力的搜索：Minimax 算法</h2><p>上面介绍了打分函数的构建，那么下面关注的就是如何「通过预料对手的行为，选择自己的行动」。这种类似于「诸葛亮料定司马懿料定自己不会用空城计，所以诸葛亮用了空城计」的算法思想，被称为 Minimax。要想对它有个直观的认识，可以先看看来自 <img src="/images/自制五子棋（2）AI入门Plminmax.gif" alt="WikiPedia"> 的题图（这可是会动的 GIF 哦）。</p>
+<p>对于一次比赛，所有可能的行动策略都可以用一棵树来表示。用树的每一层都代表着一个回合内一方所有可能的行动。而每层的每个节点，又可以往下生长出在这个行动的基础上，对方下一回合的所有行动可能。</p>
+<p>介绍打分函数时已经说了，黑方的策略是将自己的优势最大化，白方则是将自己的劣势最小化。这也就对应着在树中的每一层，交替地选择分数最高（黑方）或分数最低（白方）的枝干，并返回这一层做出最后选择后，得到的局势分值。这样在递归调用结束后，就可以判断出下一步的最优行动了。</p>
+<p>下面这个函数就是 Minimax 的一个递归实现，注意我们是交替地指定 color 参数的，这也就相当于思考「我会料到他会料到我会料到他会料到我会料到他会出剪刀，所以我要出石头」……</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">minimax</span>(<span class="params">goban, depth, color</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> pos, score;</span><br><span class="line">    <span class="keyword">var</span> g = goban;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// evaluate score for leaf node</span></span><br><span class="line">    <span class="keyword">if</span> (depth == <span class="number">0</span>) <span class="keyword">return</span> sifu.evaluate(g, color);</span><br><span class="line">    <span class="keyword">if</span> (color == BLACK) &#123;</span><br><span class="line">        <span class="keyword">var</span> value = <span class="number">-9999</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; SIZE; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; SIZE; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (g[i][j] == EMPTY) &#123;</span><br><span class="line">                    <span class="comment">// try a move</span></span><br><span class="line">                    g[i][j] = BLACK;</span><br><span class="line">                    </span><br><span class="line">                    <span class="comment">// get best move recursively</span></span><br><span class="line">                    score = minimax(g, depth - <span class="number">1</span>, WHITE);</span><br><span class="line">                    <span class="keyword">if</span> (score &gt; value) &#123;</span><br><span class="line">                        value = score;</span><br><span class="line">                        pos = &#123;<span class="attr">x</span>: i, <span class="attr">y</span>: j&#125;;</span><br><span class="line">                    &#125;</span><br><span class="line">                    </span><br><span class="line">                    <span class="comment">// reset the goban</span></span><br><span class="line">                    g[i][j] = EMPTY;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (color == WHITE) &#123;</span><br><span class="line">        <span class="keyword">var</span> value = <span class="number">9999</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; SIZE; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; SIZE; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (g[i][j] == EMPTY) &#123;</span><br><span class="line">                    g[i][j] = WHITE;</span><br><span class="line">                    score = minimax(g, depth - <span class="number">1</span>, BLACK);</span><br><span class="line">                    <span class="keyword">if</span> (score &lt; value) &#123;</span><br><span class="line">                        value = score;</span><br><span class="line">                        pos = &#123;<span class="attr">x</span>: i, <span class="attr">y</span>: j&#125;;</span><br><span class="line">                    &#125;</span><br><span class="line">                    g[i][j] = EMPTY;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>顺便再提一个细节问题：刚才的 Minimax 实现（包括 WikiPedia 的伪代码）返回的都是打分值，而不是具体的移动位置。那么怎样通过 Minimax 得到下一步的位置呢？答案也很简单，只要把 Minimax 当做一个打分函数来使用就行啦。</p>
+<h2 id="取巧的优化：Alpha-Beta-剪枝"><a href="#取巧的优化：Alpha-Beta-剪枝" class="headerlink" title="取巧的优化：Alpha-Beta 剪枝"></a>取巧的优化：Alpha-Beta 剪枝</h2><p>「我会料到他会料到」……的 Minimax 算法思路虽美，但计算量太大。在桌面级的 Web 浏览器中，对一个 15x15 的棋盘用朴素的 Minimax 搜索三层，时间就要以分钟计了（其实这和 JS 对数组的奇葩实现也有关系，搜索过程中最频繁的操作就是对数组下标的遍历，而 JS 的数组是通过哈希而不是偏移量实现的，访问起来会慢很多）。这样搞出来的 Sifu AI 显然是十分傻逼而需要优化的。</p>
+<p>基本的优化思路有两种</p>
+<ul>
+<li>缩小搜索范围。</li>
+<li>跳过树中不可能选择到的情形（所谓的<em>剪枝</em>）</li>
+</ul>
+<p>第一种优化的实现可以很朴素：把对棋盘进行的搜索，简化为对所有已存在棋子的邻接点进行的搜索。这么做可以大大提高性能。因为实现起来没什么特别之处，这里就略过不提了吧。</p>
+<p>而第二种优化方式就比较特别了。它的实现其实是对 Minimax 的一个改进，根据为 Minimax 递归调用所增加的参数，它被称为<a href="http://en.wikipedia.org/wiki/Alpha-beta_pruning" target="_blank" rel="noopener"> Alpha-Beta 剪枝算法</a>。</p>
+<p>这个算法的思路我是这样理解的：如果「他料到我料到他料到了更好的一步，那么这一步和这一层其它的步数就都没必要考虑了，因为他是不会让我走到这步的」。</p>
+<p>要想可视化地了解它的执行方式，可以参考这个同样来自 WikiPedia 的动图</p>
+<p><img src="/images/自制五子棋（2）AI入门Minmaxab.gif" alt="α-β Pruning"></p>
+<p>不过，这个听起来很绕的算法，实现起来并不复杂，用下面的实现和之前的 Minimax 对比一下，就能发现差别所在。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// minimax with alpha-beta pruning</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">minimax</span>(<span class="params">goban, depth, alpha, beta, color</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> pos, score;</span><br><span class="line">    <span class="keyword">var</span> g = goban;</span><br><span class="line">    <span class="keyword">if</span> (depth == <span class="number">0</span>) <span class="keyword">return</span> sifu.evaluate(g, color);</span><br><span class="line">    <span class="keyword">if</span> (color == BLACK) &#123;</span><br><span class="line">        <span class="keyword">var</span> value = <span class="number">-9999</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; SIZE; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; SIZE; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (vision[i][j] == <span class="literal">true</span> &amp;&amp; g[i][j] == EMPTY) &#123;</span><br><span class="line">                    g[i][j] = BLACK;</span><br><span class="line">                    score = minimax(g, depth - <span class="number">1</span>, alpha, beta, WHITE);</span><br><span class="line">                    g[i][j] = EMPTY;</span><br><span class="line">                    <span class="keyword">if</span> (score &gt; value) &#123;</span><br><span class="line">                        value = score;</span><br><span class="line">                        pos = &#123;<span class="attr">x</span>: i, <span class="attr">y</span>: j&#125;;</span><br><span class="line">                    &#125;</span><br><span class="line">                    </span><br><span class="line">                    alpha = <span class="built_in">Math</span>.max(alpha, score);</span><br><span class="line">                    <span class="keyword">if</span> (alpha &gt;= beta) &#123;</span><br><span class="line">                        <span class="comment">// perform pruning</span></span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (color == WHITE) &#123;</span><br><span class="line">        <span class="keyword">var</span> value = <span class="number">9999</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; SIZE; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; SIZE; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (g[i][j] == EMPTY) &#123;</span><br><span class="line">                    g[i][j] = WHITE;</span><br><span class="line">                    score = minimax(g, depth - <span class="number">1</span>, alpha, beta, BLACK);</span><br><span class="line">                    g[i][j] = EMPTY;</span><br><span class="line">                    </span><br><span class="line">                    <span class="keyword">if</span> (score &lt; value) &#123;</span><br><span class="line">                        value = score;</span><br><span class="line">                        pos = &#123;<span class="attr">x</span>: i, <span class="attr">y</span>: j&#125;;</span><br><span class="line">                    &#125;</span><br><span class="line">                    beta = <span class="built_in">Math</span>.min(beta, score);</span><br><span class="line">                    <span class="keyword">if</span> (beta &lt;= alpha) &#123;</span><br><span class="line">                        <span class="comment">// perform pruning</span></span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实践表明，应用了剪枝后的搜索速度可以提升 3 倍左右。不过剪枝优化只在搜索层数大于 3 的时候才会生效，只搜索 2 层的话是没有多少性能提升的。</p>
+<p>以上就是 Sifu 五子棋所应用的算法基础了。虽然打分函数还很傻逼，虽然搜索起来还很慢，但是它的雏形好歹已经出来啦~最后一篇文章会介绍一些对 Sifu 师傅页面设计和交互体验的改进方式，做完这步以后，基本就可以拿去让基友试试啦。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a><a href="/tags/Algorithms/">Algorithms</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2015/js-gomoku-2/" data-title="自制五子棋（2）AI 入门 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/lr-table-step-by-step/" title="LR 分析表构造实例">
+  <strong>上一篇：</strong><br/>
+  <span>
+  LR 分析表构造实例</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/js-gomoku-3/"  title="自制五子棋（3）包装发布">
+ <strong>下一篇：</strong><br/> 
+ <span>自制五子棋（3）包装发布
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#朴素的基础：打分函数"><span class="toc-number">1.</span> <span class="toc-text">朴素的基础：打分函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#暴力的搜索：Minimax-算法"><span class="toc-number">2.</span> <span class="toc-text">暴力的搜索：Minimax 算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#取巧的优化：Alpha-Beta-剪枝"><span class="toc-number">3.</span> <span class="toc-text">取巧的优化：Alpha-Beta 剪枝</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

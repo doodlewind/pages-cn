@@ -1,0 +1,765 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>如何设计一个 WebGL 基础库 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="要想使用 WebGL 直通 GPU 的渲染能力，很多同学的第一反应就是使用现成的开源项目，如著名的 Three.js 等。但是，直接套用它们就是唯一的选择了吗？如果想深入 WebGL 基础甚至自己造轮子，又该从何下手呢？">
+<meta name="keywords" content="Web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何设计一个 WebGL 基础库">
+<meta property="og:url" content="https://ewind.us/2019/beam/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="要想使用 WebGL 直通 GPU 的渲染能力，很多同学的第一反应就是使用现成的开源项目，如著名的 Three.js 等。但是，直接套用它们就是唯一的选择了吗？如果想深入 WebGL 基础甚至自己造轮子，又该从何下手呢？">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/beam/3d-text-entry.png">
+<meta property="og:image" content="https://ewind.us/images/beam/webgl-frame.png">
+<meta property="og:image" content="https://ewind.us/images/beam/pbr-balls.png">
+<meta property="og:image" content="https://ewind.us/images/beam/webgl-states.png">
+<meta property="og:image" content="https://ewind.us/images/beam/webgl-pipeline.png">
+<meta property="og:image" content="https://ewind.us/images/beam/beam-hello-world.png">
+<meta property="og:image" content="https://ewind.us/images/beam/basic-ball.png">
+<meta property="og:image" content="https://ewind.us/images/beam/basic-texture.png">
+<meta property="og:image" content="https://ewind.us/images/beam/multi-graphics.png">
+<meta property="og:image" content="https://ewind.us/images/beam/pbr-balls.png">
+<meta property="og:image" content="https://ewind.us/images/beam/3d-text-1.jpg">
+<meta property="og:image" content="https://ewind.us/images/beam/3d-text-2.jpg">
+<meta property="og:updated_time" content="2019-11-25T00:58:10.723Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何设计一个 WebGL 基础库">
+<meta name="twitter:description" content="要想使用 WebGL 直通 GPU 的渲染能力，很多同学的第一反应就是使用现成的开源项目，如著名的 Three.js 等。但是，直接套用它们就是唯一的选择了吗？如果想深入 WebGL 基础甚至自己造轮子，又该从何下手呢？">
+<meta name="twitter:image" content="https://ewind.us/images/beam/3d-text-entry.png">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/beam/" title="如何设计一个 WebGL 基础库" itemprop="url">如何设计一个 WebGL 基础库</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2019-11-24T16:00:00.000Z" itemprop="datePublished"> 发表于 2019-11-25</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#渲染引擎与-WebGL-基础库"><span class="toc-number">2.</span> <span class="toc-text">渲染引擎与 WebGL 基础库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WebGL-概念抽象"><span class="toc-number">3.</span> <span class="toc-text">WebGL 概念抽象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API-基础设计"><span class="toc-number">4.</span> <span class="toc-text">API 基础设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API-进阶使用"><span class="toc-number">5.</span> <span class="toc-text">API 进阶使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染-3D-物体"><span class="toc-number">5.1.</span> <span class="toc-text">渲染 3D 物体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加动画"><span class="toc-number">5.2.</span> <span class="toc-text">添加动画</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染图像"><span class="toc-number">5.3.</span> <span class="toc-text">渲染图像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染多个物体"><span class="toc-number">5.4.</span> <span class="toc-text">渲染多个物体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#离屏渲染"><span class="toc-number">5.5.</span> <span class="toc-text">离屏渲染</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他渲染技术"><span class="toc-number">5.6.</span> <span class="toc-text">其他渲染技术</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#致谢与总结"><span class="toc-number">6.</span> <span class="toc-text">致谢与总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>要想使用 WebGL 直通 GPU 的渲染能力，很多同学的第一反应就是使用现成的开源项目，如著名的 Three.js 等。但是，直接套用它们就是唯一的选择了吗？如果想深入 WebGL 基础甚至自己造轮子，又该从何下手呢？</p>
+<a id="more"></a>
+<p>本文希望以笔者自己的实践经验为例，科普一些图形基础库设计层面的知识。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>不久前，我们为 <a href="https://gaoding.com" target="_blank" rel="noopener">稿定设计 Web 端</a> 添加了 3D 文字的编辑能力。你可以将原本局限在二维平面上的文字立体化，为其添加丰富的质感，就像这样：</p>
+<p><img src="https://ewind.us/images/beam/3d-text-entry.png" alt></p>
+<p>3D 文字的 WebGL 渲染部分，使用了我们自研的 <a href="https://github.com/doodlewind/beam" target="_blank" rel="noopener">Beam</a> 基础库。它并不是某个开源项目的 fork 魔改版，而是从头开始正向实现的。作为 Beam 的作者，推动一个新轮子在生产环境中落地的经历，无疑给了我很多值得分享的经验。下面就先从最基本的定位出发，聊聊 WebGL 基础库吧。</p>
+<h2 id="渲染引擎与-WebGL-基础库"><a href="#渲染引擎与-WebGL-基础库" class="headerlink" title="渲染引擎与 WebGL 基础库"></a>渲染引擎与 WebGL 基础库</h2><p>提到 WebGL 时，大家普遍会想到 Three.js 这样的开源项目，这多少有点「用 React 全家桶代表 Web 前端」 的感觉。其实，Three 已经是个颇为高层的 3D 渲染引擎了。它和 Beam 这样的 WebGL 基础库之间，粗略来说有这些异同：</p>
+<ul>
+<li>渲染引擎需要屏蔽 WebGL 等渲染端的内部概念，基础库则要开放这些概念。</li>
+<li>渲染引擎还可以有 SVG / Canvas 等多个渲染端，基础库则专注一个渲染端。</li>
+<li>渲染引擎的设计是针对 3D 或 2D 等特定场景的，基础库则没有这种假设。</li>
+<li>渲染引擎在体积上通常更重，基础库则显然较轻。</li>
+</ul>
+<p>其实，我更愿意把 Three 和 Beam 的对比，当做 React 和 jQuery 的对比：<strong>一个想将渲染端的复杂度屏蔽到极致，另一个则想将直接操作渲染端的 API 简化到极致</strong>。有鉴于图形渲染管线的高度灵活性，再加上重量级上的显著区别（Three 源码体积已超过 1M，且 Tree Shaking 效果不佳），笔者相信凡是希望追求控制的场景，都可以是 WebGL 基础库的用武之地。</p>
+<blockquote>
+<p>社区有 Regl 这样流行的 WebGL 基础库，这证明类似的轮子并不是个伪需求。</p>
+</blockquote>
+<h2 id="WebGL-概念抽象"><a href="#WebGL-概念抽象" class="headerlink" title="WebGL 概念抽象"></a>WebGL 概念抽象</h2><p>在设计基础库的实际 API 前，我们至少需要清楚 WebGL 是如何工作的。WebGL 代码有很多琐碎之处，一头扎进代码里，容易使我们只见树木不见森林。根据笔者的理解，整个 WebGL 应用中我们操作的概念，其实不外乎这几个：</p>
+<ul>
+<li><strong>Shader</strong> 着色器，是<strong>存放图形算法的对象</strong>。 相比于在 CPU 上单线程执行的 JS 代码，着色器在 GPU 上并行执行，计算出每帧数百万个像素各自的颜色。</li>
+<li><strong>Resource</strong> 资源，是<strong>存放图形数据的对象</strong>。就像 JSON 成为 Web App 的数据那样，资源是传递给着色器的数据，包括大段的顶点数组、纹理图像，以及全局的配置项等。</li>
+<li><strong>Draw</strong> 绘制，是<strong>选好资源后运行着色器的请求</strong>。要想渲染真实际的场景，一般需要多组着色器与多个资源，来回绘制多次才能完成一帧。每次绘制前，我们都需要选好着色器，并为其关联好不同的资源，也都会启动一次图形渲染管线。</li>
+<li><strong>Command</strong> 命令，是<strong>执行绘制前的配置</strong>。WebGL 是非常有状态的。每次绘制前，我们都必须小心地处理好状态机。这些状态变更就是通过命令来实现的。Beam 基于一些约定大幅简化了人工的命令管理，当然你也可以定制自己的命令。</li>
+</ul>
+<p>这些概念是如何协同工作的呢？请看下图：</p>
+<p><img src="https://ewind.us/images/beam/webgl-frame.png" alt></p>
+<p>图中的 Buffers / Textures / Uniforms 都属于典型的资源。一帧当中可能存在多次绘制，每次绘制都需要着色器和相应的资源。在绘制之间，我们通过命令来管理好 WebGL 的状态。这就是笔者在设计 Beam 时，为 WebGL 建立的思维模型了。</p>
+<p>理解这个思维模型很重要。因为 Beam 的 API 设计就是完全依据这个模型而实现的。让我们进一步看看一个实际的场景吧：</p>
+<p><img src="https://ewind.us/images/beam/pbr-balls.png" alt></p>
+<p>图中我们绘制了很多质感不同的球体。这一帧的渲染，则可以这样解构到上面的这些概念下：</p>
+<ul>
+<li><strong>着色器</strong>无疑就是球体质感的渲染算法。对经典的 3D 游戏来说，要渲染不同质感的物体，经常需要切换不同的着色器。但现在基于物理的渲染算法流行后，这些球体也不难做到使用同一个着色器来渲染。</li>
+<li><strong>资源</strong>包括了大段的球体顶点数据、材质纹理的图像数据，以及光照参数、变换矩阵等配置项。</li>
+<li><strong>绘制</strong>是分多次进行的。我们选择每次绘制一个球体，而每次绘制也都会启动一次图形渲染管线。</li>
+<li><strong>命令</strong>则是相邻的球体绘制之间，所执行的那些状态变更。</li>
+</ul>
+<p>如何理解状态变更呢？不妨将 WebGL 想象成一个具备大量开关与接口的仪器。每次按下启动键（执行绘制）前。你都要配置好一堆开关，再连接好一条接着色器的线，和一堆接资源的线，就像这样：</p>
+<p><img src="https://ewind.us/images/beam/webgl-states.png" alt></p>
+<p>还有很重要的一点，那就是虽然我们已经知道，一帧画面可以通过多次绘制而生成，而每次绘制又对应执行一次图形渲染管线的执行。但是，所谓的图形渲染管线又是什么呢？这对应于这张图：</p>
+<p><img src="https://ewind.us/images/beam/webgl-pipeline.png" alt></p>
+<p>渲染管线，一般指的就是这样一个 GPU 上由顶点数据到像素的过程。现代的可编程 GPU 来说，管线中的某些阶段是可编程的。WebGL 标准里，这对应于图中蓝色的顶点着色器和片元着色器阶段。你可以把它们想象成两个需要你来写的函数。它们大体上分别做这样的工作：</p>
+<ul>
+<li>顶点着色器输入原始的顶点坐标，输出根据你的需求变换后的坐标。</li>
+<li>片元着色器输入一个像素位置，输出根据你的需求计算出的像素颜色。</li>
+</ul>
+<p>以上这些就是笔者从基础库设计者的视角出发，所看到的 WebGL 基础概念啦。</p>
+<h2 id="API-基础设计"><a href="#API-基础设计" class="headerlink" title="API 基础设计"></a>API 基础设计</h2><p>虽然上面的章节完全没有涉及代码，但充分理清楚概念后，编码就是水到渠成的了。由于命令可以被自动化，在设计 Beam 时，笔者只定义了三个核心 API，分别是</p>
+<ul>
+<li><strong>beam.shader</strong></li>
+<li><strong>beam.resource</strong></li>
+<li><strong>beam.draw</strong></li>
+</ul>
+<p>它们各自对应于管理着色器、资源和绘制。让我们看看怎样基于这个设计，来绘制 WebGL 中的 Hello World 三角形吧：</p>
+<p><img src="https://ewind.us/images/beam/beam-hello-world.png" alt></p>
+<p>Beam 的代码示例如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Beam, ResourceTypes &#125; <span class="keyword">from</span> <span class="string">'beam-gl'</span></span><br><span class="line"><span class="keyword">import</span> &#123; MyShader &#125; <span class="keyword">from</span> <span class="string">'./my-shader.js'</span></span><br><span class="line"><span class="keyword">const</span> &#123; VertexBuffers, IndexBuffer &#125; = ResourceTypes</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> canvas = <span class="built_in">document</span>.querySelector(<span class="string">'canvas'</span>)</span><br><span class="line"><span class="keyword">const</span> beam = <span class="keyword">new</span> Beam(canvas)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> shader = beam.shader(MyShader)</span><br><span class="line"><span class="keyword">const</span> vertexBuffers = beam.resource(VertexBuffers, &#123;</span><br><span class="line">  position: [</span><br><span class="line">    <span class="number">-1</span>, <span class="number">-1</span>, <span class="number">0</span>, <span class="comment">// vertex 0, bottom left</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="comment">// vertex 1, top middle</span></span><br><span class="line">    <span class="number">1</span>, <span class="number">-1</span>, <span class="number">0</span> <span class="comment">// vertex 2, bottom right</span></span><br><span class="line">  ],</span><br><span class="line">  color: [</span><br><span class="line">    <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="comment">// vertex 0, red</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="comment">// vertex 1, green</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span> <span class="comment">// vertex 2, blue</span></span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">const</span> indexBuffer = beam.resource(IndexBuffer, &#123;</span><br><span class="line">  array: [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">beam</span><br><span class="line">  .clear()</span><br><span class="line">  .draw(shader, vertexBuffers, indexBuffer)</span><br></pre></td></tr></table></figure>
+<p>下面逐个介绍一些重要的 API 片段。首先自然是用 Canvas 初始化出 Beam 了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> canvas = <span class="built_in">document</span>.querySelector(<span class="string">'canvas'</span>)</span><br><span class="line"><span class="keyword">const</span> beam = <span class="keyword">new</span> Beam(canvas)</span><br></pre></td></tr></table></figure>
+<p>然后我们用 <code>beam.shader</code> 来实例化着色器，这里的 <code>MyShader</code> 稍后再说：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> shader = beam.shader(MyShader)</span><br></pre></td></tr></table></figure>
+<p>着色器准备好之后，就是准备资源了。为此我们需要使用 <code>beam.resource</code> API 来创建三角形的数据。这些数据装在不同的 Buffer 里，而 Beam 使用 <code>VertexBuffers</code> 类型来表达它们。三角形有 3 个顶点，每个顶点有两个属性 (attribute)，即 <strong>position</strong> 和 <strong>color</strong>，每个属性都对应于一个独立的 Buffer。这样我们就不难用普通的 JS 数组（或 TypedArray）来声明这些顶点数据了。Beam 会替你将它们上传到 GPU：</p>
+<blockquote>
+<p>注意区分 WebGL 中的<strong>顶点</strong>和<strong>坐标</strong>概念。顶点 (vertex) 不仅可以包含一个点的坐标属性，还可以包含法向量、颜色等其它属性。这些属性都可以输入顶点着色器中来做计算。</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> vertexBuffers = beam.resource(VertexBuffers, &#123;</span><br><span class="line">  position: [</span><br><span class="line">    <span class="number">-1</span>, <span class="number">-1</span>, <span class="number">0</span>, <span class="comment">// vertex 0, bottom left</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="comment">// vertex 1, top middle</span></span><br><span class="line">    <span class="number">1</span>, <span class="number">-1</span>, <span class="number">0</span> <span class="comment">// vertex 2, bottom right</span></span><br><span class="line">  ],</span><br><span class="line">  color: [</span><br><span class="line">    <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="comment">// vertex 0, red</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="comment">// vertex 1, green</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span> <span class="comment">// vertex 2, blue</span></span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>装顶点的 Buffer 通常会使用很紧凑的数据集。我们可以定义这份数据的一个子集或者超集来用于实际渲染，以便于减少数据冗余并复用更多顶点。为此我们需要引入 WebGL 中的 <code>IndexBuffer</code> 概念，它指定了渲染时用到的顶点下标：</p>
+<blockquote>
+<p>这个例子里，每个下标都对应顶点数组里的 3 个位置。</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> indexBuffer = beam.resource(IndexBuffer, &#123;</span><br><span class="line">  array: [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>最后我们就可以进入渲染环节啦。首先用 <code>beam.clear</code> 来清空当前帧，然后为 <code>beam.draw</code> 传入<strong>一个着色器对象和任意多个资源对象</strong>即可：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">beam</span><br><span class="line">  .clear()</span><br><span class="line">  .draw(shader, vertexBuffers, indexBuffer)</span><br></pre></td></tr></table></figure>
+<p>我们的 <code>beam.draw</code> API 是非常灵活的。如果你有多个着色器和多个资源，可以随意组合它们来链式地完成绘制，渲染出复杂的场景。就像这样：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">beam</span><br><span class="line">  .draw(shaderX, ...resourcesA)</span><br><span class="line">  .draw(shaderY, ...resourcesB)</span><br><span class="line">  .draw(shaderZ, ...resourcesC)</span><br></pre></td></tr></table></figure>
+<p>别忘了还有个遗漏的地方：如何决定三角形的渲染算法呢？这是在 <code>MyShader</code> 变量里指定的。它其实是个着色器的 Schema，像这样：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; SchemaTypes &#125; <span class="keyword">from</span> <span class="string">'beam-gl'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> vertexShader = <span class="string">`</span></span><br><span class="line"><span class="string">attribute vec4 position;</span></span><br><span class="line"><span class="string">attribute vec4 color;</span></span><br><span class="line"><span class="string">varying highp vec4 vColor;</span></span><br><span class="line"><span class="string">void main() &#123;</span></span><br><span class="line"><span class="string">  vColor = color;</span></span><br><span class="line"><span class="string">  gl_Position = position;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">`</span></span><br><span class="line"><span class="keyword">const</span> fragmentShader = <span class="string">`</span></span><br><span class="line"><span class="string">varying highp vec4 vColor;</span></span><br><span class="line"><span class="string">void main() &#123;</span></span><br><span class="line"><span class="string">  gl_FragColor = vColor;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">`</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123; vec4 &#125; = SchemaTypes</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> MyShader = &#123;</span><br><span class="line">  vs: vertexShader,</span><br><span class="line">  fs: fragmentShader,</span><br><span class="line">  buffers: &#123;</span><br><span class="line">    position: &#123; <span class="attr">type</span>: vec4, <span class="attr">n</span>: <span class="number">3</span> &#125;,</span><br><span class="line">    color: &#123; <span class="attr">type</span>: vec4, <span class="attr">n</span>: <span class="number">3</span> &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个 Beam 中的着色器 Schema，由顶点着色器字符串、片元着色器字符串，和其它 Schema 字段组成。非常粗略地说，着色器对每个顶点执行一次，而片元着色器则对每个像素执行一次。这些着色器是用 WebGL 标准中的 GLSL 语言编写的。在 WebGL 中，顶点着色器将 <code>gl_Position</code> 作为坐标位置输出，而片元着色器则将 <code>gl_FragColor</code> 作为像素颜色输出。还有名为 <code>vColor</code> 的 varying 变量，它会由顶点着色器传递到片元着色器，并自动插值。最后，这里的 <code>position</code> 和 <code>color</code> 这两个 attribute 变量，和前面 <code>vertexBuffers</code> 中的 key 相对应。这就是 Beam 用于自动化命令的约定了。</p>
+<h2 id="API-进阶使用"><a href="#API-进阶使用" class="headerlink" title="API 进阶使用"></a>API 进阶使用</h2><p>相信一定有许多同学对这一设计的可用性还会有疑问，毕竟即便能按这套规则来渲染三角形，未必能证明它适合更复杂的应用呀。其实 Beam 已经实际应用在了我们内部的不同场景中，下面简单介绍一些更进一步的示例。对这些示例的详细介绍，都可以在笔者编写的 Beam 文档中查到。</p>
+<h3 id="渲染-3D-物体"><a href="#渲染-3D-物体" class="headerlink" title="渲染 3D 物体"></a>渲染 3D 物体</h3><p>我们刚渲染出的三角形，还只是 2D 图形而已。如何渲染出立方体、球体，和更复杂的 3D 模型呢？其实并不难，只要多一些顶点和着色器的配置就行。以用 Beam 渲染这个 3D 球体为例：</p>
+<p><img src="https://ewind.us/images/beam/basic-ball.png" alt></p>
+<p>3D 图形同样由三角形组成，而三角形也仍然由顶点组成。之前，我们的顶点包含 <strong>position</strong> 和 <strong>color</strong> 属性。而对于 3D 球体，我们则需要使用 <strong>position</strong> 和 <strong>normal</strong> 属性。这个 normal 即为法向量，包含了球体在该顶点位置的表面朝向，这对光照计算十分重要。</p>
+<p>不仅如此，为了将顶点从 3D 空间转换到 2D 空间，我们需要一个由矩阵组成的「照相机」。对每个传递到顶点着色器的顶点，我们都需要为其应用这些变换矩阵。这些矩阵对于并行运行的着色器来说，是全局唯一的。这就是 WebGL 中的 <strong>uniforms</strong> 概念了。<code>Uniforms</code> 也是 Beam 中的一种资源类型，包含着色器中的不同全局配置，例如相机位置、线条颜色、特效强度等。</p>
+<p>因此要想渲染一个最简单的球，我们可以复用上例中的片元着色器，只需更新顶点着色器为如下所示即可：</p>
+<figure class="highlight glsl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">attribute</span> <span class="type">vec4</span> position;</span><br><span class="line"><span class="keyword">attribute</span> <span class="type">vec4</span> normal;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 变换矩阵</span></span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> modelMat;</span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> viewMat;</span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> projectionMat;</span><br><span class="line"></span><br><span class="line"><span class="keyword">varying</span> <span class="keyword">highp</span> <span class="type">vec4</span> vColor;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main() &#123;</span><br><span class="line">  <span class="built_in">gl_Position</span> = projectionMat * viewMat * modelMat * position;</span><br><span class="line">  vColor = normal; <span class="comment">// 将法向量可视化</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为我们已经在着色器中添加了 uniform 变量，Schema 也需要相应地添加一个 <code>uniforms</code> 字段：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> identityMat = [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]</span><br><span class="line"><span class="keyword">const</span> &#123; vec4, mat4 &#125; = SchemaTypes</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> MyShader = &#123;</span><br><span class="line">  vs: vertexShader,</span><br><span class="line">  fs: fragmentShader,</span><br><span class="line">  buffers: &#123;</span><br><span class="line">    position: &#123; <span class="attr">type</span>: vec4, <span class="attr">n</span>: <span class="number">3</span> &#125;,</span><br><span class="line">    normal: &#123; <span class="attr">type</span>: vec4, <span class="attr">n</span>: <span class="number">3</span> &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  uniforms: &#123;</span><br><span class="line">    <span class="comment">// The default field is handy for reducing boilerplate</span></span><br><span class="line">    modelMat: &#123; <span class="attr">type</span>: mat4, <span class="attr">default</span>: identityMat &#125;,</span><br><span class="line">    viewMat: &#123; <span class="attr">type</span>: mat4 &#125;,</span><br><span class="line">    projectionMat: &#123; <span class="attr">type</span>: mat4 &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们就可以继续使用 Beam 中简洁的 API 了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> beam = <span class="keyword">new</span> Beam(canvas)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> shader = beam.shader(NormalColor)</span><br><span class="line"><span class="keyword">const</span> cameraMats = createCamera(&#123; <span class="attr">eye</span>: [<span class="number">0</span>, <span class="number">10</span>, <span class="number">10</span>] &#125;)</span><br><span class="line"><span class="keyword">const</span> ball = createBall()</span><br><span class="line"></span><br><span class="line">beam.clear().draw(</span><br><span class="line">  shader,</span><br><span class="line">  beam.resource(VertexBuffers, ball.data),</span><br><span class="line">  beam.resource(IndexBuffer, ball.index),</span><br><span class="line">  beam.resource(Uniforms, cameraMats)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>这个示例的代码可以在 <a href="https://github.com/doodlewind/beam/blob/master/gallery/pages/basic-graphics/basic-ball.js" target="_blank" rel="noopener">Basic Ball</a> 中找到。</p>
+<blockquote>
+<p>Beam 是一个不以 3D 为目标设计的 WebGL 库，因此几何对象、变换矩阵、相机等概念并不属于它的一部分。为了方便使用，Beam 的示例中包含了一些相关的 Utils 代码，但别对它们要求太高啦。</p>
+</blockquote>
+<h3 id="添加动画"><a href="#添加动画" class="headerlink" title="添加动画"></a>添加动画</h3><p>如何移动 WebGL 中的物体呢？你当然可以计算出运动后的新位置并更新 Buffer，但这可能很慢。另一种方式是直接更新上面提到的变换矩阵。这些矩阵都属于短小精悍，易于更新的 uniforms 资源。</p>
+<p>通过 <code>requestAnimationFrame</code> API，我们很容易就能让上面的球体运动起来：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> beam = <span class="keyword">new</span> Beam(canvas)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> shader = beam.shader(NormalColor)</span><br><span class="line"><span class="keyword">const</span> ball = createBall()</span><br><span class="line"><span class="keyword">const</span> buffers = [</span><br><span class="line">  beam.resource(VertexBuffers, ball.data),</span><br><span class="line">  beam.resource(IndexBuffer, ball.index)</span><br><span class="line">]</span><br><span class="line"><span class="keyword">let</span> i = <span class="number">0</span>; <span class="keyword">let</span> d = <span class="number">10</span></span><br><span class="line"><span class="keyword">const</span> cameraMats = createCamera(&#123; <span class="attr">eye</span>: [<span class="number">0</span>, d, d] &#125;)</span><br><span class="line"><span class="keyword">const</span> camera = beam.resource(Uniforms, cameraMats)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> tick = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  i += <span class="number">0.02</span></span><br><span class="line">  d = <span class="number">10</span> + <span class="built_in">Math</span>.sin(i) * <span class="number">5</span></span><br><span class="line">  <span class="keyword">const</span> &#123; viewMat &#125; = createCamera(&#123; <span class="attr">eye</span>: [<span class="number">0</span>, d, d] &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 更新 uniform 资源</span></span><br><span class="line">  camera.set(<span class="string">'viewMat'</span>, viewMat)</span><br><span class="line"></span><br><span class="line">  beam.clear().draw(shader, ...buffers, camera)</span><br><span class="line">  requestAnimationFrame(tick)</span><br><span class="line">&#125;</span><br><span class="line">tick() <span class="comment">// 开始 Render Loop</span></span><br></pre></td></tr></table></figure>
+<p>这里的 <code>camera</code> 变量是个 Beam 的 <code>Uniforms</code> 资源实例，它的数据以 key-value 的形式存储。你可以自由添加或更高不同的 uniform key。当 <code>beam.draw</code> 触发时，只有与着色器相匹配的 uniform 数据才会上传到 GPU。</p>
+<p>这个示例的代码可以在 <a href="https://github.com/doodlewind/beam/blob/master/gallery/pages/basic-graphics/zooming-ball.js" target="_blank" rel="noopener">Zooming Ball</a> 中找到。</p>
+<blockquote>
+<p>Buffer 资源同样可以通过类似的 <code>set()</code> 方法来更新，不过对于 WebGL 中较重的负载来说，这可能比较慢。</p>
+</blockquote>
+<h3 id="渲染图像"><a href="#渲染图像" class="headerlink" title="渲染图像"></a>渲染图像</h3><p>我们已经看到了 <code>VertexBuffers</code> / <code>IndexBuffer</code> / <code>Uniforms</code> 三种资源类型了。如果想渲染图像，那么我们还需要最后一种关键的资源类型，即 <code>Textures</code>。这方面最简单的示例，是带有这样贴图的 3D 盒子：</p>
+<p><img src="https://ewind.us/images/beam/basic-texture.png" alt></p>
+<p>对于需要纹理的图形，在 <strong>position</strong> 和 <strong>normal</strong> 之外，我们还需要一个额外的 <strong>texCoord</strong> 属性，以便于将图像对齐到图形的相应位置，这个值也会插值后传入片元着色器中。看看这时的顶点着色器吧：</p>
+<figure class="highlight glsl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">attribute</span> <span class="type">vec4</span> position;</span><br><span class="line"><span class="keyword">attribute</span> <span class="type">vec4</span> normal;</span><br><span class="line"><span class="keyword">attribute</span> <span class="type">vec2</span> texCoord;</span><br><span class="line"></span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> modelMat;</span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> viewMat;</span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> projectionMat;</span><br><span class="line"></span><br><span class="line"><span class="keyword">varying</span> <span class="keyword">highp</span> <span class="type">vec2</span> vTexCoord;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main() &#123;</span><br><span class="line">  vTexCoord = texCoord;</span><br><span class="line">  <span class="built_in">gl_Position</span> = projectionMat * viewMat * modelMat * position;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以及新的片元着色器：</p>
+<figure class="highlight glsl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">uniform</span> <span class="type">sampler2D</span> img;</span><br><span class="line"><span class="keyword">uniform</span> <span class="keyword">highp</span> <span class="type">float</span> strength;</span><br><span class="line"></span><br><span class="line"><span class="keyword">varying</span> <span class="keyword">highp</span> <span class="type">vec2</span> vTexCoord;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main() &#123;</span><br><span class="line">  <span class="built_in">gl_FragColor</span> = <span class="built_in">texture2D</span>(img, vTexCoord);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在我们需要为 Schema 添加 <code>textures</code> 字段：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; vec4, vec2, mat4, tex2D &#125; = SchemaTypes</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> MyShader = &#123;</span><br><span class="line">  vs: vertexShader,</span><br><span class="line">  fs: fragmentShader,</span><br><span class="line">  buffers: &#123;</span><br><span class="line">    position: &#123; <span class="attr">type</span>: vec4, <span class="attr">n</span>: <span class="number">3</span> &#125;,</span><br><span class="line">    texCoord: &#123; <span class="attr">type</span>: vec2 &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  uniforms: &#123;</span><br><span class="line">    modelMat: &#123; <span class="attr">type</span>: mat4, <span class="attr">default</span>: identityMat &#125;,</span><br><span class="line">    viewMat: &#123; <span class="attr">type</span>: mat4 &#125;,</span><br><span class="line">    projectionMat: &#123; <span class="attr">type</span>: mat4 &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  textures: &#123;</span><br><span class="line">    img: &#123; <span class="attr">type</span>: tex2D &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后就是渲染逻辑了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> beam = <span class="keyword">new</span> Beam(canvas)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> shader = beam.shader(MyShader)</span><br><span class="line"><span class="keyword">const</span> cameraMats = createCamera(&#123; <span class="attr">eye</span>: [<span class="number">10</span>, <span class="number">10</span>, <span class="number">10</span>] &#125;)</span><br><span class="line"><span class="keyword">const</span> box = createBox()</span><br><span class="line"></span><br><span class="line">loadImage(<span class="string">'prague.jpg'</span>).then(<span class="function"><span class="params">image</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> imageState = &#123; image, <span class="attr">flip</span>: <span class="literal">true</span> &#125;</span><br><span class="line">  beam.clear().draw(</span><br><span class="line">    shader,</span><br><span class="line">    beam.resource(VertexBuffers, box.data),</span><br><span class="line">    beam.resource(IndexBuffer, box.index),</span><br><span class="line">    beam.resource(Uniforms, cameraMats),</span><br><span class="line">    <span class="comment">// 这个 'img' 键用来与着色器相匹配</span></span><br><span class="line">    beam.resource(Textures, &#123; <span class="attr">img</span>: imageState &#125;)</span><br><span class="line">  )</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这就是 Beam 中基础的纹理使用方式了。因为我们能直接控制图像着色器，在此基础上添加图像处理特效是很容易的。</p>
+<p>这个示例的代码可以在 <a href="https://github.com/doodlewind/beam/blob/master/gallery/pages/basic-graphics/image-box.js" target="_blank" rel="noopener">Image Box</a> 中找到。</p>
+<blockquote>
+<p>这里不妨将 <code>createBox</code> 换成 <code>createBall</code> 试试？</p>
+</blockquote>
+<h3 id="渲染多个物体"><a href="#渲染多个物体" class="headerlink" title="渲染多个物体"></a>渲染多个物体</h3><p>如何渲染多个物体呢？让我们看看 <code>beam.draw</code> API 的灵活性吧：</p>
+<p><img src="https://ewind.us/images/beam/multi-graphics.png" alt></p>
+<p>要渲染多个球体和多个立方体，我们只需要两组 <code>VertexBuffers</code> 和 <code>IndexBuffer</code>，一组是球，另一组则是立方体：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> shader = beam.shader(MyShader)</span><br><span class="line"><span class="keyword">const</span> ball = createBall()</span><br><span class="line"><span class="keyword">const</span> box = createBox()</span><br><span class="line"><span class="keyword">const</span> ballBuffers = [</span><br><span class="line">  beam.resource(VertexBuffers, ball.data),</span><br><span class="line">  beam.resource(IndexBuffer, ball.index)</span><br><span class="line">]</span><br><span class="line"><span class="keyword">const</span> boxBuffers = [</span><br><span class="line">  beam.resource(VertexBuffers, box.data),</span><br><span class="line">  beam.resource(IndexBuffer, box.index)</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>然后在 for 循环里，我们就可以轻松地用不同的 uniform 配置来绘制它们了。只要在 <code>beam.draw</code> 前更新 <code>modelMat</code>，我们就可以更新该物体在世界坐标系中的位置，进而使其出现在屏幕上的不同位置了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> cameraMats = createCamera(</span><br><span class="line">  &#123; <span class="attr">eye</span>: [<span class="number">0</span>, <span class="number">50</span>, <span class="number">50</span>], <span class="attr">center</span>: [<span class="number">10</span>, <span class="number">10</span>, <span class="number">0</span>] &#125;</span><br><span class="line">)</span><br><span class="line"><span class="keyword">const</span> camera = beam.resource(Uniforms, cameraMats)</span><br><span class="line"><span class="keyword">const</span> baseMat = mat4.create()</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> render = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  beam.clear()</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">1</span>; j &lt; <span class="number">10</span>; j++) &#123;</span><br><span class="line">      <span class="keyword">const</span> modelMat = mat4.translate(</span><br><span class="line">        [], baseMat, [i * <span class="number">2</span>, j * <span class="number">2</span>, <span class="number">0</span>]</span><br><span class="line">      )</span><br><span class="line">      camera.set(<span class="string">'modelMat'</span>, modelMat)</span><br><span class="line">      <span class="keyword">const</span> resources = (i + j) % <span class="number">2</span></span><br><span class="line">        ? ballBuffers</span><br><span class="line">        : boxBuffers</span><br><span class="line"></span><br><span class="line">      beam.draw(shader, ...resources, camera)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">render()</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>render</code> 函数以 <code>beam.clear</code> 开始，紧接着就可以跟随复杂的 <code>beam.draw</code> 渲染逻辑了。</p>
+<p>这个示例的代码可以在  <a href="https://github.com/doodlewind/beam/blob/master/gallery/pages/basic-graphics/multi-graphics.js" target="_blank" rel="noopener">Multi Graphics</a>  中找到。</p>
+<h3 id="离屏渲染"><a href="#离屏渲染" class="headerlink" title="离屏渲染"></a>离屏渲染</h3><p>在 WebGL 中可以使用 framebuffer object 来实现离屏渲染，从而将输出渲染到纹理上。Beam 目前有一个相应的 <code>OffscreenTarget</code> 资源类型，不过注意这一类型是不能扔进 <code>beam.draw</code> 的。</p>
+<p>比如默认的渲染逻辑看起来像这样：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">beam</span><br><span class="line">  .clear()</span><br><span class="line">  .draw(shaderX, ...resourcesA)</span><br><span class="line">  .draw(shaderY, ...resourcesB)</span><br><span class="line">  .draw(shaderZ, ...resourcesC)</span><br></pre></td></tr></table></figure>
+<p>通过可选的 <code>offscreen2D</code> 方法，这一渲染逻辑可以轻松地这样嵌套在函数作用域里：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">beam.clear()</span><br><span class="line">beam.offscreen2D(offscreenTarget, () =&gt; &#123;</span><br><span class="line">  beam</span><br><span class="line">    .draw(shaderX, ...resourcesA)</span><br><span class="line">    .draw(shaderY, ...resourcesB)</span><br><span class="line">    .draw(shaderZ, ...resourcesC)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这样就可以将输出重定向到离屏的纹理上了。</p>
+<p>这个示例的代码可以在  <a href="https://github.com/doodlewind/beam/blob/master/gallery/pages/offscreen/basic-mesh.js" target="_blank" rel="noopener">Basic Mesh</a> 中找到。</p>
+<h3 id="其他渲染技术"><a href="#其他渲染技术" class="headerlink" title="其他渲染技术"></a>其他渲染技术</h3><p>对实时渲染来说，用于标准化渲染质感的基于物理渲染 (PBR) 和用于渲染阴影的 Shadow Mapping，是两种主要的进阶渲染技术。笔者在 Beam 中也实现了这两者的示例，例如上面出现过的 PBR 材质球：</p>
+<p><img src="https://ewind.us/images/beam/pbr-balls.png" alt></p>
+<p>这些示例省略了一些琐碎之处，相对更注重代码的可读性。可以看看这里：</p>
+<ul>
+<li><a href="https://github.com/doodlewind/beam/blob/master/gallery/pages/3d-models/material-ball.js" target="_blank" rel="noopener">Material Ball</a>  展示了基础 PBR 材质球的渲染。</li>
+<li><a href="https://github.com/doodlewind/beam/blob/master/gallery/pages/offscreen/basic-shadow.js" target="_blank" rel="noopener">Basic Shadow</a>  展示了 Shadow Mapping 的示例。</li>
+</ul>
+<p>如前文所言，目前 <a href="https://gaoding.com" target="_blank" rel="noopener">稿定设计 Web 版</a> 的 3D 文字特性，也是从 Beam 的 PBR 能力出发来实现的。像这样的 3D 文字：</p>
+<p><img src="https://ewind.us/images/beam/3d-text-1.jpg" alt></p>
+<p>或者这样：</p>
+<p><img src="https://ewind.us/images/beam/3d-text-2.jpg" alt></p>
+<p>它们都是用 Beam 来渲染的。当然，Beam 只负责直接与 WebGL 相关的渲染部分，在其之上还有我们定制之后，嵌入平面编辑器中使用的 3D 文字渲染器，以及文字几何变换相关的算法。这些代码涉及我们的一些专利，并不会随 Beam 一起开源。其实，基于 Beam 很容易实现自己定制的专用渲染器，从而实现面向特定场景的优化。这也是笔者对这样一个 WebGL 基础库的预期。</p>
+<p>在 Beam 自带的示例中，还展示了基于 Beam 实现的这些例子：</p>
+<ul>
+<li>物体 Mesh 加载</li>
+<li>纹理配置</li>
+<li>经典光照算法</li>
+<li>可串联的图像滤镜</li>
+<li>深度纹理可视化</li>
+<li>基础的粒子效果</li>
+<li>WebGL 扩展配置</li>
+<li>上层 Renderer 封装</li>
+</ul>
+<p>欢迎 PR 提供新的示例哦 :)</p>
+<h2 id="致谢与总结"><a href="#致谢与总结" class="headerlink" title="致谢与总结"></a>致谢与总结</h2><p>Beam 的实现历程里，和 at 工业聚在 API 设计层面的交流给了笔者很多启发。公司内外不少前辈的指点，也在笔者面临关键决策时很有帮助。最终这套方案能够落地，更离不开组内前端同学们支持下最为重要的，<strong>大家大量的细节工作</strong>。</p>
+<p>其实在接下 3D 文字的需求前，笔者并没有比画一堆立方体更复杂的 WebGL 经验。但只要以基础出发来学习，短短几个月里，就足够在满足产品需求的基础上熟悉 WebGL，顺便沉淀出这样的轮子了。所以其实没必要以「这个在我能力范围外」为理由来为自己设限，把自己束缚在某个舒适区内。作为工程师，我们能做的事还有很多！</p>
+<p>而对于 Beam 自身的存在必要性而言，至少在国内，笔者确实还没发现在 WebGL 基础库的这个细分定位上，有比它更符合理想化设计的开源产品。这里真的不是说国内技术实力不行，像沈毅大神的 ClayGL 和谢光磊大神的 G3D 就都非常棒。区别之处在于，它们解决的其实是比 Beam 更高层次、更贴近普通开发者的问题。拿它们和 Beam 相比较，就像拿 Vue 和简化的 React Reconciler 相比较一样。</p>
+<p>越做越发现，这是个相当小众的领域。这意味着这样的技术产品，可能很难获得社区主流群体的尝试与认可。</p>
+<p>可是，有些最后绕不开的事，总有人要去做呀。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2019/beam/" data-title="如何设计一个 WebGL 基础库 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2019/react-ssd1306/"  title="将 React 渲染到嵌入式液晶屏">
+ <strong>下一篇：</strong><br/> 
+ <span>将 React 渲染到嵌入式液晶屏
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#渲染引擎与-WebGL-基础库"><span class="toc-number">2.</span> <span class="toc-text">渲染引擎与 WebGL 基础库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WebGL-概念抽象"><span class="toc-number">3.</span> <span class="toc-text">WebGL 概念抽象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API-基础设计"><span class="toc-number">4.</span> <span class="toc-text">API 基础设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API-进阶使用"><span class="toc-number">5.</span> <span class="toc-text">API 进阶使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染-3D-物体"><span class="toc-number">5.1.</span> <span class="toc-text">渲染 3D 物体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加动画"><span class="toc-number">5.2.</span> <span class="toc-text">添加动画</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染图像"><span class="toc-number">5.3.</span> <span class="toc-text">渲染图像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染多个物体"><span class="toc-number">5.4.</span> <span class="toc-text">渲染多个物体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#离屏渲染"><span class="toc-number">5.5.</span> <span class="toc-text">离屏渲染</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他渲染技术"><span class="toc-number">5.6.</span> <span class="toc-text">其他渲染技术</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#致谢与总结"><span class="toc-number">6.</span> <span class="toc-text">致谢与总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

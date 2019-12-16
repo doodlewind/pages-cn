@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<!-- saved from url=(0039)http://home.ustc.edu.cn/~ewind/appseed/ -->
+<html><head lang="en"><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="”apple-mobile-web-app-status-bar-style”" content="”black-translucent”">
+    <meta name="format-detection" content="telephone=no">
+    <title>APPSeed</title>
+    <script src="./static/jquery-2.0.3.min.js"></script>
+    <script src="./static/jquery.fullBG.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#background').fullBG();
+            setTimeout(function() {
+                $('#background').fullBG();
+            }, 10);
+        });
+    </script>
+    <style>
+        @font-face { font-family: AgencyFB; src: url('static/AgencyFB.ttf'); }
+        @media screen {
+            html body {
+                font-family: "AgencyFB", "Helvetica Neue Light", "Lucida Grande", "Calibri", "Arial", sans-serif;
+                font-size: 10px;
+                padding: 0;
+                margin: 0;
+                overflow-x: hidden;
+            }
+            nav {
+                position: static;
+                /*background-color: #ed4b56;*/
+                background-color: blanchedalmond;
+                height: 4.5em;
+                margin: 0;
+                padding-top: 1em;
+                padding-bottom: 1.5em;
+                width: 100%;
+                box-shadow: 0 0 20px #000000;
+                filter:alpha(opacity=90);
+                opacity:0.90;
+            }
+            button {
+                margin-left: 0;
+                margin-bottom: 0.5em;
+                min-height: 3em;
+                width: 80%;
+                max-width: 200px;
+                /*background-color: rgba(10, 130, 200, 0.2);*/
+                border: 3px white solid;
+                font-size: 2em;
+                font-family: "AgencyFB", "Helvetica Neue Light", "Lucida Grande", "Calibri", "Arial", sans-serif;
+                font-weight: bold;
+                color: white;;
+                transition-duration: 0.4s;
+            }
+            #btn-ustcbot {
+                color: #3cabf0;
+                background-color: rgba(255, 255, 255, 0.6);
+                border: 3px #3cabf0 solid;
+            }
+            #btn-ustcbot:hover {
+                background: #3cabf0;
+                color: white;
+                border: 3px #3cabf0 solid;
+                cursor: pointer;
+            }
+            a {
+                /*color: rgba(0, 0, 0, 0.7);*/
+                color: lightcoral;
+            }
+            button:hover {
+                background: #3cabf0;
+                color: white;
+                border: 3px #3cabf0 solid;
+                cursor: pointer;
+            }
+            small {
+                font-size: 1rem;
+            }
+            .fullBg {
+                position: fixed;
+                top: 0;
+                left: 0;
+                overflow: hidden;
+                z-index: -1;
+            }
+            #appseed-img {
+                margin-left: 2em;
+                height: 4em;
+            }
+            .logo {
+                height: 10em;
+                /*box-shadow: 0 0 14px #2f2f2f;*/
+            }
+            .appseed-name {
+                color: lightcoral;
+                font-size: 3.5em;
+                margin-left: 0.2em;
+            }
+            .jumbotron {
+                width: 100%;
+                overflow: auto;
+            }
+            .main {
+                width: 100%;
+                overflow: auto;
+                padding-bottom: 1em;
+            }
+            .jumbotron:after {
+                clear: both;
+            }
+            .appseed-title {
+                position: relative;
+                float: left;
+                /*left: 0;*/
+                box-sizing: border-box;
+                width: 60%;
+                color: blanchedalmond;
+                font-size: 14em;
+                text-align: center;
+                text-shadow: 0 0 10px #2f2f2f;
+            }
+            .app-intro {
+                position: relative;
+                float: right;
+                box-sizing: border-box;
+                padding-left: 0;
+                padding-right: 0.5em;
+                width: 20%;
+                font-size: 2.5em;
+                font-weight: bold;
+                /*color: #fef1d3;*/
+                color: white;
+                text-shadow: 0 0 1px #3f3f3f;
+            }
+            .clubseed-icon {
+                position: relative;
+                float: right;
+                box-sizing: border-box;
+                width: 20%;
+                padding-top: 2em;
+                /*filter:alpha(opacity=90);*/
+                /*opacity:0.90;*/
+            }
+            .appseed-panel {
+                position: relative;
+                float: left;
+                box-sizing: border-box;
+                margin-top: 1em;
+                margin-left: 2em;
+                padding-left: 2em;
+                padding-right: 2em;
+                width: 30%;
+                min-height: 370px;
+                background-color: rgba(250, 250, 250, 0.4);
+                overflow: hidden;
+                padding-bottom: 2em;
+                border-radius: 0.3em;
+                /*box-shadow: 0 3px 5px #666666;*/
+            }
+            .appseed-panel > h4 {
+                /*color: lightcoral;*/
+                color: rgba(0, 0, 0, 0.5);
+                font-size: 4em;
+                line-height:0;
+            }
+            .appseed-panel > p, address {
+                color: rgba(0, 0, 0, 0.7);
+                font-size: 1.6em;
+                font-weight: bold;
+            }
+            footer {
+                height: 3em;
+                color: blanchedalmond;
+                font-size: 1.5em;
+                text-align: center;
+            }
+            .guideline {
+                font-size: 1.5rem;
+                color: white;
+            }
+        }
+        @media (max-width: 768px) {
+            html body {
+            }
+            .appseed-title {
+                position: relative;
+                float: left;
+                box-sizing: border-box;
+                width: 100%;
+                font-size: 10em;
+                text-align: center;
+                text-shadow: 0 0 10px #2f2f2f;
+            }
+            .app-intro {
+                position: relative;
+                box-sizing: border-box;
+                padding-left: 1em;
+                padding-right: 0.5em;
+                width: 70%;
+                float: left;
+                font-size: 3em;
+                text-shadow: 0 0 3px #3f3f3f;
+            }
+            .clubseed-icon {
+                width: 30%;
+            }
+            .appseed-panel {
+                margin-left: 1em;
+                width: 91%;
+                min-height: 0;
+            }
+        }
+    </style>
+</head>
+<body><img id="background" src="./static/IMGP1440.jpg" style="visibility: visible; width: 1488px; height: 986px;" alt="Background - APPSeed by ewind" class="fullBg">
+
+<nav>
+    <img id="appseed-img" src="./static/APPSeed-logo.png">
+    <span class="appseed-name">APPSeed</span>
+</nav>
+<div class="jumbotron">
+    <div class="appseed-title">APPSeed</div>
+    <div class="clubseed-icon">
+        <img class="logo" src="./static/ClubSeedIcon.png">
+    </div>
+    <div class="app-intro">
+        <p>Introducing ClubSeed<br><small>A powerful event pushing app for USTCers.</small>
+        <br><small><a class="guideline" href="http://home.ustc.edu.cn/~ewind/appseed/download/ClubSeedGuidance.pdf">ClubSeed 用户指南</a></small></p>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <div class="clubseed-icon" style="float: right">
+        <img class="logo" src="./static/USTCBot.png">
+    </div>
+    <div class="app-intro">
+        <p>Introducing USTCBot<br><small>优雅且多功能的科大移动客户端</small>
+    </p></div>
+</div>
+<div class="main">
+    <div class="appseed-panel">
+        <h4>Contact</h4><hr>
+        <p>新浪微博：<a href="http://weibo.com/u/2081491835">USTC_AppSeed社</a></p>
+        <p><a href="mailto:ustcappseed@icloud.com">ustcappseed@icloud.com</a></p>
+    </div>
+    <div class="appseed-panel">
+        <h4>About</h4><hr>
+        <p>中国科学技术大学 APPSeed 社团是一个专注移动应用开发的技术类社团，我们致力于开发全移动平台的优质 APP，服务广大师生，丰富日常生活以及工作或学习。</p>
+        <p>本社团开发范围包括 iOS / Android / Windows Phone 等移动平台 APP，及 Android Wear / Apple Watch 等可穿戴设备 APP。</p>
+        <p>同时我们还会举办各种方面的开发讲座，方便感兴趣的同学进行交流学习。</p>
+    </div>
+    <div class="appseed-panel">
+        <h4>Download</h4><hr>
+        <button id="btn-ustcbot" onclick="window.open(&#39;https://itunes.apple.com/us/app/ustcbot/id788570077?mt=8&#39;);">USTCBot for iOS</button>
+        <button onclick="window.open(&#39;https://itunes.apple.com/us/app/clubseed/id956729984?mt=8&#39;);">ClubSeed for iOS</button>
+        <br>
+        <button onclick="window.open(&#39;http://clubseed.sinaapp.com/download/clubseed.apk&#39;);">ClubSeed for Android</button>
+        <br>
+        <button onclick="window.open(&#39;http://www.windowsphone.com/zh-cn/store/app/clubseed-for-ustc/27c33d1f-4ff7-4531-a222-018d82d37af3&#39;)">ClubSeed for WP</button>
+        <button onclick="window.open(&#39;http://apps.microsoft.com/windows/zh-cn/app/d248407f-8b87-43b2-94e2-c86071b3a376&#39;)">USTCBot for Windows</button>
+    </div>
+</div>
+<footer><a href="http://clubseed.sinaapp.com/index.php">Enter Admin</a></footer>
+
+</body></html>

@@ -1,0 +1,632 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>为 Hexo 配置 Gitcafe-Pages | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="为了增强稳定性和可访问性（主要是电信 3G 网络），这个博客已从 USTC Freeshell 迁移到了 Gitcafe。 完成下文的配置后，只需编辑并保存本地的 Markdown 文件后，一键 hexo deploy 就可以完成到 Gitcafe 的部署。">
+<meta name="keywords" content="Web,Blog">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为 Hexo 配置 Gitcafe-Pages">
+<meta property="og:url" content="https://ewind.us/2015/gitcafe-pages-hexo/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="为了增强稳定性和可访问性（主要是电信 3G 网络），这个博客已从 USTC Freeshell 迁移到了 Gitcafe。 完成下文的配置后，只需编辑并保存本地的 Markdown 文件后，一键 hexo deploy 就可以完成到 Gitcafe 的部署。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.524Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="为 Hexo 配置 Gitcafe-Pages">
+<meta name="twitter:description" content="为了增强稳定性和可访问性（主要是电信 3G 网络），这个博客已从 USTC Freeshell 迁移到了 Gitcafe。 完成下文的配置后，只需编辑并保存本地的 Markdown 文件后，一键 hexo deploy 就可以完成到 Gitcafe 的部署。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/gitcafe-pages-hexo/" title="为 Hexo 配置 Gitcafe-Pages" itemprop="url">为 Hexo 配置 Gitcafe-Pages</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2015-05-27T16:00:00.000Z" itemprop="datePublished"> 发表于 2015-05-28</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-公钥配置"><span class="toc-number">1.</span> <span class="toc-text">SSH 公钥配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#生成公钥"><span class="toc-number">1.1.</span> <span class="toc-text">生成公钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置公钥"><span class="toc-number">1.2.</span> <span class="toc-text">配置公钥</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gitcafe-与-Git-配置"><span class="toc-number">2.</span> <span class="toc-text">Gitcafe 与 Git 配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gitcafe"><span class="toc-number">2.1.</span> <span class="toc-text">Gitcafe</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git"><span class="toc-number">2.2.</span> <span class="toc-text">Git</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hexo-配置"><span class="toc-number">3.</span> <span class="toc-text">Hexo 配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#域名绑定"><span class="toc-number">4.</span> <span class="toc-text">域名绑定</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS-设置"><span class="toc-number">4.1.</span> <span class="toc-text">DNS 设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gitcafe-设置"><span class="toc-number">4.2.</span> <span class="toc-text">Gitcafe 设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#浏览器设置"><span class="toc-number">4.3.</span> <span class="toc-text">浏览器设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#部署"><span class="toc-number">5.</span> <span class="toc-text">部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#单个-Gitcafe-帐号"><span class="toc-number">5.1.</span> <span class="toc-text">单个 Gitcafe 帐号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多个-Gitcafe-帐号"><span class="toc-number">5.2.</span> <span class="toc-text">多个 Gitcafe 帐号</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>为了增强稳定性和可访问性（主要是电信 3G 网络），这个博客已从 <a href="https://freeshell.ustc.edu.cn/" target="_blank" rel="noopener">USTC Freeshell</a> 迁移到了 <a href="https://gitcafe.com/" target="_blank" rel="noopener">Gitcafe</a>。</p>
+<p>完成下文的配置后，只需编辑并保存本地的 Markdown 文件后，一键 <code>hexo deploy</code> 就可以完成到 Gitcafe 的部署。<a id="more"></a>事实上这也能反映出静态博客生成器的一大优点：本地的 Markdown 博文在手，就不用担心服务器出什么三长两短了（当然了，这样本地备份就更重要了。Time Machine 可以满足这方面的需求）。并且，位于七牛的图床以绝对链接形式写入了博文，这样在迁移时也不需要担心二进制文件的管理问题了。</p>
+<p>整个迁移过程的实现本来应该很简单：只要修改 Hexo 的配置，让 <code>hexo deploy</code> 能 push 到一个 Gitcafe Pages 的 Repo 上就行了。但由于每个 Gitcafe 帐号只能使用一个支持绑定自定义域名的 Gitcafe Pages，从而需要在申请新账号开 Repo 的过程上费点周折。下面是迁移过程的一些记录。</p>
+<h2 id="SSH-公钥配置"><a href="#SSH-公钥配置" class="headerlink" title="SSH 公钥配置"></a>SSH 公钥配置</h2><h3 id="生成公钥"><a href="#生成公钥" class="headerlink" title="生成公钥"></a>生成公钥</h3><p>在注册一个新 Gitcafe 账号后，为通过 ssh 连接 Gitcafe 服务器，需要生成一套额外的 ssh 公私钥对。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -C &quot;my@gitcafe.email.address&quot; -f ~/.ssh/gitcafe</span><br></pre></td></tr></table></figure>
+<p>然后会被要求输入 passphase 的为私钥加密。后面每次在 Hexo 部署时，都需要输入这个 passphase 才行。完成后可以看到自己的公钥 <code>fingerprint</code> 和 <code>randomart image</code>。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Generating public/private rsa key pair.</span><br><span class="line">Enter passphrase (empty for no passphrase): </span><br><span class="line">Enter same passphrase again: </span><br><span class="line">Your identification has been saved in /Users/ewind/.ssh/gitcafe.</span><br><span class="line">Your public key has been saved in /Users/ewind/.ssh/gitcafe.pub.</span><br><span class="line">The key fingerprint is:</span><br><span class="line">07:d3:24:b2:4d:75:3a:57:02:32:ef:d8:93:3b:bc:de ewind@mail.ustc.edu.cn</span><br><span class="line">The key&apos;s randomart image is:</span><br><span class="line">+--[ RSA 2048]----+</span><br><span class="line">|      . =.+.o .  |</span><br><span class="line">|       = B o o   |</span><br><span class="line">|      . + = .    |</span><br><span class="line">|         * +     |</span><br><span class="line">|        S *      |</span><br><span class="line">|         o o     |</span><br><span class="line">|          +      |</span><br><span class="line">|           +     |</span><br><span class="line">|         .o E    |</span><br><span class="line">+-----------------+</span><br></pre></td></tr></table></figure>
+<h3 id="配置公钥"><a href="#配置公钥" class="headerlink" title="配置公钥"></a>配置公钥</h3><p>修改 <code>~/.ssh/config</code> 中的配置文件，在末尾加入：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Host gitcafe.com www.gitcafe.com</span><br><span class="line">  IdentityFile ~/.ssh/gitcafe</span><br></pre></td></tr></table></figure>
+<p>再执行 <code>$ cat ~/.ssh/gitcafe.pub</code> 并复制所有内容到 <a href="https://gitcafe.com/account/public_keys/new" target="_blank" rel="noopener">Gitcafe 配置页</a>的相应输入框中，即可完成 SSH 配置。</p>
+<h2 id="Gitcafe-与-Git-配置"><a href="#Gitcafe-与-Git-配置" class="headerlink" title="Gitcafe 与 Git 配置"></a>Gitcafe 与 Git 配置</h2><h3 id="Gitcafe"><a href="#Gitcafe" class="headerlink" title="Gitcafe"></a>Gitcafe</h3><p>在 Gitcafe 上<a href="https://gitcafe.com/projects/new" target="_blank" rel="noopener">新建一个项目</a>，并将项目名设置为与 Gitcafe 账户名相同，即可将此项目 Repo 设定为 Gitcafe Pages。</p>
+<h3 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h3><p>新建了 Gitcafe 的项目后，需要配置一下本机的 Git 用户信息。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ git config --global user.email &apos;my@gitcafe.email.address&apos;</span><br><span class="line">$ git config --global user.name &apos;gitcafe-user-name&apos;</span><br></pre></td></tr></table></figure>
+<p>在使用 Hexo 同步博文到 Gitcafe Pages 前，需要给这个 Repo 添加一个 <code>gitcate-pages</code> 分支。进入 Hexo 目录下的 <code>.deploy</code> 目录，提交一个 commit 到主页即可。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /path/to/hexo-blog/.deploy</span><br><span class="line">echo &apos;Hello, world&apos; &gt; index.html</span><br><span class="line">git init</span><br><span class="line">git add .</span><br><span class="line">git commit -a -m &quot;Hello World&quot;</span><br><span class="line">git remote add origin git@gitcafe.com:ewind-us/ewind-us.git</span><br><span class="line">git checkout -b gitcafe-pages</span><br><span class="line">git push origin gitcafe-pages</span><br></pre></td></tr></table></figure>
+<p>这时候就可以直接访问 <code>username.gitcafe.io</code> 来查看效果了！</p>
+<h2 id="Hexo-配置"><a href="#Hexo-配置" class="headerlink" title="Hexo 配置"></a>Hexo 配置</h2><p>SSH 和 Git 的准备工作完成后，就可以使用 Hexo 的一键部署工具来方便地部署主页了。修改 Hexo 博客目录下的 <code>_config.yml</code> 文件，将生成的静态文件部署到个人主页项目的 <code>gitcafe-pages</code> 分支下。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: github</span><br><span class="line">  repository: git@gitcafe.com:ewind-us/ewind-us.git</span><br><span class="line">  branch: gitcafe-pages</span><br></pre></td></tr></table></figure>
+<h2 id="域名绑定"><a href="#域名绑定" class="headerlink" title="域名绑定"></a>域名绑定</h2><h3 id="DNS-设置"><a href="#DNS-设置" class="headerlink" title="DNS 设置"></a>DNS 设置</h3><p>在 <a href="http://dnspod.cn" target="_blank" rel="noopener">DNSPod</a> 等 DNS 服务提供商的后台里，将自己的域名 CNAME 到 <code>gitcafe.io</code> 即可。注意不是 <code>username.gitcafe.io</code> 哦。</p>
+<h3 id="Gitcafe-设置"><a href="#Gitcafe-设置" class="headerlink" title="Gitcafe 设置"></a>Gitcafe 设置</h3><p>在 Gitcafe 主页项目的管理页面中的 <em>Pages</em> 服务标签下，添加自己的域名即可。注意不是基本设置的标签，是 Pages 服务的标签哦。</p>
+<h3 id="浏览器设置"><a href="#浏览器设置" class="headerlink" title="浏览器设置"></a>浏览器设置</h3><p>DNS 设置可能不会立刻生效，需要清除缓存。</p>
+<ul>
+<li>对 Safari，按下 <code>cmd + shift + E</code> 即可清除缓存。</li>
+<li>对 Chrome，在标题栏中输入 <code>chrome://net-internals/#dns</code>，点击 <code>Clear host cache</code> 即可清除 Chrome 自带的 DNS 缓存。</li>
+</ul>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><h3 id="单个-Gitcafe-帐号"><a href="#单个-Gitcafe-帐号" class="headerlink" title="单个 Gitcafe 帐号"></a>单个 Gitcafe 帐号</h3><p>对一台终端只有一个 Gitcafe 帐号登录的情形，部署时直接使用 Hexo 的部署命令即可。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
+<p>如果有一些 Tags 计数或更换主题后出现的小问题，可以在部署前执行一句 <code>hexo clean</code> 清除 Hexo 生成的缓存。</p>
+<h3 id="多个-Gitcafe-帐号"><a href="#多个-Gitcafe-帐号" class="headerlink" title="多个 Gitcafe 帐号"></a>多个 Gitcafe 帐号</h3><p>每个 Gitcafe 帐号只支持一个 Gitcafe Pages，因此如果为博客单独建立了一个新账号，那么可以将如下脚本保存为 <code>deploy.sh</code> 后，每次编辑博文后直接一句 <code>./deploy.sh</code> 完成部署。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#! /bin/bash</span><br><span class="line">eval `ssh-agent`</span><br><span class="line"></span><br><span class="line"># choose the private key</span><br><span class="line">ssh-add ~/.ssh/gitcafe</span><br><span class="line"></span><br><span class="line"># do hexo deploy stuff</span><br><span class="line">hexo clean</span><br><span class="line">hexo deploy</span><br><span class="line"></span><br><span class="line"># quit ssh-agent</span><br><span class="line">eval `ssh-agent -k`</span><br></pre></td></tr></table></figure>
+<p>完成后，真是对静态博客的管理方式更加放心了呢 XD</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/Blog/">Blog</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2015/gitcafe-pages-hexo/" data-title="为 Hexo 配置 Gitcafe-Pages | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/finder-sort-find/" title="Finder 的文件排序与两条捷径">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Finder 的文件排序与两条捷径</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/typesetting-on-webpage/"  title="JS 数学公式排版编译器">
+ <strong>下一篇：</strong><br/> 
+ <span>JS 数学公式排版编译器
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-公钥配置"><span class="toc-number">1.</span> <span class="toc-text">SSH 公钥配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#生成公钥"><span class="toc-number">1.1.</span> <span class="toc-text">生成公钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置公钥"><span class="toc-number">1.2.</span> <span class="toc-text">配置公钥</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gitcafe-与-Git-配置"><span class="toc-number">2.</span> <span class="toc-text">Gitcafe 与 Git 配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gitcafe"><span class="toc-number">2.1.</span> <span class="toc-text">Gitcafe</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git"><span class="toc-number">2.2.</span> <span class="toc-text">Git</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hexo-配置"><span class="toc-number">3.</span> <span class="toc-text">Hexo 配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#域名绑定"><span class="toc-number">4.</span> <span class="toc-text">域名绑定</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS-设置"><span class="toc-number">4.1.</span> <span class="toc-text">DNS 设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gitcafe-设置"><span class="toc-number">4.2.</span> <span class="toc-text">Gitcafe 设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#浏览器设置"><span class="toc-number">4.3.</span> <span class="toc-text">浏览器设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#部署"><span class="toc-number">5.</span> <span class="toc-text">部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#单个-Gitcafe-帐号"><span class="toc-number">5.1.</span> <span class="toc-text">单个 Gitcafe 帐号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多个-Gitcafe-帐号"><span class="toc-number">5.2.</span> <span class="toc-text">多个 Gitcafe 帐号</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

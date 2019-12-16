@@ -1,0 +1,669 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>一个拖拽框背后的高中数学 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="很多时候一个看似简单的 bug 背后，都可能有着完全在作者意料之外的成因。这时候一路排查、调试和给出 fix 的过程往往可以相当神奇。最近我就遇到了个这样的问题，在此分享一下 :)">
+<meta name="keywords" content="Algorithms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个拖拽框背后的高中数学">
+<meta property="og:url" content="https://ewind.us/2018/drag-limits-math/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="很多时候一个看似简单的 bug 背后，都可能有着完全在作者意料之外的成因。这时候一路排查、调试和给出 fix 的过程往往可以相当神奇。最近我就遇到了个这样的问题，在此分享一下 :)">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/math-debug-drag-normal.gif">
+<meta property="og:image" content="https://ewind.us/images/trivial-limit.gif">
+<meta property="og:image" content="https://ewind.us/images/math-debug-drag-current.gif">
+<meta property="og:image" content="https://ewind.us/images/math-debug-clamp-rotate-poc.gif">
+<meta property="og:image" content="https://ewind.us/images/math-debug-outer-offset.gif">
+<meta property="og:image" content="https://ewind.us/images/math-debug-fixed.gif">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.518Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一个拖拽框背后的高中数学">
+<meta name="twitter:description" content="很多时候一个看似简单的 bug 背后，都可能有着完全在作者意料之外的成因。这时候一路排查、调试和给出 fix 的过程往往可以相当神奇。最近我就遇到了个这样的问题，在此分享一下 :)">
+<meta name="twitter:image" content="https://ewind.us/images/math-debug-drag-normal.gif">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/drag-limits-math/" title="一个拖拽框背后的高中数学" itemprop="url">一个拖拽框背后的高中数学</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-16T16:00:00.000Z" itemprop="datePublished"> 发表于 2018-07-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#缘起"><span class="toc-number">1.</span> <span class="toc-text">缘起</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#瓶颈-1：祖传代码"><span class="toc-number">2.</span> <span class="toc-text">瓶颈 1：祖传代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#瓶颈-2：高中数学"><span class="toc-number">3.</span> <span class="toc-text">瓶颈 2：高中数学</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#瓶颈-3：一步之遥"><span class="toc-number">4.</span> <span class="toc-text">瓶颈 3：一步之遥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>很多时候一个看似简单的 bug 背后，都可能有着完全在作者意料之外的成因。这时候一路排查、调试和给出 fix 的过程往往可以相当神奇。最近我就遇到了个这样的问题，在此分享一下 :)</p>
+<a id="more"></a>
+<h2 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h2><p>最近我在维护一个用于平面设计的编辑器项目。在编辑器的画布上，图片是支持拖拽、旋转和裁切的，像这样：</p>
+<p><img src="/images/math-debug-drag-normal.gif" alt="drag-normal"></p>
+<p>为了保证图片裁切后始终可见，我们需要限制用户的拖拽范围。对于普通的图片，下面这种边界限制显然很容易实现：</p>
+<p><img src="/images/trivial-limit.gif" alt="trivial-limit"></p>
+<p>但是一旦图片存在旋转角度，这时的行为就显得很诡异了：</p>
+<p><img src="/images/math-debug-drag-current.gif" alt="current"></p>
+<p>这显然不是预期的行为，那么该如何修复这个 bug 呢？</p>
+<h2 id="瓶颈-1：祖传代码"><a href="#瓶颈-1：祖传代码" class="headerlink" title="瓶颈 1：祖传代码"></a>瓶颈 1：祖传代码</h2><p>排查这个问题时，首先需要面对的是已有的代码实现。之前的代码虽然有类似的拖拽限制逻辑，但它所实现的 UI 交互和新版的需求有所不同（例如在拖拽时，我所需要移动的是图片，而旧版实现中移动的是裁剪框），故而没有办法直接复用。<strong>但如果现成的代码拿来改改就能解决问题，那何苦自己重新搞一套呢？</strong>本着这个再普通不过的想法，我首先尝试的是<strong>搞懂现有代码的实现</strong>。</p>
+<p>不读不知道，一读吓一跳。为了这个拖拽限制，现有的代码库中刨除掉各种胶水代码，还有 <strong>150+</strong> 行代码直接与这个限制的计算相关。为什么会这么复杂呢？这个实现的步骤大致是这样：</p>
+<ul>
+<li>对 0~90 度旋转，依次判断图片<strong>左、上、右、下</strong>四条边是否与裁切框的左、上、右、下相交。</li>
+<li>对 90~180 度旋转，依次判断图片<strong>上、右、下、左</strong>四条边是否与裁切框的左、上、右、下相交。</li>
+<li>对 180~270 度旋转，依次判断图片<strong>右、下、左、上</strong>四条边是否与裁切框的左、上、右、下相交。</li>
+<li>对 270~360 度旋转，依次判断图片<strong>下、左、上、右</strong>四条边是否与裁切框的左、上、右、下相交。</li>
+</ul>
+<p>这个实现确实可以说很符合直觉。然而同时，这个算法就有了 <code>4 x 4 = 16</code> 个可能的分支出口，每个出口里都有一系列相似但有区别的三角函数计算。虽然经过抽象封装，最后代码中只有四个用于实际计算的函数，但这个复杂度已经使得我很难通过小修小补的方式将它适配到新的交互方式上了。因此我决定花一些时间，思考如何<strong>重写</strong>。</p>
+<h2 id="瓶颈-2：高中数学"><a href="#瓶颈-2：高中数学" class="headerlink" title="瓶颈 2：高中数学"></a>瓶颈 2：高中数学</h2><p>既然决定了重写，那么核心的算法显然就可以另起炉灶重来了。和上面非常直接的这种直觉比起来，我在观察了这套交互之后，找到了另一种偷懒的直觉：只要你<strong>把屏幕倾斜一下</strong>，那么<strong>旋转后</strong>的情况就可以化归为<strong>没有旋转时</strong>的情况了呀！这也就是说，在代码实现上，<strong>旋转后是有可能直接复用不存在旋转时的简单逻辑的</strong>。听起来是不是省心了很多呢？</p>
+<p>光有 idea 是不行的，把它实现出来才有意义。对于<strong>把屏幕倾斜一下</strong>这个 idea，它能够如何落实到代码实现上呢？高中数学的坐标系概念给了我灵感：一个点的位置，在多个不同的坐标系中可以有不同的表示。这样一来对于旋转后的图片，<strong>只要我们将坐标系随之旋转</strong>，那么在旋转后的坐标系中，计算拖拽限制应当就不是一件难事了。这套新思路可以总结为这样的算法：</p>
+<ol>
+<li>当图片矩形存在旋转角 θ 时，我们将拖拽事件的 dx 和 dy 偏移量映射到和原始坐标系夹角 θ 的新直角坐标系上。</li>
+<li>使用新坐标系上的偏移量 dx’ 和 dy’，复用现有代码计算限制。</li>
+<li>将添加了限制的 dx’ 和 dy’ 变换回 dx 和 dy，使用这两个校正后的偏移量来移动元素即可。</li>
+</ol>
+<p>听起来「映射」和「变换」也不是件容易的事，而且我也<strong>不确定这个算法是否是正确的</strong>。如果吭哧吭哧实现完发现不能用，那么时间显然就浪费了。所以该怎么验证这个想法呢？我想到了个简单的方式：<strong>取特殊值</strong>。</p>
+<p>旋转角为任意角度的时候，变换的公式需要推导。但是如果刚好旋转了 90 度或 180 度，这时的变换就十分简单，像这样：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 正变换</span></span><br><span class="line">x<span class="string">' = y</span></span><br><span class="line"><span class="string">y'</span> = -x</span><br><span class="line"></span><br><span class="line"><span class="comment">// 逆变换</span></span><br><span class="line">x = -y<span class="string">'</span></span><br><span class="line"><span class="string">y = -x'</span></span><br></pre></td></tr></table></figure>
+<p>这显然非常容易通过小修小改现有代码的方式来实现。而实现后，对于旋转 90 度的图片，拖拽限制就这样神奇地改变了。这个尝试给了我很大的信心，因此我开始尝试推导一般情形下的变换，先根据直觉写出这个公式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x&apos; = xcosθ + ysinθ</span><br><span class="line">y&apos; = xsinθ + ycosθ</span><br></pre></td></tr></table></figure>
+<p>然后我试图据此求出</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x = ?x&apos; + ?y&apos;</span><br><span class="line">y = ?x&apos; + ?y&apos;</span><br></pre></td></tr></table></figure>
+<p>这个方程比较难直接通过高中数学暴力算出来，我尝试通过矩阵的变换来计算它，也就是求下面这个变换矩阵的逆矩阵：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">| cosθ sinθ | </span><br><span class="line">| sinθ cosθ |</span><br></pre></td></tr></table></figure>
+<p>但是在套用现成的矩阵变换公式的时候，这个矩阵的行列式可能为零，而这时候逆矩阵不存在……我对此感到匪夷所思，于是厚着脸皮请教了正在 T 大数学系读博的敏神，敏锐的敏神一眼就指出了问题：变换矩阵里有个值应该是负的……果然毕业以后太多东西都还回去了啊[捂脸]</p>
+<p>改了改以后答案变成了这样（求忽略不支持 LaTeX 的丑陋写法）：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">| x&apos; | = |  cosθ sinθ | | x  |</span><br><span class="line">| y&apos; |   | -sinθ cosθ | | y  |</span><br><span class="line"></span><br><span class="line">| x  | = | cosθ -sinθ | | x&apos; |</span><br><span class="line">| y  |   | sinθ  cosθ | | y&apos; |</span><br></pre></td></tr></table></figure>
+<p>把这个正逆变换的公式应用到现在的代码上，就得到了这样的效果：</p>
+<p><img src="/images/math-debug-clamp-rotate-poc.gif" alt="rotate-poc"></p>
+<p>看起来好像大功告成了啊！可惜这还不是终点……</p>
+<h2 id="瓶颈-3：一步之遥"><a href="#瓶颈-3：一步之遥" class="headerlink" title="瓶颈 3：一步之遥"></a>瓶颈 3：一步之遥</h2><p>本来问题似乎已经解决了，但是在合并代码前的自测时，却发现旋转后的拖拽限制可能会出现一个莫名其妙的固定偏移量：</p>
+<p><img src="/images/math-debug-outer-offset.gif" alt="outer-offset"></p>
+<p>这就让人头大了……算法看起来是正确的，一般情况和若干特殊情况下的效果也是正确的，但是少数情形下却有这么大的误差，实在是非常诡异。我依次排查了<strong>新加入的代码</strong>和用于获得偏移量的<strong>胶水代码</strong>，都没有找到问题所在。因为这个 bug，我不得不暂时放下了这个重构，优先处理一些其它的细节需求。</p>
+<p>有意思的是，即便放下了一个问题，对它的思考说不定也在默默地继续。某次浴室沉思的时候，我想到了一个被忽略的地方：<strong>我一直不愿意改动的「简单逻辑限制」代码</strong>。</p>
+<p>我们一开始就提到过没有旋转时的拖拽限制非常好写，就像 GLSL 里面「掐头去尾」的 <code>clamp</code> 函数：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> clamp = <span class="function">(<span class="params">x, lower, upper</span>) =&gt;</span> <span class="built_in">Math</span>.max(lower, <span class="built_in">Math</span>.min(x, upper))</span><br><span class="line"></span><br><span class="line">dx = clamp(dx, minLeft, maxLeft)</span><br><span class="line">dy = clamp(dy, minTop, maxTop)</span><br></pre></td></tr></table></figure>
+<p>这个 <code>clamp</code> 本身是正确的，因此我也一直认为这段代码是正确无误的。但考虑了「旋转」这个因素后，<code>left</code> 和 <code>top</code> 的来源是否值得信任呢？它们是在屏幕坐标系下的偏移量，求出它们的代码非常简单，大概这样：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">minLeft = rect.left - rect.width</span><br><span class="line">maxTop = rect.top + rect.height</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<p>一个元素在浏览器内的位置，是相对于屏幕左上角的。但上文中的变换公式中，位置是相对于拖拽框中心点的。考虑这一因素之后，这几个变量的有效性就存疑了。对此我的尝试是：基于两个矩形<strong>中心点之间的距离</strong>去计算拖拽限制，而非直接利用现成的偏移量。由于中心点的间距抹除了初始位置对计算的影响，那么偏移量就应当是可以消除的。重构之后的代码用 <code>centerDeltaX</code> 和 <code>centerDeltaY</code> 替代了上面的中间变量，得到的效果如下所示：</p>
+<p><img src="/images/math-debug-fixed.gif" alt="fixed"></p>
+<p>于是，最麻烦的 bug 就这样修复了~这个改进的收益还是有的：150+ 行的代码被优化到了 10+ 行的量级，代码执行路径上的分支也从 16 个优化到了 0 个。最后的版本如下所示：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 在高阶计算函数中缓存 sin 与 cos</span></span><br><span class="line"><span class="keyword">const</span> rotateVector = utils.getVectorRotator(element.rotate);</span><br><span class="line"><span class="keyword">const</span> &#123; minLeft, maxLeft, minTop, maxTop, centerDeltaX, centerDeltaY &#125; = element.$getDragLimit();</span><br><span class="line"><span class="comment">// 变换至旋转后坐标系</span></span><br><span class="line"><span class="comment">// 带 _ 后缀的变量处于旋转后参考系中</span></span><br><span class="line"><span class="keyword">const</span> [dx_, dy_] = rotateVector(dx, dy);</span><br><span class="line"><span class="comment">// 最终偏移量 deltaX = 拖拽事件偏移量 dx + 两矩形中心点距离 centerDeltaX</span></span><br><span class="line"><span class="keyword">const</span> [centerDeltaX_, centerDeltaY_] = rotateVector(centerDeltaX, centerDeltaY);</span><br><span class="line"><span class="keyword">const</span> clampedDeltaX_ = utils.clamp(centerDeltaX_ + dx_, minLeft, maxLeft);</span><br><span class="line"><span class="keyword">const</span> clampedDeltaY_ = utils.clamp(centerDeltaY_ + dy_, minTop, maxTop);</span><br><span class="line"><span class="comment">// 将修正后偏移量反变换回原始坐标系</span></span><br><span class="line"><span class="keyword">const</span> [clampedDeltaX, clampedDeltaY] = rotateVector(clampedDeltaX_, clampedDeltaY_, <span class="literal">true</span>);</span><br><span class="line">[dx, dy] = [clampedDeltaX - centerDeltaX, clampedDeltaY - centerDeltaY];</span><br><span class="line">[left, top] = [drag.left + dx, drag.top + dy];</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到此为止，一段折腾的故事终于告一段落了。虽然这个需求未必是我们日常开发中可能遇到的，但调试过程中的一些总结感觉还是有些参考价值的：</p>
+<ul>
+<li>直觉还是很重要。譬如敏神的直觉就可以直接指出我在关键的地方少了个负号（致谢致谢），而写工程代码的直觉，可能也就是尽可能地依赖现有的工具找捷径解决问题吧 XD</li>
+<li>对复杂的问题，把代码逻辑梳理正确比起瞎改变量然后保存反复尝试，要靠谱得多。</li>
+<li>重新实现一套逻辑显得很麻烦的时候，可以使用特殊的输入输出来给出 POC 的原型实现，这还有助于放大问题与提供干净的复现环境。</li>
+<li>注意你觉得毫不起眼的角落，整个执行链路上的代码都值得纳入考虑。</li>
+<li>很多技术问题一路钻到底就能得到答案。我也可以选择搁置这个优化，但这样就错过了一个锻炼的机会 :)</li>
+</ul>
+<p>限于我的水平，这段调试经历显得有些曲折。希望对感兴趣的同学有所帮助~</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Algorithms/">Algorithms</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2018/drag-limits-math/" data-title="一个拖拽框背后的高中数学 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/cube-emu/" title="Web 魔方模拟器的设计与实现">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Web 魔方模拟器的设计与实现</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/share-undefined/"  title="于是，我们给前端分享会定义了一个未定义的名字">
+ <strong>下一篇：</strong><br/> 
+ <span>于是，我们给前端分享会定义了一个未定义的名字
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#缘起"><span class="toc-number">1.</span> <span class="toc-text">缘起</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#瓶颈-1：祖传代码"><span class="toc-number">2.</span> <span class="toc-text">瓶颈 1：祖传代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#瓶颈-2：高中数学"><span class="toc-number">3.</span> <span class="toc-text">瓶颈 2：高中数学</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#瓶颈-3：一步之遥"><span class="toc-number">4.</span> <span class="toc-text">瓶颈 3：一步之遥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

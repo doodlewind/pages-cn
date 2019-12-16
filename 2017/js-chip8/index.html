@@ -1,0 +1,638 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>JS 实现 Chip8 汇编模拟器 | ewind the Blogger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="Merry8 是一个使用 JS 实现的 Chip8 汇编语言模拟器，支持运行经典的【PONG】等游戏。这里总结一下它的实现过程。">
+<meta name="keywords" content="JS,Assembly">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JS 实现 Chip8 汇编模拟器">
+<meta property="og:url" content="https://ewind.us/2017/js-chip8/index.html">
+<meta property="og:site_name" content="ewind the Blogger">
+<meta property="og:description" content="Merry8 是一个使用 JS 实现的 Chip8 汇编语言模拟器，支持运行经典的【PONG】等游戏。这里总结一下它的实现过程。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-25T06:27:21.530Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JS 实现 Chip8 汇编模拟器">
+<meta name="twitter:description" content="Merry8 是一个使用 JS 实现的 Chip8 汇编语言模拟器，支持运行经典的【PONG】等游戏。这里总结一下它的实现过程。">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the Blogger" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the Blogger" title="ewind the Blogger"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the Blogger">ewind the Blogger</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/js-chip8/" title="JS 实现 Chip8 汇编模拟器" itemprop="url">JS 实现 Chip8 汇编模拟器</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2017-01-18T16:00:00.000Z" itemprop="datePublished"> 发表于 2017-01-19</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chip8-基础"><span class="toc-number">1.</span> <span class="toc-text">Chip8 基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反汇编器"><span class="toc-number">2.</span> <span class="toc-text">反汇编器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU"><span class="toc-number">3.</span> <span class="toc-text">CPU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#显示-IO"><span class="toc-number">4.</span> <span class="toc-text">显示 / IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#封装和打包"><span class="toc-number">5.</span> <span class="toc-text">封装和打包</span></a></li></ol>
+		
+		</div>
+		
+		<p><a href="https://github.com/doodlewind/merry8" target="_blank" rel="noopener">Merry8</a> 是一个使用 JS 实现的 Chip8 汇编语言模拟器，支持运行经典的【PONG】等游戏。这里总结一下它的实现过程。</p>
+<a id="more"></a>
+<h2 id="Chip8-基础"><a href="#Chip8-基础" class="headerlink" title="Chip8 基础"></a>Chip8 基础</h2><p>Chip8 是上世纪 70 年代的一种中古汇编语言。但和 NES 使用的 6502 汇编不同，Chip8 并没有一种官方的硬件实现。只要按照它的规范实现了完整的指令集，就可以运行兼容的 ROM 了。由于其结构的简单，它非常适合作为模拟器开发的入门语言。</p>
+<p>符合 Chip8 规范的虚拟机，可使用的资源包括：</p>
+<ul>
+<li>4KB 大小的内存</li>
+<li>V0 到 V15 共 16 个 16 位寄存器</li>
+<li>一个 PC 计数器</li>
+<li>一个 I 索引寄存器</li>
+<li>一个 SP 栈指针</li>
+<li>一个延迟定时器</li>
+<li>一个 16 键的键盘</li>
+<li>一个音效寄存器</li>
+<li>一个 64x32 的黑白屏幕</li>
+</ul>
+<p>基础的 Chip8 规范共有 35 条指令，虽然每条指令长度都固定在 2 个字节，但不同指令中的参数格式是不同的。例如读取指令字节码为 <code>60 12</code> 时，首先匹配出该指令是 <code>6xkk</code> 指令，第一个操作数为 <code>0</code> 而第二个操作数为 <code>12</code>。根据文档，这条指令的功能就是将 <code>0x12</code> 这个操作数写入 <code>V0</code> 寄存器。这样，只要实现了上述的硬件和指令逻辑，实际上就实现了一个 Chip8 的虚拟机。将这个虚拟机封装为对用户可用的应用后，就完成整个模拟器的开发。</p>
+<h2 id="反汇编器"><a href="#反汇编器" class="headerlink" title="反汇编器"></a>反汇编器</h2><p>模拟器输入的内容是一条条的机器指令。因此，要实现模拟器，首先需要解析 Chip8 的 ROM 文件，提取出一个 ROM 中完整的指令。实现这个功能的模块称为反汇编器。</p>
+<p>ES5 规范下的 <code>Uint8Array</code> 类型数组非常适合用于存储 Chip8 的 ROM 文件。每次读取 2 个字节（如 <code>00 EE</code>）后，只需根据每条指令的特征，即可判断出这条指令的内容，和其对应的操作数。将这些内容 log 出来后，反汇编器就完成了。其中的核心实现示例如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// input 16bits ins 0x0000</span></span><br><span class="line"><span class="keyword">const</span> getIns = <span class="function">(<span class="params">ins</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 00E0 - CLS</span></span><br><span class="line">  <span class="keyword">if</span> (ins === <span class="number">0x00E0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="string">'00E0'</span>, <span class="string">'CLS'</span>]</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 00EE - RET</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (ins === <span class="number">0x00EE</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="string">'00EE'</span>, <span class="string">'RET'</span>]</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 1nnn - JP addr</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (ins &gt;&gt;&gt; <span class="number">12</span> === <span class="number">0x1</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="string">'1nnn'</span>, <span class="string">'JP'</span>, ins &amp; <span class="number">0x0FFF</span>]</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h2><p>反汇编器实现后，就可以着手实现 CPU 了。Chip8 的 CPU 结构并不复杂，操作基本以简单的四则运算和直接的地址读写／跳转为主。在一个 <code>while</code> 循环中不停地执行这样的取指 - 执行操作，就是一个 CPU 了。</p>
+<p>Merry8 的实现中，利用了 JS 灵活的 <code>Object</code> 类型，将 CPU 的 35 条指令实现为 35 个函数，它们以指令名为 key，放置在一个 <code>ops</code> 对象中。每次 Main Loop 先从反汇编器中获取到指令名 <code>ins</code>，然后以 <code>ops[ins](args)</code> 的方式调用模拟相应指令的函数，传入寄存器和内存等 Chip8 资源等状态变量，返回指令执行的结果。<code>ops</code> 对象的示例如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> ops = &#123;</span><br><span class="line">  <span class="comment">// 00EE - RET</span></span><br><span class="line">  <span class="comment">// Return from a subroutine.</span></span><br><span class="line">  <span class="string">'00EE'</span>: <span class="function">(<span class="params">ins, c8</span>) =&gt;</span> &#123;</span><br><span class="line">    c8.PC = c8.STACK[--c8.SP] + <span class="number">2</span></span><br><span class="line">    <span class="keyword">return</span> c8</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// 1nnn - JP addr</span></span><br><span class="line">  <span class="comment">// Jump to location nnn.</span></span><br><span class="line">  <span class="string">'1nnn'</span>: <span class="function">(<span class="params">ins, c8</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> [, , addr] = ins</span><br><span class="line">    c8.PC = addr</span><br><span class="line">    <span class="keyword">return</span> c8</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 Main 循环的示例如下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> getIns = <span class="built_in">require</span>(<span class="string">'./utils/disassembler'</span>).getIns</span><br><span class="line"><span class="keyword">const</span> read = <span class="function">(<span class="params">mem, pc</span>) =&gt;</span> mem[pc] &lt;&lt; <span class="number">8</span> | mem[pc + <span class="number">1</span>]</span><br><span class="line"><span class="keyword">const</span> c8 = &#123;</span><br><span class="line">  MEM: <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="number">0xFFF</span>), <span class="comment">// TODO</span></span><br><span class="line">  V: <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(<span class="number">16</span>),</span><br><span class="line">  STACK: <span class="keyword">new</span> <span class="built_in">Uint16Array</span>(<span class="number">16</span>),</span><br><span class="line">  KEYS: <span class="built_in">Array</span>.from(&#123; <span class="attr">length</span>: <span class="number">16</span> &#125;, k =&gt; <span class="literal">false</span>),</span><br><span class="line">  I: <span class="number">0x0000</span>,</span><br><span class="line">  PC: <span class="number">0x0200</span>,</span><br><span class="line">  SP: <span class="number">0x00</span>,</span><br><span class="line">  DELAY: <span class="number">0x00</span>,</span><br><span class="line">  SOUND: <span class="number">0x00</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> ins = getIns(read(c8.MEM, c8.PC))</span><br><span class="line">  ops[ins[<span class="number">0</span>]](ins, c8)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面示例的 <code>TODO</code> 部分中，直接将一个空的 <code>Uint8Array</code> 塞进了内存中。这样相当于载入了一个空 ROM，是不能正常运行的。实际使用时，将 <code>MEM</code> 部分从 <code>0x200</code> 开始替换为实际的 ROM 内容即可。</p>
+<h2 id="显示-IO"><a href="#显示-IO" class="headerlink" title="显示 / IO"></a>显示 / IO</h2><p>Chip8 的显示功能是直接在一条 CPU 指令中实现的。这条 <code>Dxyn</code> 指令在 <code>ops</code> 中调用了 <code>display</code> 模块来实现对图形的绘制。这个模块将屏幕实现为一个 64x32 的布尔值数组，每次更新数组中的特定部分后，通过 Canvas 将数组渲染到页面上。</p>
+<p>在 IO 方面，Chip8 同样是通过特定的 IO 指令来检测按键是否按下。实际 ROM 中的执行流程一般是：定时器以 60Hz 的频率触发对按键的检查指令，并根据指令的检查结果来判断是否需要跳转。</p>
+<h2 id="封装和打包"><a href="#封装和打包" class="headerlink" title="封装和打包"></a>封装和打包</h2><p>在实现了基础的模拟器后，最后要做的就是封装接口，并通过打包工具将源码构建发布了。对一个纯 JS 项目，使用 Webpack 只需要如下的一点配置即可：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  entry: <span class="string">'./src/entry.js'</span>,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.join(__dirname, <span class="string">'/dist'</span>),</span><br><span class="line">    filename: <span class="string">'bundle.js'</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    loaders: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.js$/</span>,</span><br><span class="line">        loader: <span class="string">'babel?presets[]=es2015'</span>,</span><br><span class="line">        exclude: <span class="regexp">/node_modules/</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将上例存为项目根目录下的 <code>webpack.config.js</code> 后，即可在项目根目录下运行 <code>webpack --watch</code> 打开发环境的包，运行 <code>webpack -p</code> 打生产环境包了。</p>
+<p>在最后输出的构建文件中，JS 实际上是对环境敏感的。例如，模拟器所需的 ROM 在 Node 环境下是通过 <code>fs</code> 模块加载的，而在浏览器环境下是通过 <code>XHR</code> 请求加载的。在打包时如果 JS 代码依赖了 <code>fs</code> 模块，就会产生引用错误而导致打包失败。类似的情景还有 <code>display</code> 模块。在浏览器环境下这个模块需要绘制 Canvas，但在 Node 环境下它只需要输出 <code>console.log</code> 的日志信息即可。</p>
+<p>这些需要对 JS 运行环境敏感的代码部分，可以显式地通过指定 Webpack 的不同入口来兼容浏览器和 Node 两套环境。具体做法是，通过 <code>module.export</code> 将核心的反汇编／CPU 等模块封装为对运行环境不敏感的模块，然后分别设置两个入口 JS 来引入这些模块，例如：</p>
+<ul>
+<li>Node 环境下的 <code>main.js</code> 在 <code>package.json</code> 中指定，在其中引入 <code>fs</code> 等 Node 模块。</li>
+<li>浏览器环境下的 <code>entry.js</code> 在 <code>webpack.config.js</code> 中指定，在其中使用 <code>window</code> 等浏览器环境下的接口。</li>
+</ul>
+<p>由于 Chip8 设置了一个 60Hz 的定时器来触发 <code>DRW</code> 等 IO 和绘图指令，因此在模拟器中需要对其有一个相应的实现。由于浏览器环境中的 <code>requestAnimationFrame</code> 恰好也是以 60fps 速度执行的，因此在实现中也采用了这个 API 来实现在页面上的流畅绘图。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JS/">JS</a><a href="/tags/Assembly/">Assembly</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2017/js-chip8/" data-title="JS 实现 Chip8 汇编模拟器 | ewind the Blogger" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/ove-lang/" title="哦语言：面向真正粉丝的编程语言">
+  <strong>上一篇：</strong><br/>
+  <span>
+  哦语言：面向真正粉丝的编程语言</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/standard-js/"  title="自动化规范 JS 代码风格">
+ <strong>下一篇：</strong><br/> 
+ <span>自动化规范 JS 代码风格
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chip8-基础"><span class="toc-number">1.</span> <span class="toc-text">Chip8 基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反汇编器"><span class="toc-number">2.</span> <span class="toc-text">反汇编器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU"><span class="toc-number">3.</span> <span class="toc-text">CPU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#显示-IO"><span class="toc-number">4.</span> <span class="toc-text">显示 / IO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#封装和打包"><span class="toc-number">5.</span> <span class="toc-text">封装和打包</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>133</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>64</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>49</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2019 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
