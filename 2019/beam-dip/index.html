@@ -31,7 +31,11 @@
 <meta property="og:image" content="https://ewind.us/images/beam-dip/texture-lerp.png">
 <meta property="og:image" content="https://ewind.us/images/beam-dip/texture-coords-2.png">
 <meta property="og:image" content="https://ewind.us/images/beam-dip/texture-wrap.png">
-<meta property="og:updated_time" content="2019-12-30T10:05:26.503Z">
+<meta property="og:image" content="https://doodlewind.github.io/beam/gallery/assets/images/prague.jpg">
+<meta property="og:image" content="https://ewind.us/images/beam-dip/prague-filters-1.png">
+<meta property="og:image" content="https://ewind.us/images/beam-dip/prague-filters-2.png">
+<meta property="og:image" content="https://ewind.us/images/beam-dip/particles.gif">
+<meta property="og:updated_time" content="2019-12-30T10:22:11.020Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简明 WebGL 图像处理入门">
 <meta name="twitter:description" content="技术社区里有种很有意思的现象，那就是不少人们口耳相传中的强大技术，往往因为上手难度高而显得曲高和寡。从这个角度看来，WebGL 和函数式编程有些类似，都属于优势已被论证了多年，却一直较为不温不火的技术。但是，一旦这些技术的易用性跨越了某个临界点，它们其实并没有那么遥不可及。这次我们就将以 WebGL 为例，尝试降低它的入门门槛，讲解它在前端图像处理领域的应用入门。 临近 2020 年的今天，社区里">
@@ -213,8 +217,11 @@
 <h2 id="如何用-WebGL-渲染图像"><a href="#如何用-WebGL-渲染图像" class="headerlink" title="如何用 WebGL 渲染图像"></a>如何用 WebGL 渲染图像</h2><p>TODO</p>
 <p><img src="https://ewind.us/images/beam-dip/texture-coords-1.png" alt><br><img src="https://ewind.us/images/beam-dip/texture-lerp.png" alt><br><img src="https://ewind.us/images/beam-dip/texture-coords-2.png" alt><br><img src="https://ewind.us/images/beam-dip/texture-wrap.png" alt></p>
 <h2 id="如何为图像增加滤镜"><a href="#如何为图像增加滤镜" class="headerlink" title="如何为图像增加滤镜"></a>如何为图像增加滤镜</h2><p>TODO</p>
+<p><img src="https://doodlewind.github.io/beam/gallery/assets/images/prague.jpg" alt><br><img src="https://ewind.us/images/beam-dip/prague-filters-1.png" alt></p>
 <h2 id="如何组合多个滤镜"><a href="#如何组合多个滤镜" class="headerlink" title="如何组合多个滤镜"></a>如何组合多个滤镜</h2><p>TODO</p>
+<p><img src="https://ewind.us/images/beam-dip/prague-filters-2.png" alt></p>
 <h2 id="如何引入-3D-效果"><a href="#如何引入-3D-效果" class="headerlink" title="如何引入 3D 效果"></a>如何引入 3D 效果</h2><p>TODO</p>
+<p><img src="https://ewind.us/images/beam-dip/particles.gif" alt></p>
 <h2 id="如何封装自定渲染器"><a href="#如何封装自定渲染器" class="headerlink" title="如何封装自定渲染器"></a>如何封装自定渲染器</h2><p>TODO</p>
 <p>本文的「简明」是相对的。虽然 Beam 的入门相对于 Vue 和 React 这样的常见框架来说还是有些门槛，但比起一般需要分许多篇连载才能走到图像处理这一步的 WebGL 教程，它已经相当一气呵成了。</p>
 <p>值得一提的是，Beam 不是一个为图像处理而生的库，API 中也没有为这个场景做任何特殊定制。它的设计初衷，其实是作为我司 3D 文字功能的渲染器。但由于它的 WebGL 基础库定位，它不仅能平滑地从 3D 应用到 2D，并且在 2D 场景下的扩展性，还能轻松超过 glfx.js 这样的社区标杆。这也反映出了设计框架时常有的两种思路：<strong>一种是为每个新需求来者不拒地设计新的 API，将框架实现得包罗万象；另一种是谨慎地找到需求间的共性，实现最小的 API 子集供使用者组合定制</strong>。显然我更倾向于后者。</p>
@@ -372,15 +379,15 @@
 			
 		
 			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
 			
 		
 			
