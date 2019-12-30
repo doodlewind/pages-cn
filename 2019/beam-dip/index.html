@@ -24,10 +24,10 @@
 <meta property="og:image" content="https://ewind.us/images/beam/webgl-states.png">
 <meta property="og:image" content="https://ewind.us/images/beam/webgl-pipeline.png">
 <meta property="og:image" content="https://ewind.us/images/beam/beam-hello-world.png">
-<meta property="og:image" content="https://ewind.us/images/beam-dip/webgl-index.png">
+<meta property="og:image" content="https://ewind.us/images/beam-dip/index.png">
 <meta property="og:image" content="https://ewind.us/images/beam-dip/rect.jpg">
 <meta property="og:image" content="https://ewind.us/images/beam-dip/screen-coords.png">
-<meta property="og:updated_time" content="2019-12-30T08:52:54.358Z">
+<meta property="og:updated_time" content="2019-12-30T08:55:54.737Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简明 WebGL 图像处理入门">
 <meta name="twitter:description" content="技术社区里有种很有意思的现象，那就是不少人们口耳相传中的强大技术，往往因为上手难度高而显得曲高和寡。从这个角度看来，WebGL 和函数式编程有些类似，都属于优势已被论证了多年，却一直较为不温不火的技术。但是，一旦这些技术的易用性跨越了某个临界点，它们其实并没有那么遥不可及。这次我们就将以 WebGL 为例，尝试降低它的入门门槛，讲解它在前端图像处理领域的应用入门。 临近 2020 年的今天，社区里">
@@ -170,7 +170,7 @@
 <p>显然地，它们各自管理着色器、资源和绘制。让我们看看怎样基于 Beam，来绘制 WebGL 中的 Hello World 彩色三角形吧：</p>
 <p><img src="https://ewind.us/images/beam/beam-hello-world.png" alt></p>
 <p>三角形是最简单的多边形，而多边形则是由顶点组成的。WebGL 中的这些顶点是有序排列，可通过下标索引的。以三角形和矩形为例，这里使用的顶点顺序如下所示：</p>
-<p><img src="https://ewind.us/images/beam-dip/webgl-index.png" alt></p>
+<p><img src="https://ewind.us/images/beam-dip/index.png" alt></p>
 <p>Beam 的代码示例如下：</p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Beam, ResourceTypes &#125; <span class="keyword">from</span> <span class="string">'beam-gl'</span></span><br><span class="line"><span class="keyword">import</span> &#123; MyShader &#125; <span class="keyword">from</span> <span class="string">'./my-shader.js'</span></span><br><span class="line"><span class="keyword">const</span> &#123; VertexBuffers, IndexBuffer &#125; = ResourceTypes</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> canvas = <span class="built_in">document</span>.querySelector(<span class="string">'canvas'</span>)</span><br><span class="line"><span class="keyword">const</span> beam = <span class="keyword">new</span> Beam(canvas)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> shader = beam.shader(MyShader)</span><br><span class="line"><span class="keyword">const</span> vertexBuffers = beam.resource(VertexBuffers, &#123;</span><br><span class="line">  position: [</span><br><span class="line">    <span class="number">-1</span>, <span class="number">-1</span>, <span class="number">0</span>, <span class="comment">// vertex 0 左下角</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="comment">// vertex 1 顶部</span></span><br><span class="line">    <span class="number">1</span>, <span class="number">-1</span>, <span class="number">0</span> <span class="comment">// vertex 2 右下角</span></span><br><span class="line">  ],</span><br><span class="line">  color: [</span><br><span class="line">    <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="comment">// vertex 0 红色</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="comment">// vertex 1 绿色</span></span><br><span class="line">    <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span> <span class="comment">// vertex 2 蓝色</span></span><br><span class="line">  ]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">const</span> indexBuffer = beam.resource(IndexBuffer, &#123;</span><br><span class="line">  array: [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">beam</span><br><span class="line">  .clear()</span><br><span class="line">  .draw(shader, vertexBuffers, indexBuffer)</span><br></pre></td></tr></table></figure>
 <p>下面逐个介绍一些重要的 API 片段。首先自然是用 Canvas 初始化出 Beam 了：</p>
