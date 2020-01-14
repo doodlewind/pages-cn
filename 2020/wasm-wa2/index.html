@@ -1,0 +1,687 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>一个白学家眼里的 WebAssembly | ewind the doodler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="在知乎 如何看待 WebAssembly 这门技术？这个问题里，可以看出大家普遍对浏览器、WASM 和 JS 之间的三角关系有不少误解。因此这里作为一个开 (bai) 发 (xue) 者 (jia)，我就来尝试纠正些常见的问题吧。 WASM == 汇编级性能？这显然不对，WASM 里的 Assembly 并不意味着真正的汇编码，而只是种新约定的字节码，也是需要解释器运行的。这种解释器肯定比 JS">
+<meta name="keywords" content="Web,JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个白学家眼里的 WebAssembly">
+<meta property="og:url" content="https://ewind.us/2020/wasm-wa2/index.html">
+<meta property="og:site_name" content="ewind the doodler">
+<meta property="og:description" content="在知乎 如何看待 WebAssembly 这门技术？这个问题里，可以看出大家普遍对浏览器、WASM 和 JS 之间的三角关系有不少误解。因此这里作为一个开 (bai) 发 (xue) 者 (jia)，我就来尝试纠正些常见的问题吧。 WASM == 汇编级性能？这显然不对，WASM 里的 Assembly 并不意味着真正的汇编码，而只是种新约定的字节码，也是需要解释器运行的。这种解释器肯定比 JS">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/wasm-wa2/wa2-js-wa.jpg">
+<meta property="og:image" content="https://ewind.us/images/wasm-wa2/parse-iterate-rust-wasm-vs-js-2.png">
+<meta property="og:image" content="https://ewind.us/images/wasm-wa2/kazusa-first.jpg">
+<meta property="og:image" content="https://ewind.us/images/wasm-wa2/unreachable-love.jpg">
+<meta property="og:image" content="https://ewind.us/images/wasm-wa2/wasm-interface-types.png">
+<meta property="og:image" content="https://ewind.us/images/wasm-wa2/double-happiness.jpg">
+<meta property="og:image" content="https://ewind.us/images/wasm-wa2/kazusa-boy.jpg">
+<meta property="og:image" content="https://ewind.us/images/wasm-wa2/group-photo.jpg">
+<meta property="og:updated_time" content="2020-01-14T07:47:16.821Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一个白学家眼里的 WebAssembly">
+<meta name="twitter:description" content="在知乎 如何看待 WebAssembly 这门技术？这个问题里，可以看出大家普遍对浏览器、WASM 和 JS 之间的三角关系有不少误解。因此这里作为一个开 (bai) 发 (xue) 者 (jia)，我就来尝试纠正些常见的问题吧。 WASM == 汇编级性能？这显然不对，WASM 里的 Assembly 并不意味着真正的汇编码，而只是种新约定的字节码，也是需要解释器运行的。这种解释器肯定比 JS">
+<meta name="twitter:image" content="https://ewind.us/images/wasm-wa2/wa2-js-wa.jpg">
+<meta name="twitter:creator" content="@i94ewind">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the doodler" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the doodler" title="ewind the doodler"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the doodler">ewind the doodler</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/wasm-wa2/" title="一个白学家眼里的 WebAssembly" itemprop="url">一个白学家眼里的 WebAssembly</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2020-01-13T16:00:00.000Z" itemprop="datePublished"> 发表于 2020-01-14</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<p><img src="https://ewind.us/images/wasm-wa2/wa2-js-wa.jpg" alt></p>
+<p>在知乎 <a href="https://www.zhihu.com/question/362649730" target="_blank" rel="noopener">如何看待 WebAssembly 这门技术？</a>这个问题里，可以看出大家普遍对浏览器、WASM 和 JS 之间的三角关系有不少误解。因此这里作为一个开 (bai) 发 (xue) 者 (jia)，我就来尝试纠正些常见的问题吧。</p>
+<h2 id="WASM-汇编级性能？"><a href="#WASM-汇编级性能？" class="headerlink" title="WASM == 汇编级性能？"></a>WASM == 汇编级性能？</h2><p>这显然不对，WASM 里的 Assembly 并不意味着真正的汇编码，而只是种新约定的字节码，也是需要<strong>解释器</strong>运行的。这种解释器肯定比 JS 解释器快得多，但自然也达不到真正的原生机器码水平。一个可供参考的数据指标，是 JS 上了 JIT 后整体性能大致是机器码 1/20 的水平，而 WASM 则可以跑到机器码 1/3 的量级（视场景不同很不好说，仅供参考）。<strong>相当于即便你写的是 C++ 和 Rust 级的语言，得到的其实也只是 Java 和 C# 级的性能</strong>。这也可以解释为什么 WASM 并不能在所有应用场景都显示出压倒性的性能优势：<strong>只要你懂得如何让 JS 引擎走在 Happy Path 上，那么在浏览器里，JS 就敢和 Rust 五五开</strong>。</p>
+<p>一个在 WASM 和 JS 之间做性能对比的经典案例，就是 Mozilla 开发者和 V8 开发者的白学现场。整个过程是这样的：</p>
+<ul>
+<li>Mozilla Hacks 发表了一篇名为 <a href="https://hacks.mozilla.org/2018/01/oxidizing-source-maps-with-rust-and-webassembly/" target="_blank" rel="noopener">用 Rust 和 WASM 优化 Source Map 性能</a> 的博文，将 <code>source-map</code> 这个 JS 包的性能<strong>优化了五倍</strong>。</li>
+<li>V8 核心开发 Vyacheslav Egorov 回应了名为 <a href="https://mrale.ph/blog/2018/02/03/maybe-you-dont-need-rust-to-speed-up-your-js.html" target="_blank" rel="noopener">你也许不需要用 Rust 和 WASM 来优化 JS</a> 的博文，用纯 JS 实现了<strong>速度比 Rust 更快的惊人优化</strong>。</li>
+<li>原文作者以 <a href="https://fitzgeraldnick.com/2018/02/26/speed-without-wizardry.html" target="_blank" rel="noopener">无需魔法的速度</a> 为名展开了进一步讨论，并用 Rust 做出了新的性能优化。</li>
+</ul>
+<p>巧的是，这场论战正发生在两年前<strong>白色相簿的季节</strong>。双方就像雪菜和冬马那样展开了高水平的对决，名场面十分精彩。最终 Vyacheslav 给出了一张三轮过招后的性能对比图。可以看到虽然最终还是 Rust 更快，但 JS 被逼到极限后非但不是败犬，还胜出了一回合：</p>
+<p><img src="https://ewind.us/images/wasm-wa2/parse-iterate-rust-wasm-vs-js-2.png" alt></p>
+<blockquote>
+<p>JS：先开始性能优化的是你吧！擅自跑到我无法触及的地方去的人是你吧！明明遥不可及，却又近在咫尺，先想出这种拷问方式的人是你吧！明明是这样，为什么还非得被你责备不可啊…？像那样…每天、每天，在我的眼前，跑得那么快…还说这全都是我的错…太残忍了啊…</p>
+</blockquote>
+<p>另外，Milo Yip 大大做过的不同语言光线追踪性能测试（修罗场），也能侧面印证带 VM 语言与机器码之间的性能对比结论。C++、Java 和 JS 在未经特别优化的前提下，可以分别代表三个典型的性能档次：</p>
+<p><a href="https://www.cnblogs.com/miloyip/archive/2010/07/07/languages_brawl_GI.html" target="_blank" rel="noopener">C++/C#/F#/Java/JS/Lua/Python/Ruby 渲染比试</a></p>
+<blockquote>
+<p>Ruby：为什么你们都这么熟练啊！</p>
+</blockquote>
+<h2 id="WASM-比-JS-快，所以计算密集型应用就该用它？"><a href="#WASM-比-JS-快，所以计算密集型应用就该用它？" class="headerlink" title="WASM 比 JS 快，所以计算密集型应用就该用它？"></a>WASM 比 JS 快，所以计算密集型应用就该用它？</h2><p>这有点偏颇，WASM 同样是 <strong>CPU</strong> 上的计算。对于可以高度并行化的任务，使用 WebGL 来做 <strong>GPU</strong> 加速往往更快。譬如我在  <a href="https://zhuanlan.zhihu.com/p/100388037" target="_blank" rel="noopener">实用 WebGL 图像处理入门</a>  这篇文章里介绍的图像处理算法，比起 JS 里 for 循环遍历 Canvas 像素就可以很轻松地快个几十倍。而这种套两层 for 循环的苦力活，用现在的 WASM 重写能快几倍就非常不错了。至于浏览器内 AI 计算的性能方面，社区的评测结论也是 WebGL 和 WebMetal 具备最高的性能水平，然后才是 WASM。参见这里：<a href="https://blog.logrocket.com/ai-in-browsers-comparing-tensorflow-onnx-and-webdnn-for-image-classification/" target="_blank" rel="noopener">浏览器内的 AI 评测</a> </p>
+<p>不过，WebGL 的加速存在精度问题。例如前端图像缩放库 Pica，它的核心用的是 Lanczos 采样算法。我用 WebGL 着色器实现过这个算法，它并不复杂，早期的 Pica 也曾经加入过可选的 WebGL 优化，但现在却劈腿了 WASM。这一决策的理由在于，<strong>WASM 能保证相同参数下的计算结果和 JS 一致，但 WebGL 则不行</strong>。相关讨论参见这里：<a href="https://github.com/nodeca/pica/issues/114" target="_blank" rel="noopener">Issue #114 · nodeca/pica</a></p>
+<p>所以对计算密集型任务，WASM 并不是前端唯一的救星，而是给大家多了一种在性能、开发成本和效果之间权衡的选择。在我个人印象里，前端在图形渲染外需要算力的场景说实话并不太多，像加密、压缩、挖矿这种，都难说是高频刚需。至于未来可能相当重要的 AI 应用，长期而言我还是看好 WebGPU 这种更能发挥出 GPU 潜力的下一代标准，当然 WASM 也已经是个不错的可选项了。</p>
+<blockquote>
+<p>WebGL：是我，是我先，明明都是我先来的…3D 也好，图像处理也好，还是深度学习也好…</p>
+</blockquote>
+<p><img src="https://ewind.us/images/wasm-wa2/kazusa-first.jpg" alt></p>
+<h2 id="只要嵌入-WASM-函数到-JS-就能提高性能？"><a href="#只要嵌入-WASM-函数到-JS-就能提高性能？" class="headerlink" title="只要嵌入 WASM 函数到 JS 就能提高性能？"></a>只要嵌入 WASM 函数到 JS 就能提高性能？</h2><p>既然 WASM 很快，那么是不是我只要把 JS 里 <code>const add (a, b) =&gt; a + b</code> 这样的代码换成用 C 编译出来的 WASM，就可以有效地提高性能了呢？</p>
+<p>这还真不一定，因为现代浏览器内的 JS 引擎都标配了一种东西，那就是 <strong>JIT</strong>。简单来说，上面这个 <code>add</code> 函数如果始终都在算整数加法，那么 JS 引擎就会自动编译出一份计算 <code>int a + int b</code> 的机器码来替代掉原始的 JS 函数，这样高频调用这个函数的性能就会得到极大的提升，这也就是 JIT 所谓 Just-in-time 编译的奥妙所在了。</p>
+<p>所以，不要一觉得 JS 慢就想着手动靠 WASM 来嵌入 C，其实现代 JS 引擎可都是在不停地帮你「自动把 JS 转换成 C」的！如果你可以把一个 JS 函数改写成等价的 C，那么我猜如果把这个函数单独抽离出来，靠 JS 引擎的 JIT 都很可能达到相近的性能。这应该就是 V8 开发者敢用 JS 和 Rust 对线的底气所在吧。</p>
+<p>像在 <a href="https://hacks.mozilla.org/2018/10/calls-between-javascript-and-webassembly-are-finally-fast-%F0%9F%8E%89/" target="_blank" rel="noopener">JS 和 WASM 之间的调用终于变快了</a> 这篇文章中，Lin Clark 非常精彩地论述了整个优化过程，最终使得 JS 和 WASM 间的函数调用，比<strong>非内联的</strong> JS 函数间调用要快。不过，至于和被 JIT 内联掉的 JS 函数调用相比起来如何，这篇文章就没有提及了。</p>
+<p>这里偏个题，Mozilla 经常宣传自己实现的超大幅优化，有不少都可能来源于之前明显的设计问题（平心而论，我们自己何尝不是这样呢）。像去年 Firefox 70 在 Mac 上实现的 <a href="https://mozillagfx.wordpress.com/2019/10/22/dramatically-reduced-power-usage-in-firefox-70-on-macos-with-core-animation/" target="_blank" rel="noopener">大幅省电优化</a>，其根源是什么呢？粗略的理解是，以前的 Firefox 在 Mac 上竟然<strong>每帧都会全量更新窗口像素</strong>！当然，这些文章的干货都相当多，十分推荐大家打好基础后看看原文，至少是个更大的世界，也常常能对软件架构设计有所启发。</p>
+<p>如果后续 WASM 支持了 GC，那么嵌入互调的情况很可能更复杂。例如我最近就尝试在 Flutter 的 Dart 和安卓的 Java 之间手动同步大对象，希望能「嵌入一些安卓平台能力到 Flutter 体系里」，然而这带来了许多冗长而低性能的胶水代码，需要通过异步的消息来做深拷贝，可控性很低。虽然 WASM 现在还没有 GC，但一旦加上，我有理由怀疑它和 JS 之间的对象生命周期管理也会遇到类似的问题。只是这个问题主要是让 Mozilla 和 Google 的人来操心，用不着我们管而已。</p>
+<blockquote>
+<p>参数传递什么的，已经无所谓了。因为已经不再有函数，值得去调了。<br>传达不了的指针，已经不需要了。因为已经不再有对象，值得去爱了。</p>
+</blockquote>
+<p><img src="https://ewind.us/images/wasm-wa2/unreachable-love.jpg" alt></p>
+<h2 id="在-JS-里调-WASM，就像-Python-里调-C-那样简单？"><a href="#在-JS-里调-WASM，就像-Python-里调-C-那样简单？" class="headerlink" title="在 JS 里调 WASM，就像 Python 里调 C 那样简单？"></a>在 JS 里调 WASM，就像 Python 里调 C 那样简单？</h2><p>这个问题只有实际做过才有发言权。譬如我最近尝试过的这些东西：</p>
+<ul>
+<li>在安卓的 Java class 里调用 C++</li>
+<li>在 Flutter 的 Dart 里调用 C</li>
+<li>在 QuickJS 这种嵌入式 JS 引擎里调用 C</li>
+</ul>
+<p>它们都能做到一件事，那就是在引擎里新建原生对象，并将它以<strong>传引用的方式</strong>直接交给 C / C++ 函数调用，并用引擎的 GC 来管理对象的生命周期。这种方式一般称为 FFI（Foreign Function Interface 外部函数接口），可以把原生代码嵌入到语言 Runtime 中。但如果是两个不同的 Runtime，事情就没有这么简单了。例如 QuickJS 到 Java 的 binding 项目 <a href="https://github.com/koush/quack#marshalling" target="_blank" rel="noopener">Quack</a>，就需要在 JS 的对象和 Java 对象中做 Marshalling（类似于 JSON 那样的序列化和反序列化）的过程，不能随便传引用。</p>
+<p>对 WASM 来说是怎样的呢？基本上，WASM 的线性内存空间可以随便用 JS 读写，并没有深拷贝的困扰。不过，WASM 只有 int 和 float 之流的数据类型，连 string 都没有，因此对于稍复杂一点的对象，都很难手写出 JS 和 WASM 两边各自的结构。现在这件脏活是交由 wasm-bindgen 等轮子来做的。但毕竟这个过程并不是直接在 JS 的 Runtime 里嵌入 C / C++ 函数，和传统编译到机器码的 FFI 还是挺不一样的。</p>
+<p>而至于不能在 WASM 的 Memory 对象里表达的 JS 对象，就会遇到一种<strong>双份快乐</strong>的问题了。例如现在如果需要频繁地用 WASM 操作 JS 对象，那么几乎必然是影响性能的。这方面典型的坑是基于 WASM 移植的 OpenGL 应用。像 C++ 中的一个 <code>glTexImage2D</code> 函数，目前编译到 WASM 后就需要先从 WASM 走到 JS 胶水层，再在 JS 里调 <code>gl.texImage2D</code> 这样的 WebGL API，最后才能经由 C++ binding 调用到原生的图形 API。这样从一层胶水变成了两层，性能不要说比起原生 C++，能比得上直接写 JS 吗？</p>
+<p>当然，Mozilla 也意识到了这个问题，因此他们在尝试如何更好地将 Web IDL（也就是浏览器原生 API 的 binding）开放给 WASM，并在这个过程中提出了 <a href="https://hacks.mozilla.org/2019/08/webassembly-interface-types/" target="_blank" rel="noopener">WASM Interface Types</a> 概念：既然 WASM 已经是个字节码的中间层了，那么干脆给它约定个能<strong>一统所有编程语言运行时类型的 IR 规范</strong>吧！不过，这一规范还是希望主要靠协议化、结构化的深拷贝来解决问题，只有未来的 <code>anyref</code> 类型是可以传引用的。<code>anyref</code> 有些像 Unix 里的文件描述符，这里就不展开了。</p>
+<p><img src="https://ewind.us/images/wasm-wa2/wasm-interface-types.png" alt></p>
+<p>所以，未来也许 WASM 里会有 DOM 的访问能力，但目前这毕竟还只是个饼。不要说像 WebGL 的某些扩展已经明确 <a href="https://heycam.github.io/webidl/#NoInterfaceObject" target="_blank" rel="noopener">不受 Web IDL 支持</a>，就算距离把主流的 Web 标准都开放到 WASM 并普及到主流用户，在 2020 年这个时间节点看来还是挺遥远的。</p>
+<blockquote>
+<p>浏览器：为什么会变成这样呢…第一次有了高性能的脚本语言，又兼容了高级的原生语言。两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐。得到的，本该是像梦境一般的幸福时光…但是，为什么，会变成这样呢…</p>
+</blockquote>
+<p><img src="https://ewind.us/images/wasm-wa2/double-happiness.jpg" alt></p>
+<h2 id="前端框架迟早会用-WASM-重写？"><a href="#前端框架迟早会用-WASM-重写？" class="headerlink" title="前端框架迟早会用 WASM 重写？"></a>前端框架迟早会用 WASM 重写？</h2><p>我觉得很难，或者说这件事的投入产出比 (ROI) 未必足够。因为对于主流的前端应用来说，它们都是 IO 密集而不是计算密集型的，这时 WASM 增加的算力很难成为瓶颈，反而会增加许多工程上的维护成本。</p>
+<p>这方面的一个论据，是 Google 的 <a href="https://v8.dev/blog/jitless" target="_blank" rel="noopener">JIT-less V8 介绍</a>。V8 在关闭 JIT 后峰值性能降低到了不到原先十分之一的级别（见 <a href="https://bellard.org/quickjs/bench.html" target="_blank" rel="noopener">QuickJS Benchmark</a>），却也几乎不影响刷 YouTube 这种轻度应用的性能表现， 在模拟重度 Web 应用负载的 Speedometer 标准下，其跑分也有原先的 60% 左右，只有在 Webpack 打包类型的任务上出现了数量级的差异。你觉得迁移到 WASM 后，峰值算力就算比现在再翻两倍，能在事件驱动、IO 密集的 GUI 场景中表现出颠覆性的突破吗？能说服框架作者们完全放弃现有的 JS 代码库，选用另一种语言来彻底重写框架吗？况且 WASM 从长期来看，可都要依赖不少体积足以影响首屏性能的 JS 胶水代码和 polyfill 呢。</p>
+<p>用 WASM 重写主流 UI 框架，意味着前端需要重度依赖一门完全不同的语言技术栈。<strong>你说因为 JVM 比 V8 快，所以 Node 应用就应该用 Java 重写吗</strong>？我看前端圈里的政治正确明明是反过来的啊…</p>
+<blockquote>
+<p>我即使是死了，钉在棺材里了，也要在墓里，用这腐朽的声带喊出：JS 牛逼！！！（被禁言）</p>
+</blockquote>
+<h2 id="WASM-属于前端生态？"><a href="#WASM-属于前端生态？" class="headerlink" title="WASM 属于前端生态？"></a>WASM 属于前端生态？</h2><p>这个我不太认可。要知道，<strong>一个 WASM 应用，其编译工具链和依赖库生态，基本完全不涉及 JS</strong>。</p>
+<p>2018 年我尝试编译过 ffmpeg 到 WASM，这整个过程几乎和 JS 没任何关系，重点都集中在搭建 Docker 编译环境和魔改 Makefile 上了。以我当时的水平，整个流程让我非常困惑。</p>
+<p>后来我在折腾嵌入式 Linux 和安卓的过程中，顺带搞懂了<strong>工具链</strong>的概念。一个原生应用，需要编译、汇编和链接过程，才能变为一个可执行文件。比如我的开发机是 Mac，那么装在 macOS 上典型的几套工具链像这样：</p>
+<ul>
+<li>面向 macOS 的工具链，是编译到 macOS 二进制格式的 clang 那一套</li>
+<li>面向安卓的工具链，是编译到 ARM 二进制格式的 aarch64-linux-android-gcc 那一套（在 NDK 里翻翻就知道了）</li>
+<li>面向 PSP 的工具链，是编译到 MIPS 二进制格式的 mips-gcc 那一套（名字不一定对啊）</li>
+<li>面向 WASM 的工具链，是面向 WASM 字节码格式的 Emscripten 那一套</li>
+</ul>
+<p>后面三者都是编译到其它的平台，因此叫做<strong>交叉编译</strong>。</p>
+<p>一套支持交叉编译的工具链，会附带上用于支持目标平台的一些库，例如 include 了 <code>&lt;GLES2/gl2.h&gt;</code> 之后，你调用到的 <code>glTexImage2D</code> API 就是动态库里提供的。有了动态库，这个 API 才能在 x86 / ARM / MIPS / WASM 等平台上一致地跑起来（就像安卓上的 <code>.so</code> 格式）。<strong>像 Emscripten 就提供了面向 WASM 平台，编译成 JS 格式的一套动态库</strong>。但它只能保证这些 API 能用，性能如何就另说了。它自己也对移植 WebGL 时的性瓶颈提出了很多的 <a href="https://emscripten.org/docs/optimizing/Optimizing-WebGL.html" target="_blank" rel="noopener">优化建议</a>。</p>
+<p>所以这里再重复一遍，<strong>编译 WASM 应用所需的依赖库和整套工具链，几乎都跟 JS 没什么关系</strong>。JS 就像机器码那样，只是人家工具链编译出来的输出格式而已。在 JS 开发者看来，这整套东西可能显得相当突兀。但从原生应用开发者的视角看来，这一切都再正常不过了。</p>
+<p>来而不往非礼也。WASM 可以把其它语言引进来，JS 就不能往外走出去了吗？除了 Flutter 这种修正主义路线，像我详细介绍过的 Static TypeScript 和 QuickJS，就是信奉 JS 系的冬马党们搞的反向输出：</p>
+<ul>
+<li><a href="https://www.zhihu.com/question/363807522/answer/961295958" target="_blank" rel="noopener">随着 TypeScript 继续普及，会不会出现直接跑 TypeScript 的运行时？</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/89574235" target="_blank" rel="noopener">将 React 渲染到嵌入式液晶屏</a></li>
+</ul>
+<p>说了这么多，那么 WASM 的适用场景到底是什么呢？现在 WASM 社区大力推广的提案，如 WASI、多线程、GC 这些，其实都跟 JS 生态关系不大，而是方便<strong>把更复杂的原生应用直接搬进 Web</strong> 的技术需求。话都说到这份上了，大家还没看出来吗？这不就是典型雪菜式的明修栈道，暗度陈仓嘛（笑）</p>
+<p>最后总结下，JS 和 WASM 的人设大概各自是这样的：</p>
+<ul>
+<li>JS：我先来的，<strong>哪里有浏览器，哪里就是我的主场</strong>。虽然有人不喜欢我的脾气，但我到哪都是一头黑长直的字符串脚本。追我的引擎有的是，但我始终首先是浏览器的忠犬。</li>
+<li>WASM：我是高岭之花，浏览器内外大家都欢迎我，而且谁都能编译到我，所以欢迎大家都来用我的二进制格式吧。我虽然很想和 JS 和浏览器三个人永远在一起，但最希望以后跨平台<strong>只要靠我的努力就可以永远幸福下去了</strong>。</li>
+</ul>
+<blockquote>
+<p>WASM：啊…如果 JS 是强类型的男孩子的话就好了。</p>
+</blockquote>
+<p><img src="https://ewind.us/images/wasm-wa2/kazusa-boy.jpg" alt></p>
+<p>你觉得明明先来的冬马 (JS) 和高岭之花的雪菜 (WASM) 哪个更对你胃口呢？提醒下某些整天喊着我全都要的白学家，双份快乐可不是一般人玩得起的噢。</p>
+<blockquote>
+<p>一般来说整个白学家（程序员）群体里冬马党基数最大，但骨灰级玩家常常是雪菜党。至于我嘛…你看看我简介里的花名叫什么？</p>
+</blockquote>
+<p>最后上一张合照，冬马和雪菜都是好样的！</p>
+<p><img src="https://ewind.us/images/wasm-wa2/group-photo.jpg" alt></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>WASM 当然是个革命性的技术，代表了一种跨平台的全新方向，尤其对原生应用开发者来说具备巨大的商业价值。但它对前端来说其实就是个浏览器内置的字节码虚拟机，不是一切性能问题的灵丹妙药。目前网上不少对它的赞美，在我看来多少有些过誉了。所以建议大家不要盲目跟风，还是从<strong>白学</strong>，啊不<strong>计算机科学</strong>的基础出发，去判断一个技术的适用场景和价值在哪吧。</p>
+<blockquote>
+<p>本文配图均来自纯 JS 实现的高性能前端应用 <a href="https://ps.gaoding.com/" target="_blank" rel="noopener">稿定 PS</a>。白学部分纯属娱乐，请大家不要过分解读（如为什么 JS 的 Logo 是雪菜黄，而 WASM 的 Logo 反而是冬马紫之类）。我的水平有限，欢迎大家对本文技术观点更进一步的交流，也希望大家能关注我的「<a href="https://zhuanlan.zhihu.com/fe-fantasy" target="_blank" rel="noopener">前端随想录</a>」这个自由技术专栏～</p>
+</blockquote>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2020/wasm-wa2/" data-title="一个白学家眼里的 WebAssembly | ewind the doodler" data-tsina="2804097783" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/2019-freedom/"  title="2019 与我的自由启蒙">
+ <strong>下一篇：</strong><br/> 
+ <span>2019 与我的自由启蒙
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>137</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>67</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>52</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://wangbaiyuan.cn/" target="_blank" title=" BrainWang">王柏元的博客</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> I&#39;m a Chinese web developer. <br/>
+			Hope you like my blog.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2804097783" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/i94ewind" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/doodlewind" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		<a href="https://www.linkedin.com/in/doodlewind" target="_blank" class="icon-linkedin" title="linkedin"></a>
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:doodlewind@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2020 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
