@@ -15,12 +15,12 @@
 <meta name="keywords" content="Web,JS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从 JS 引擎到 JS 运行时（上）">
-<meta property="og:url" content="https://ewind.us/2020/js-engine-to-js-runtime/index.html">
+<meta property="og:url" content="https://ewind.us/2020/js-engine-to-js-runtime-1/index.html">
 <meta property="og:site_name" content="ewind the doodler">
 <meta property="og:description" content="V8 和 Node.js 的关系，是许多前端同学们所津津乐道的——浏览器里的语言，又兼容了浏览器外的环境，两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐……但你有没有想过，这两份快乐到底是如何重叠在一起的呢？下面我们将以嵌入式 JS 引擎 QuickJS 为例，介绍一个 JS 引擎是如何被逐步定制为一个新的 JS 运行时的。 本文将分上下两篇，逐一覆盖（或者说，用尽可能简单的代码实现）这些">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://ewind.us/images/js-engine-to-js-runtime/intro.png">
-<meta property="og:updated_time" content="2020-01-29T11:49:55.658Z">
+<meta property="og:updated_time" content="2020-01-29T15:21:16.615Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从 JS 引擎到 JS 运行时（上）">
 <meta name="twitter:description" content="V8 和 Node.js 的关系，是许多前端同学们所津津乐道的——浏览器里的语言，又兼容了浏览器外的环境，两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐……但你有没有想过，这两份快乐到底是如何重叠在一起的呢？下面我们将以嵌入式 JS 引擎 QuickJS 为例，介绍一个 JS 引擎是如何被逐步定制为一个新的 JS 运行时的。 本文将分上下两篇，逐一覆盖（或者说，用尽可能简单的代码实现）这些">
@@ -83,7 +83,7 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2020/js-engine-to-js-runtime/" title="从 JS 引擎到 JS 运行时（上）" itemprop="url">从 JS 引擎到 JS 运行时（上）</a>
+      <a href="/2020/js-engine-to-js-runtime-1/" title="从 JS 引擎到 JS 运行时（上）" itemprop="url">从 JS 引擎到 JS 运行时（上）</a>
   </h1>
   <p class="article-author">By
        
@@ -99,7 +99,7 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#集成嵌入式-JS-引擎"><span class="toc-number">1.</span> <span class="toc-text">集成嵌入式 JS 引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为-JS-引擎扩展原生能力"><span class="toc-number">2.</span> <span class="toc-text">为 JS 引擎扩展原生能力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#移植-QuickJS-默认-Event-Loop"><span class="toc-number">3.</span> <span class="toc-text">移植 QuickJS 默认 Event Loop</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#集成嵌入式-JS-引擎"><span class="toc-number">1.</span> <span class="toc-text">集成嵌入式 JS 引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为-JS-引擎扩展原生能力"><span class="toc-number">2.</span> <span class="toc-text">为 JS 引擎扩展原生能力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#移植默认-Event-Loop"><span class="toc-number">3.</span> <span class="toc-text">移植默认 Event Loop</span></a></li></ol>
 		
 		</div>
 		
@@ -109,7 +109,7 @@
 <ul>
 <li>集成嵌入式 JS 引擎</li>
 <li>为 JS 引擎扩展原生能力</li>
-<li>移植 QuickJS 默认 Event Loop</li>
+<li>移植默认 Event Loop</li>
 <li>支持 libuv Event Loop</li>
 <li>支持宏任务与微任务</li>
 </ul>
@@ -154,14 +154,43 @@
 <p>这一共只要约 30 行胶水代码就够了，相应的 <code>fib.c</code> 源码如下所示：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;quickjs/quickjs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> countof(x) (sizeof(x) / sizeof((x)[0]))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 原始的 C 函数</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">fib</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> fib(n - <span class="number">1</span>) + fib(n - <span class="number">2</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 包一层，处理类型转换</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> JSValue <span class="title">js_fib</span><span class="params">(JSContext *ctx, JSValueConst this_val,</span></span></span><br><span class="line"><span class="function"><span class="params">                      <span class="keyword">int</span> argc, JSValueConst *argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n, res;</span><br><span class="line">    <span class="keyword">if</span> (JS_ToInt32(ctx, &amp;n, argv[<span class="number">0</span>])) <span class="keyword">return</span> JS_EXCEPTION;</span><br><span class="line">    res = fib(n);</span><br><span class="line">    <span class="keyword">return</span> JS_NewInt32(ctx, res);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将包好的函数定义为 JS 模块下的 fib 方法</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> JSCFunctionListEntry js_fib_funcs[] = &#123;</span><br><span class="line">    JS_CFUNC_DEF(<span class="string">"fib"</span>, <span class="number">1</span>, js_fib ),</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块初始化时的回调</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">js_fib_init</span><span class="params">(JSContext *ctx, JSModuleDef *m)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> JS_SetModuleExportList(ctx, m, js_fib_funcs, countof(js_fib_funcs));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 最终对外的 JS 模块定义</span></span><br><span class="line"><span class="function">JSModuleDef *<span class="title">js_init_module_fib</span><span class="params">(JSContext *ctx, <span class="keyword">const</span> <span class="keyword">char</span> *module_name)</span> </span>&#123;</span><br><span class="line">    JSModuleDef *m;</span><br><span class="line">    m = JS_NewCModule(ctx, module_name, js_fib_init);</span><br><span class="line">    <span class="keyword">if</span> (!m) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    JS_AddModuleExportList(ctx, m, js_fib_funcs, countof(js_fib_funcs));</span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面这个 <code>fib.c</code> 文件只要加入 <code>CMakeLists.txt</code> 中的 <code>add_executable</code> 项中，就可以被编译进来使用了。这样在原本的 <code>main.c</code> 入口里，只要在 eval JS 代码前多加两行初始化代码，就能准备好带有原生模块的 JS 引擎环境了：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line">int main(int argc, char **argv)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="comment">// 在 eval 前注册上名为 fib.so 的原生模块</span></span><br><span class="line">  extern JSModuleDef *js_init_module_fib(JSContext *ctx, <span class="keyword">const</span> char *name);</span><br><span class="line">  js_init_module_fib(ctx, <span class="string">"fib.so"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// eval JS 字节码</span></span><br><span class="line">  js_std_eval_binary(ctx, qjsc_hello, qjsc_hello_size, <span class="number">0</span>);</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="comment">// 在 eval 前注册上名为 fib.so 的原生模块</span></span><br><span class="line">  <span class="function"><span class="keyword">extern</span> JSModuleDef *<span class="title">js_init_module_fib</span><span class="params">(JSContext *ctx, <span class="keyword">const</span> <span class="keyword">char</span> *name)</span></span>;</span><br><span class="line">  js_init_module_fib(ctx, <span class="string">"fib.so"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// eval JS 字节码</span></span><br><span class="line">  js_std_eval_binary(ctx, qjsc_hello, qjsc_hello_size, <span class="number">0</span>);</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这样，我们就能用这种方式在 JS 中使用 C 模块了：</p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; fib &#125; <span class="keyword">from</span> <span class="string">"fib.so"</span>;</span><br><span class="line"></span><br><span class="line">fib(<span class="number">42</span>);</span><br></pre></td></tr></table></figure>
-<p>作为嵌入式 JS 引擎，QuickJS 的性能自然是比不过带 JIT 的 V8 的。实测 QuickJS 里 <code>fib(42)</code>  需要约 30 秒，而 V8 只要约 3.5 秒。但一旦引入 C 原生模块，QuickJS 就能一举超越 V8，在不到 2 秒内完成计算，<strong>轻松提速 15 倍</strong>！</p>
+<p>作为嵌入式 JS 引擎，QuickJS 的默认性能自然比不过带 JIT 的 V8。实测 QuickJS 里 <code>fib(42)</code>  需要约 30 秒，而 V8 只要约 3.5 秒。但一旦引入 C 原生模块，QuickJS 就能一举超越 V8，在不到 2 秒内完成计算，<strong>轻松提速 15 倍</strong>！</p>
 <blockquote>
-<p>可以发现，JS 引擎对计算密集任务的 JIT 已经很强，因此如果将浏览器里的 JS 替换为 WASM，加速效果未必足够理想。详见我的这篇文章：<a href="https://zhuanlan.zhihu.com/p/102692865" target="_blank" rel="noopener">一个白学家眼里的 WebAssembly</a>。</p>
+<p>可以发现，现代 JS 引擎对计算密集任务的 JIT 已经很强，因此如果将浏览器里的 JS 替换为 WASM，加速效果未必足够理想。详见我的这篇文章：<a href="https://zhuanlan.zhihu.com/p/102692865" target="_blank" rel="noopener">一个白学家眼里的 WebAssembly</a>。</p>
 </blockquote>
-<h2 id="移植-QuickJS-默认-Event-Loop"><a href="#移植-QuickJS-默认-Event-Loop" class="headerlink" title="移植 QuickJS 默认 Event Loop"></a>移植 QuickJS 默认 Event Loop</h2><p>TODO</p>
+<h2 id="移植默认-Event-Loop"><a href="#移植默认-Event-Loop" class="headerlink" title="移植默认 Event Loop"></a>移植默认 Event Loop</h2><p>到此为止，我们应该已经明白该如何嵌入 JS 引擎，并为其扩展 C 模块了。但是，上面的 <code>fib</code> 函数只是个同步函数，并不是异步的。各类支持回调的异步能力，是如何被运行时支持的呢？这就需要传说中的 Event Loop 了。</p>
+<p>目前，前端社区中已有太多关于 Event Loop 的概念性介绍，可惜仍然鲜有人真正用简洁的代码给出可用的实现。好在 QuickJS 随引擎附带了个很好的例子，告诉大家如何化繁为简地从头实现自己的 Event Loop，这也就是本节所希望覆盖的内容了。</p>
+<p>Event Loop 最简单的应用，可能就是 setTimeout 了。和语言规范一致地，QuickJS 默认并没有提供 setTimeout 这样需要运行时能力的异步 API 支持。但是，引擎编译时默认会内置 <code>std</code> 和 <code>os</code> 两个原生模块，可以这样使用 setTimeout 来支持异步：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; setTimeout &#125; <span class="keyword">from</span> <span class="string">"os"</span>;</span><br><span class="line"></span><br><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="comment">/* ... */</span> &#125;, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>稍微检查下源码就能发现，这个 <code>os</code> 模块并不在 <code>quickjs.c</code> 引擎本体里，而是和前面的 <code>fib.c</code> 如出一辙地，通过标准化的 QuickJS API 挂载上去的原生模块。这个原生的 setTimeout 函数是怎么实现的呢？它的源码其实很少，像这样：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> JSValue <span class="title">js_os_setTimeout</span><span class="params">(JSContext *ctx, JSValueConst this_val,</span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">int</span> argc, JSValueConst *argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int64_t</span> delay;</span><br><span class="line">    JSValueConst func;</span><br><span class="line">    JSOSTimer *th;</span><br><span class="line">    JSValue obj;</span><br><span class="line"></span><br><span class="line">    func = argv[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">if</span> (!JS_IsFunction(ctx, func))</span><br><span class="line">        <span class="keyword">return</span> JS_ThrowTypeError(ctx, <span class="string">"not a function"</span>);</span><br><span class="line">    <span class="keyword">if</span> (JS_ToInt64(ctx, &amp;delay, argv[<span class="number">1</span>]))</span><br><span class="line">        <span class="keyword">return</span> JS_EXCEPTION;</span><br><span class="line">    obj = JS_NewObjectClass(ctx, js_os_timer_class_id);</span><br><span class="line">    <span class="keyword">if</span> (JS_IsException(obj))</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    th = js_mallocz(ctx, <span class="keyword">sizeof</span>(*th));</span><br><span class="line">    <span class="keyword">if</span> (!th) &#123;</span><br><span class="line">        JS_FreeValue(ctx, obj);</span><br><span class="line">        <span class="keyword">return</span> JS_EXCEPTION;</span><br><span class="line">    &#125;</span><br><span class="line">    th-&gt;has_object = TRUE;</span><br><span class="line">    th-&gt;timeout = get_time_ms() + delay;</span><br><span class="line">    th-&gt;func = JS_DupValue(ctx, func);</span><br><span class="line">    list_add_tail(&amp;th-&gt;link, &amp;os_timers);</span><br><span class="line">    JS_SetOpaque(obj, th);</span><br><span class="line">    <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，这个 setTimeout 的实现中，并没有任何多线程或 poll 的操作，只是把一个存储 timer 信息的结构体通过 <code>JS_SetOpaque</code> 的方式，挂到了最后返回的 JS 对象上而已，是个非常简单的同步操作。因此，就和调用原生 fib 函数一样地，<strong>在 eval 执行 JS 代码时，遇到 setTimeout 后也是同步地执行一点 C 代码后就立刻返回，没有什么特别之处</strong>。</p>
+<p>但为什么 setTimeout 能实现异步呢？关键在于 eval 之后，我们就要启动 Event Loop 了。而这里的奥妙其实也在 QuickJS 编译器生成的代码里明确地写出来了，没想到吧：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="comment">// eval JS 字节码</span></span><br><span class="line">  js_std_eval_binary(ctx, qjsc_hello, qjsc_hello_size, <span class="number">0</span>);</span><br><span class="line">  <span class="comment">// 启动 Event Loop</span></span><br><span class="line">  js_std_loop(ctx);</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因此，eval 后的这个 <code>js_std_loop</code> 就是真正的 Event Loop，而它的源码则更是简单得像是伪代码一样：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* main loop which calls the user JS callbacks */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">js_std_loop</span><span class="params">(JSContext *ctx)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    JSContext *ctx1;</span><br><span class="line">    <span class="keyword">int</span> err;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(;;) &#123;</span><br><span class="line">        <span class="comment">/* execute the pending jobs */</span></span><br><span class="line">        <span class="keyword">for</span>(;;) &#123;</span><br><span class="line">            err = JS_ExecutePendingJob(JS_GetRuntime(ctx), &amp;ctx1);</span><br><span class="line">            <span class="keyword">if</span> (err &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (err &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                    js_std_dump_error(ctx1);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!os_poll_func || os_poll_func(ctx))</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这不就是在双重的死循环里先执行掉所有的 Job，然后调 <code>os_poll_func</code> 吗？可是，for 循环不会吃满 CPU 吗？这是个前端同学们容易误解的地方：<strong>在原生开发中，进程里即便写着个死循环，也未必始终在前台运行，可以通过系统调用将自己挂起</strong>。</p>
+<p>例如，一个在死循环里通过 sleep 系统调用不停休眠一秒的进程，就只会每秒被系统执行一个 tick，其它时间里都不占资源。而这里的 <code>os_poll_func</code> 封装的，就是原理类似的 poll 系统调用（准确地说，用的其实是 select），从而可以借助操作系统的能力，使得只在【定时器触发、文件描述符读写】等事件发生时，让进程回到前台执行一个 tick，把此时应该运行的 JS 回调跑一遍，而其余时间都在后台挂起。在这条路上继续走下去，就能以经典的异步非阻塞方式来实现整个运行时啦。</p>
+<blockquote>
+<p>poll 和 select 想实现的东西是一致的，只是原理不同，前者性能更好而后者更简单而已。</p>
+</blockquote>
+<p>鉴于 <code>os_poll_func</code> 的代码较长，这里只概括下它与 timer 相关的工作：</p>
+<ul>
+<li>如果上下文中存在 timer，将到期 timer 对应的回调都执行掉。</li>
+<li>找到所有 timer 中最小的时延，用 select 系统调用将自己挂起这段时间。</li>
+</ul>
+<p>这样，setTimeout 的流程就说得通了：<strong>先在 eval 阶段简单设置一个 timer 结构，然后在 Event Loop 里用这个 timer 的参数去调用操作系统的 poll，从而在被唤醒的下一个 tick 里把到期 timer 对应的 JS 回调执行掉就行</strong>。</p>
+<p>所以，看明白这个 Event Loop 的机制后，就不难发现如果只关心 setTimeout 这个运行时 API，那么照抄，啊不移植的方法其实并不复杂：</p>
+<ul>
+<li>将 <code>os</code> 原生模块里的 setTimeout 相关部分，仿照 fib 的形式抄进来。</li>
+<li>将 <code>js_std_loop</code> 及其依赖抄进来。</li>
+</ul>
+<p>这其实就是件按部就班就能完成的事，实际代码示例会和下篇一起给出。</p>
+<p>到现在为止这些对 QuickJS 的分析，是否能让大家发现，许多经常听到的高大上概念，实现起来其实也没有那么复杂呢？别忘了，QuickJS 出自传奇程序员 Fabrice Bellard。读他代码的感受，就像读高中习题的参考答案一样，既不漏过每个关键的知识点又毫不拖泥带水，非常有启发性。他本人也像金庸小说里创造「天下武学正宗」的中神通王重阳那样，十分令人叹服。带着问题阅读更高段位的代码，也几乎总能带来丰富的收获。</p>
+<p>好了，这就是上篇的全部内容了。在接下来的下篇中，我们将在熟悉了 QuickJS 和 Event Loop 的基础上，将 Event Loop 改由更可扩展的 libuv 来实现，届时全文涉及的代码示例也将一并给出。如果感兴趣，敬请关注我的这个「<a href="https://zhuanlan.zhihu.com/fe-fantasy" target="_blank" rel="noopener">前端随想录</a>」专栏噢～</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -184,7 +213,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="https://ewind.us/2020/js-engine-to-js-runtime/" data-title="从 JS 引擎到 JS 运行时（上） | ewind the doodler" data-tsina="undefined" class="share clearfix">
+	  <div data-url="https://ewind.us/2020/js-engine-to-js-runtime-1/" data-title="从 JS 引擎到 JS 运行时（上） | ewind the doodler" data-tsina="undefined" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -216,7 +245,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#集成嵌入式-JS-引擎"><span class="toc-number">1.</span> <span class="toc-text">集成嵌入式 JS 引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为-JS-引擎扩展原生能力"><span class="toc-number">2.</span> <span class="toc-text">为 JS 引擎扩展原生能力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#移植-QuickJS-默认-Event-Loop"><span class="toc-number">3.</span> <span class="toc-text">移植 QuickJS 默认 Event Loop</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#集成嵌入式-JS-引擎"><span class="toc-number">1.</span> <span class="toc-text">集成嵌入式 JS 引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为-JS-引擎扩展原生能力"><span class="toc-number">2.</span> <span class="toc-text">为 JS 引擎扩展原生能力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#移植默认-Event-Loop"><span class="toc-number">3.</span> <span class="toc-text">移植默认 Event Loop</span></a></li></ol>
  
   </div>
 
