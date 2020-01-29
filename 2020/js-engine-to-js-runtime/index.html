@@ -1,0 +1,649 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  
+    <title>从 JS 引擎到 JS 运行时（上） | ewind the doodler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="doodlewind">
+    
+
+    
+    <meta name="description" content="V8 和 Node.js 的关系，是许多前端同学们所津津乐道的——浏览器里的语言，又兼容了浏览器外的环境，两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐……但你有没有想过，这两份快乐到底是如何重叠在一起的呢？下面我们将以嵌入式 JS 引擎 QuickJS 为例，介绍一个 JS 引擎是如何被逐步定制为一个新的 JS 运行时的。 本文将分上下两篇，逐一覆盖（或者说，用尽可能简单的代码实现）这些">
+<meta name="keywords" content="Web,JS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从 JS 引擎到 JS 运行时（上）">
+<meta property="og:url" content="https://ewind.us/2020/js-engine-to-js-runtime/index.html">
+<meta property="og:site_name" content="ewind the doodler">
+<meta property="og:description" content="V8 和 Node.js 的关系，是许多前端同学们所津津乐道的——浏览器里的语言，又兼容了浏览器外的环境，两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐……但你有没有想过，这两份快乐到底是如何重叠在一起的呢？下面我们将以嵌入式 JS 引擎 QuickJS 为例，介绍一个 JS 引擎是如何被逐步定制为一个新的 JS 运行时的。 本文将分上下两篇，逐一覆盖（或者说，用尽可能简单的代码实现）这些">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ewind.us/images/js-engine-to-js-runtime/intro.png">
+<meta property="og:updated_time" content="2020-01-29T11:49:55.658Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从 JS 引擎到 JS 运行时（上）">
+<meta name="twitter:description" content="V8 和 Node.js 的关系，是许多前端同学们所津津乐道的——浏览器里的语言，又兼容了浏览器外的环境，两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐……但你有没有想过，这两份快乐到底是如何重叠在一起的呢？下面我们将以嵌入式 JS 引擎 QuickJS 为例，介绍一个 JS 引擎是如何被逐步定制为一个新的 JS 运行时的。 本文将分上下两篇，逐一覆盖（或者说，用尽可能简单的代码实现）这些">
+<meta name="twitter:image" content="https://ewind.us/images/js-engine-to-js-runtime/intro.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ewind the doodler" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/logo-app.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/logo-app.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="ewind the doodler" title="ewind the doodler"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ewind the doodler">ewind the doodler</a></h1>
+				<h2 class="blog-motto">我想超越这平凡的生活，注定现在就是漂泊</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="搜索" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/js-engine-to-js-runtime/" title="从 JS 引擎到 JS 运行时（上）" itemprop="url">从 JS 引擎到 JS 运行时（上）</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="doodlewind" target="_blank" itemprop="author">doodlewind</a>
+		
+  <p class="article-time">
+    <time datetime="2020-01-28T16:00:00.000Z" itemprop="datePublished"> 发表于 2020-01-29</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#集成嵌入式-JS-引擎"><span class="toc-number">1.</span> <span class="toc-text">集成嵌入式 JS 引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为-JS-引擎扩展原生能力"><span class="toc-number">2.</span> <span class="toc-text">为 JS 引擎扩展原生能力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#移植-QuickJS-默认-Event-Loop"><span class="toc-number">3.</span> <span class="toc-text">移植 QuickJS 默认 Event Loop</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="https://ewind.us/images/js-engine-to-js-runtime/intro.png" alt></p>
+<p>V8 和 Node.js 的关系，是许多前端同学们所津津乐道的——浏览器里的语言，又兼容了浏览器外的环境，两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐……但你有没有想过，这两份快乐到底是如何重叠在一起的呢？下面我们将以嵌入式 JS 引擎 QuickJS 为例，介绍一个 JS 引擎是如何被逐步定制为一个新的 JS 运行时的。</p>
+<p>本文将分上下两篇，逐一覆盖（或者说，用尽可能简单的代码实现）这些内容：</p>
+<ul>
+<li>集成嵌入式 JS 引擎</li>
+<li>为 JS 引擎扩展原生能力</li>
+<li>移植 QuickJS 默认 Event Loop</li>
+<li>支持 libuv Event Loop</li>
+<li>支持宏任务与微任务</li>
+</ul>
+<p>上篇主要涉及前三节，主要介绍 QuickJS 这一嵌入式 JS 引擎自身的基本使用，并移植其自带的 Event Loop 示例。而下篇所对应的后两节中，我们将引入 libuv，讲解如何基于 libuv 实现扩展性更好的 Event Loop，并支持宏任务与微任务。</p>
+<p>闲话少说，进入白学现场吧 :)</p>
+<h2 id="集成嵌入式-JS-引擎"><a href="#集成嵌入式-JS-引擎" class="headerlink" title="集成嵌入式 JS 引擎"></a>集成嵌入式 JS 引擎</h2><p>在我的理解里，JS 引擎的「嵌入式」可以从两种层面来理解，一种意味着它面向低端的嵌入式设备，另一种则说明它很易于<strong>嵌入到原生项目中</strong>。而 JS 运行时 (Runtime) 其实也是一种原生项目，它将 JS 引擎作为专用的解释器，为其提供操作系统的网络、进程、文件系统等平台能力。因此，要想自己实现一个 JS 运行时，首先应该考虑的自然是「如何将 JS 引擎嵌入到原生项目中」了。</p>
+<blockquote>
+<p>本节内容是面向我这样前端背景（没有正经做过 C / C++ 项目）的同学的，熟悉的小伙伴可以跳过。</p>
+</blockquote>
+<p>怎样才算将 JS 引擎嵌入了呢？我们知道，最简单的 C 程序就是个 main 函数。如果我们能在 main 函数里调用引擎执行一段 JS 代码，那不就成功「嵌入」了吗——就好像只要在地球两头各放一片面包，就能把地球做成三明治一样。</p>
+<p>所以，又该怎样在自己写的 C 代码中调用引擎呢？从 C 开发者的视角看，JS 引擎也可以被当作一个第三方库来使用，它的集成方式和普通的第三方库并没有什么不同，简单说包括这几步：</p>
+<ol>
+<li>将引擎源码编译为库文件，这既可以是 <code>.a</code> 格式的静态库，也可以是 <code>.so</code> 或 <code>.dll</code> 格式的动态库。</li>
+<li>在自己的 C 源码中 include 引擎的头文件，调用它提供的 API。</li>
+<li>编译自己的 C 源码，并链接上引擎的库文件，生成最终的可执行文件。</li>
+</ol>
+<p>对 QuickJS 来说，只要一行 <code>make &amp;&amp; sudo make install</code> 就能完成编译和安装（再啰嗦一句，原生软件包的所谓安装，其实就是把头文件与编译出来的库文件、可执行文件，分别复制到符合 Unix 标准的目录下而已），然后就可以在我们的 C 源码里使用它了。</p>
+<p>完成 QuickJS 的编译安装后，我们甚至不用亲自动手写 C，可以偷懒让 QuickJS 帮你生成，因为它支持把 JS 编译到 C 噢。像这样的一行 JS：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">"Hello World"</span>);</span><br></pre></td></tr></table></figure>
+<p>就可以用 <code>qjsc -e</code> 命令编译成这样的 C 源码：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;quickjs/quickjs-libc.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">uint32_t</span> qjsc_hello_size = <span class="number">87</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">uint8_t</span> qjsc_hello[<span class="number">87</span>] = &#123;</span><br><span class="line"> <span class="number">0x02</span>, <span class="number">0x04</span>, <span class="number">0x0e</span>, <span class="number">0x63</span>, <span class="number">0x6f</span>, <span class="number">0x6e</span>, <span class="number">0x73</span>, <span class="number">0x6f</span>,</span><br><span class="line"> <span class="number">0x6c</span>, <span class="number">0x65</span>, <span class="number">0x06</span>, <span class="number">0x6c</span>, <span class="number">0x6f</span>, <span class="number">0x67</span>, <span class="number">0x16</span>, <span class="number">0x48</span>,</span><br><span class="line"> <span class="number">0x65</span>, <span class="number">0x6c</span>, <span class="number">0x6c</span>, <span class="number">0x6f</span>, <span class="number">0x20</span>, <span class="number">0x57</span>, <span class="number">0x6f</span>, <span class="number">0x72</span>,</span><br><span class="line"> <span class="number">0x6c</span>, <span class="number">0x64</span>, <span class="number">0x22</span>, <span class="number">0x65</span>, <span class="number">0x78</span>, <span class="number">0x61</span>, <span class="number">0x6d</span>, <span class="number">0x70</span>,</span><br><span class="line"> <span class="number">0x6c</span>, <span class="number">0x65</span>, <span class="number">0x73</span>, <span class="number">0x2f</span>, <span class="number">0x68</span>, <span class="number">0x65</span>, <span class="number">0x6c</span>, <span class="number">0x6c</span>,</span><br><span class="line"> <span class="number">0x6f</span>, <span class="number">0x2e</span>, <span class="number">0x6a</span>, <span class="number">0x73</span>, <span class="number">0x0e</span>, <span class="number">0x00</span>, <span class="number">0x06</span>, <span class="number">0x00</span>,</span><br><span class="line"> <span class="number">0x9e</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,</span><br><span class="line"> <span class="number">0x14</span>, <span class="number">0x01</span>, <span class="number">0xa0</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x39</span>,</span><br><span class="line"> <span class="number">0xf1</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x43</span>, <span class="number">0xf2</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,</span><br><span class="line"> <span class="number">0x00</span>, <span class="number">0x04</span>, <span class="number">0xf3</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x24</span>, <span class="number">0x01</span>,</span><br><span class="line"> <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x28</span>, <span class="number">0xe8</span>, <span class="number">0x03</span>, <span class="number">0x01</span>, <span class="number">0x00</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  JSRuntime *rt;</span><br><span class="line">  JSContext *ctx;</span><br><span class="line">  rt = JS_NewRuntime();</span><br><span class="line">  ctx = JS_NewContextRaw(rt);</span><br><span class="line">  JS_AddIntrinsicBaseObjects(ctx);</span><br><span class="line">  js_std_add_helpers(ctx, argc, argv);</span><br><span class="line">  js_std_eval_binary(ctx, qjsc_hello, qjsc_hello_size, <span class="number">0</span>);</span><br><span class="line">  js_std_loop(ctx);</span><br><span class="line">  JS_FreeContext(ctx);</span><br><span class="line">  JS_FreeRuntime(rt);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这不就是我们要的 main 函数示例吗？这个 Hello World 已经变成了数组里的字节码，嵌入到最简单的 C 项目中了。</p>
+<blockquote>
+<p>注意这其实只是把 JS 编译成字节码，再附上个 main 胶水代码入口而已，不是真的把 JS 编译成 C 啦。</p>
+</blockquote>
+<p>当然，这份 C 源码还要再用 C 编译器编译一次才行。就像使用 Babel 和 Webpack 时的配置那样，原生工程也需要构建配置。对于构建工具，这里选择了现代工程中几乎标配的 <a href="https://cmake.org/" target="_blank" rel="noopener">CMake</a>。和这份 C 源码相配套的 <code>CMakeLists.txt</code> 构建配置，则是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cmake_minimum_required(VERSION 3.10)</span><br><span class="line"># 约定 runtime 为最终生成的可执行文件</span><br><span class="line">project(runtime)</span><br><span class="line">add_executable(runtime</span><br><span class="line">        # 若拆分了多个 C 文件，逐行在此添加即可</span><br><span class="line">        src/main.c)</span><br><span class="line"></span><br><span class="line"># 导入 QuickJS 的头文件和库文件</span><br><span class="line">include_directories(/usr/local/include)</span><br><span class="line">add_library(quickjs STATIC IMPORTED)</span><br><span class="line">set_target_properties(quickjs</span><br><span class="line">        PROPERTIES IMPORTED_LOCATION</span><br><span class="line">        &quot;/usr/local/lib/quickjs/libquickjs.a&quot;)</span><br><span class="line"></span><br><span class="line"># 将 QuickJS 链接到 runtime</span><br><span class="line">target_link_libraries(runtime</span><br><span class="line">        quickjs)</span><br></pre></td></tr></table></figure>
+<p>CMake 的使用很简单，在此不再赘述。总之，上面的配置能编译出 <code>runtime</code> 二进制文件，直接运行它能输出 Hello World，知道这些就够啦。</p>
+<h2 id="为-JS-引擎扩展原生能力"><a href="#为-JS-引擎扩展原生能力" class="headerlink" title="为 JS 引擎扩展原生能力"></a>为 JS 引擎扩展原生能力</h2><p>上一步走通后，我们其实已经将 JS 引擎套在了一个 C 程序的壳里了。然而，这只是个「纯净版」的引擎，也就意味着它并不支持语言标准之外，任何由平台提供的能力。像浏览器里的 <code>document.getElementById</code> 和 Node.js 里的 <code>fs.readFile</code>，就都属于这样的能力。因此，在实现更复杂的 Event Loop 之前，我们至少应该能在 JS 引擎里调用到自己写的 C 原生函数，就像浏览器控制台里司空见惯的这样：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&gt; document.getElementById</span><br><span class="line">ƒ getElementById() &#123; [native code] &#125;</span><br></pre></td></tr></table></figure>
+<p>所以，该怎样将 C 代码封装为这样的函数呢？和其它 JS 引擎一样地，QuickJS 提供了标准化的 API，方便你用 C 来实现 JS 中的函数和类。下面我们以计算斐波那契数的递归 fib 函数为例，演示如何将 JS 的计算密集型函数改由 C 实现，从而大幅提升性能。</p>
+<p>JS 版的原始 fib 函数是这样的：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fib</span>(<span class="params">n</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (n &lt;= <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (n === <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">return</span> fib(n - <span class="number">1</span>) + fib(n - <span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 C 版本的 fib 函数则是这样的，怎么看起来这么像呢？</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fib</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (n &lt;= <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">return</span> fib(n - <span class="number">1</span>) + fib(n - <span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>要想在 QuickJS 引擎中使用上面这个 C 函数，大致要做这么几件事：</p>
+<ol>
+<li>把 C 函数包一层，处理它与 JS 引擎之间的类型转换。</li>
+<li>将包好的函数挂载到 JS 模块下。</li>
+<li>将整个原生模块对外提供出来。</li>
+</ol>
+<p>这一共只要约 30 行胶水代码就够了，相应的 <code>fib.c</code> 源码如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;quickjs/quickjs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> countof(x) (sizeof(x) / sizeof((x)[0]))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 原始的 C 函数</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">fib</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> fib(n - <span class="number">1</span>) + fib(n - <span class="number">2</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 包一层，处理类型转换</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> JSValue <span class="title">js_fib</span><span class="params">(JSContext *ctx, JSValueConst this_val,</span></span></span><br><span class="line"><span class="function"><span class="params">                      <span class="keyword">int</span> argc, JSValueConst *argv)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n, res;</span><br><span class="line">    <span class="keyword">if</span> (JS_ToInt32(ctx, &amp;n, argv[<span class="number">0</span>])) <span class="keyword">return</span> JS_EXCEPTION;</span><br><span class="line">    res = fib(n);</span><br><span class="line">    <span class="keyword">return</span> JS_NewInt32(ctx, res);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将包好的函数定义为 JS 模块下的 fib 方法</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> JSCFunctionListEntry js_fib_funcs[] = &#123;</span><br><span class="line">    JS_CFUNC_DEF(<span class="string">"fib"</span>, <span class="number">1</span>, js_fib ),</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模块初始化时的回调</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">js_fib_init</span><span class="params">(JSContext *ctx, JSModuleDef *m)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> JS_SetModuleExportList(ctx, m, js_fib_funcs, countof(js_fib_funcs));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 最终对外的 JS 模块定义</span></span><br><span class="line"><span class="function">JSModuleDef *<span class="title">js_init_module_fib</span><span class="params">(JSContext *ctx, <span class="keyword">const</span> <span class="keyword">char</span> *module_name)</span> </span>&#123;</span><br><span class="line">    JSModuleDef *m;</span><br><span class="line">    m = JS_NewCModule(ctx, module_name, js_fib_init);</span><br><span class="line">    <span class="keyword">if</span> (!m) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    JS_AddModuleExportList(ctx, m, js_fib_funcs, countof(js_fib_funcs));</span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这个 <code>fib.c</code> 文件只要加入 <code>CMakeLists.txt</code> 中的 <code>add_executable</code> 项中，就可以被编译进来使用了。这样在原本的 <code>main.c</code> 入口里，只要在 eval JS 代码前多加两行初始化代码，就能准备好带有原生模块的 JS 引擎环境了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line">int main(int argc, char **argv)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="comment">// 在 eval 前注册上名为 fib.so 的原生模块</span></span><br><span class="line">  extern JSModuleDef *js_init_module_fib(JSContext *ctx, <span class="keyword">const</span> char *name);</span><br><span class="line">  js_init_module_fib(ctx, <span class="string">"fib.so"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// eval JS 字节码</span></span><br><span class="line">  js_std_eval_binary(ctx, qjsc_hello, qjsc_hello_size, <span class="number">0</span>);</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，我们就能用这种方式在 JS 中使用 C 模块了：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; fib &#125; <span class="keyword">from</span> <span class="string">"fib.so"</span>;</span><br><span class="line"></span><br><span class="line">fib(<span class="number">42</span>);</span><br></pre></td></tr></table></figure>
+<p>作为嵌入式 JS 引擎，QuickJS 的性能自然是比不过带 JIT 的 V8 的。实测 QuickJS 里 <code>fib(42)</code>  需要约 30 秒，而 V8 只要约 3.5 秒。但一旦引入 C 原生模块，QuickJS 就能一举超越 V8，在不到 2 秒内完成计算，<strong>轻松提速 15 倍</strong>！</p>
+<blockquote>
+<p>可以发现，JS 引擎对计算密集任务的 JIT 已经很强，因此如果将浏览器里的 JS 替换为 WASM，加速效果未必足够理想。详见我的这篇文章：<a href="https://zhuanlan.zhihu.com/p/102692865" target="_blank" rel="noopener">一个白学家眼里的 WebAssembly</a>。</p>
+</blockquote>
+<h2 id="移植-QuickJS-默认-Event-Loop"><a href="#移植-QuickJS-默认-Event-Loop" class="headerlink" title="移植 QuickJS 默认 Event Loop"></a>移植 QuickJS 默认 Event Loop</h2><p>TODO</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Note/">Note</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Web/">Web</a><a href="/tags/JS/">JS</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="https://ewind.us/2020/js-engine-to-js-runtime/" data-title="从 JS 引擎到 JS 运行时（上） | ewind the doodler" data-tsina="undefined" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/wasm-wa2/"  title="一个白学家眼里的 WebAssembly">
+ <strong>下一篇：</strong><br/> 
+ <span>一个白学家眼里的 WebAssembly
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#集成嵌入式-JS-引擎"><span class="toc-number">1.</span> <span class="toc-text">集成嵌入式 JS 引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为-JS-引擎扩展原生能力"><span class="toc-number">2.</span> <span class="toc-text">为 JS 引擎扩展原生能力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#移植-QuickJS-默认-Event-Loop"><span class="toc-number">3.</span> <span class="toc-text">移植 QuickJS 默认 Event Loop</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="doodlewind" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript">
+(function(e){var t="//cdn.jsdelivr.net/github-cards/1.0.2/";var r,i=0;var a=e.getElementsByTagName("meta");var n,d,l,c;for(r=0;r<a.length;r++){var s=a[r].getAttribute("name");var f=a[r].getAttribute("content");if(s==="gc:url"){n=f}else if(s==="gc:base"){t=f}else if(s==="gc:client-id"){d=f}else if(s==="gc:client-secret"){l=f}else if(s==="gc:theme"){c=f}}function u(t){if(e.querySelectorAll){return e.querySelectorAll("."+t)}var i=e.getElementsByTagName("div");var a=[];for(r=0;r<i.length;r++){if(~i[r].className.split(" ").indexOf(t)){a.push(i[r])}}return a}function g(e,t){return e.getAttribute("data-"+t)}function h(e){if(window.addEventListener){window.addEventListener("message",function(t){if(e.id===t.data.sender){e.height=t.data.height}},false)}}function v(r,a){a=a||n;if(!a){var s=g(r,"theme")||c||"default";a=t+"cards/"+s+".html"}var f=g(r,"user");var u=g(r,"repo");var v=g(r,"github");if(v){v=v.split("/");if(v.length&&!f){f=v[0];u=u||v[1]}}if(!f){return}i+=1;var o=g(r,"width");var m=g(r,"height");var b=g(r,"target");var w=g(r,"client-id")||d;var p=g(r,"client-secret")||l;var A="ghcard-"+f+"-"+i;var y=e.createElement("iframe");y.setAttribute("style","width:100%");y.setAttribute("id",A);y.setAttribute("frameborder",0);y.setAttribute("scrolling",0);y.setAttribute("allowtransparency",true);var E=a+"?user="+f+"&identity="+A;if(u){E+="&repo="+u}if(b){E+="&target="+b}if(w&&p){E+="&client_id="+w+"&client_secret="+p}y.src=E;y.width=o||Math.min(r.parentNode.clientWidth||400,400);if(m){y.height=m}h(y);r.parentNode.replaceChild(y,r);return y}var o=u("github-card");for(r=0;r<o.length;r++){v(o[r])}if(window.githubCard){window.githubCard.render=v}})(document);
+</script>
+</div>
+  </div>
+
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Note/" title="Note">Note<sup>138</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Scribble/" title="Scribble">Scribble<sup>25</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Web/" title="Web">Web<sup>68</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JS/" title="JS">JS<sup>53</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Summary/" title="Summary">Summary<sup>27</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/USTC/" title="USTC">USTC<sup>11</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>10</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/macOS/" title="macOS">macOS<sup>9</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>8</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Pattern/" title="Pattern">Pattern<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Photography/" title="Photography">Photography<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/CSS/" title="CSS">CSS<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Visualization/" title="Visualization">Visualization<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Android/" title="Android">Android<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Vue/" title="Vue">Vue<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Blog/" title="Blog">Blog<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/React/" title="React">React<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SQL/" title="SQL">SQL<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Travel/" title="Travel">Travel<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JavaScript/" title="JavaScript">JavaScript<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://ustc.life" target="_blank" title=" 科大学生导航主页">ustc.life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://www.unichow.com" target="_blank" title=" hengyu">Art</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://ring0.me" target="_blank" title=" boj">Ring0</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://sqrt-1.me" target="_blank" title=" zzh">负一的平方根</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://0x01.me" target="_blank" title=" wzb">机智的超立方体</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://jenny42.com" target="_blank" title=" jenny42">Jenny&#39;s Life</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://sadhen.com" target="_blank" title=" sadhen">Sadhen</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://chenyuelili.com/" target="_blank" title=" chenyueli">快乐小小利</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://richardcao.me/" target="_blank" title=" richardcao">Lifecycle</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://wangbaiyuan.cn/" target="_blank" title=" BrainWang">王柏元的博客</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Freedom isn&#39;t free. <br/>
+			</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/doodlewind" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/doodlewind" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+	</div>
+			
+		
+				<div class="cc-license">
+          <a href="http://creativecommons.org/licenses/by-nd/4.0" class="cc-opacity" target="_blank">
+            <img src="/img/cc-by-nd.svg" alt="Creative Commons" />
+          </a>
+        </div>
+    
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a>
+		Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a>
+		Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a>
+		© 2020 
+		
+		<a href="/about" target="_blank" title="doodlewind">doodlewind</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan hidden id='cnzz_stat_icon_1260460098'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s23.cnzz.com/z_stat.php%3Fid%3D1260460098' type='text/javascript'%3E%3C/script%3E"));</script>
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
