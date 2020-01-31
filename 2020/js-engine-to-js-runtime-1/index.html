@@ -20,7 +20,7 @@
 <meta property="og:description" content="V8 和 Node.js 的关系，是许多前端同学们所津津乐道的——浏览器里的语言，又兼容了浏览器外的环境，两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐……但你有没有想过，这两份快乐到底是如何重叠在一起的呢？下面我们将以嵌入式 JS 引擎 QuickJS 为例，介绍一个 JS 引擎是如何被逐步定制为一个新的 JS 运行时的。 本文将分上下两篇，逐一覆盖（或者说，用尽可能简单的代码实现）这些">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://ewind.us/images/js-engine-to-js-runtime/intro.png">
-<meta property="og:updated_time" content="2020-01-29T15:21:16.615Z">
+<meta property="og:updated_time" content="2020-01-31T09:33:31.547Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从 JS 引擎到 JS 运行时（上）">
 <meta name="twitter:description" content="V8 和 Node.js 的关系，是许多前端同学们所津津乐道的——浏览器里的语言，又兼容了浏览器外的环境，两份快乐重叠在一起。而这两份快乐，又带来了更多的快乐……但你有没有想过，这两份快乐到底是如何重叠在一起的呢？下面我们将以嵌入式 JS 引擎 QuickJS 为例，介绍一个 JS 引擎是如何被逐步定制为一个新的 JS 运行时的。 本文将分上下两篇，逐一覆盖（或者说，用尽可能简单的代码实现）这些">
@@ -190,7 +190,7 @@
 </ul>
 <p>这其实就是件按部就班就能完成的事，实际代码示例会和下篇一起给出。</p>
 <p>到现在为止这些对 QuickJS 的分析，是否能让大家发现，许多经常听到的高大上概念，实现起来其实也没有那么复杂呢？别忘了，QuickJS 出自传奇程序员 Fabrice Bellard。读他代码的感受，就像读高中习题的参考答案一样，既不漏过每个关键的知识点又毫不拖泥带水，非常有启发性。他本人也像金庸小说里创造「天下武学正宗」的中神通王重阳那样，十分令人叹服。带着问题阅读更高段位的代码，也几乎总能带来丰富的收获。</p>
-<p>好了，这就是上篇的全部内容了。在接下来的下篇中，我们将在熟悉了 QuickJS 和 Event Loop 的基础上，将 Event Loop 改由更可扩展的 libuv 来实现，届时全文涉及的代码示例也将一并给出。如果感兴趣，敬请关注我的这个「<a href="https://zhuanlan.zhihu.com/fe-fantasy" target="_blank" rel="noopener">前端随想录</a>」专栏噢～</p>
+<p>好了，这就是上篇的全部内容了。在接下来的下篇中，我们将在熟悉了 QuickJS 和 Event Loop 的基础上，将 Event Loop 改由更可扩展的 libuv 来实现，届时全文涉及的代码示例也将一并给出。如果感兴趣，敬请关注我的「<a href="https://zhuanlan.zhihu.com/fe-fantasy" target="_blank" rel="noopener">前端随想录</a>」专栏噢～</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -226,6 +226,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/2020/js-engine-to-js-runtime-2/" title="从 JS 引擎到 JS 运行时（下）">
+  <strong>上一篇：</strong><br/>
+  <span>
+  从 JS 引擎到 JS 运行时（下）</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/2020/wasm-wa2/"  title="一个白学家眼里的 WebAssembly">
@@ -271,7 +279,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/Note/" title="Note">Note<sup>138</sup></a></li>
+			<li><a href="/categories/Note/" title="Note">Note<sup>139</sup></a></li>
 		  
 		
 		  
@@ -288,11 +296,11 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/Web/" title="Web">Web<sup>68</sup></a></li>
+				<li><a href="/tags/Web/" title="Web">Web<sup>69</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JS/" title="JS">JS<sup>53</sup></a></li>
+				<li><a href="/tags/JS/" title="JS">JS<sup>54</sup></a></li>
 			
 		
 			
